@@ -35,7 +35,10 @@ export type Project = {
   placeholder?: boolean;
 };
 
-// Roles are not confirmed yet: every project shows both dots for now.
+// Prototype: roles below are picked at random, not real credits. They are
+// meant to move to an editable data source later.
+const CD: Role[] = ["cd"];
+const DESIGN: Role[] = ["design"];
 const BOTH: Role[] = ["cd", "design"];
 const m = (slug: string, file: string) => `/media/${slug}/${file}.webp`;
 
@@ -59,7 +62,7 @@ export const projects: Project[] = [
     year: "2026",
     fill: ["#f98a4c", "#b9380f"],
     text: "#ffffff", // light: sits over a saturated folder
-    roles: BOTH,
+    roles: CD,
     papers: [
       { src: m("vic", "original-5f23f4c46077841d3bd9bd2609d7cde0"), x: 112, y: 101, w: 173, h: 130 },
       { src: m("vic", "original-c2c273672eb6c99e3a6e9e90dccc6f9b"), x: 12, y: 80, w: 228, h: 171 },
@@ -73,7 +76,7 @@ export const projects: Project[] = [
     year: "2025",
     fill: ["#ededed", "#d3d3d3"],
     text: "#454545",
-    roles: BOTH,
+    roles: DESIGN,
     papers: [
       { src: m("sjj", "interface-system"), x: 22, y: 122, w: 276, h: 114 },
       { src: m("sjj", "mockup-5-1-4-1-combined-60-bpm"), x: 22, y: 5, w: 147, h: 244 },
@@ -99,7 +102,7 @@ export const projects: Project[] = [
     year: "2026",
     fill: ["#d2d1d1", "#a9a8a8"],
     text: "#2f2f2f",
-    roles: BOTH,
+    roles: DESIGN,
     papers: [
       { src: m("vector", "original-aba9a49d5ec5ebd58869da8fdb14f3ad"), x: 39, y: 41, w: 270, h: 191, r: 1.2 },
       { src: m("vector", "original-206ddf04bacc81e30cd0334f93aeda1e"), x: 23, y: 41, w: 270, h: 180 },
@@ -111,7 +114,7 @@ export const projects: Project[] = [
     year: "2026",
     fill: ["#c3c5c9", "#979aa1"],
     text: "#2f2f2f",
-    roles: BOTH,
+    roles: DESIGN,
     papers: [
       { src: m("furniture", "65-dining-set7"), x: 16, y: 26, w: 155, h: 116 },
       { src: m("furniture", "66-dining-set3"), x: 142, y: 37, w: 155, h: 116 },
@@ -127,7 +130,7 @@ export const projects: Project[] = [
     year: "2025",
     fill: ["#353535", "#141414"],
     text: "#d6d6d6",
-    roles: BOTH,
+    roles: CD,
     placeholder: true,
     papers: [
       { src: m("hikarinoyami", "61-hikarinoyami-01"), x: 30, y: 18, w: 150, h: 212, r: -2 },
@@ -155,7 +158,7 @@ export const projects: Project[] = [
     year: "2025",
     fill: ["#f0edf1", "#d6d2d8"],
     text: "#454545",
-    roles: BOTH,
+    roles: CD,
     placeholder: true,
     papers: [
       { src: m("loho", "16-loho-kur-commercial1"), x: 18, y: 22, w: 250, h: 141, r: -1 },
@@ -169,7 +172,7 @@ export const projects: Project[] = [
     year: "2025",
     fill: ["#f9f9f9", "#e0e0e0"],
     text: "#454545",
-    roles: BOTH,
+    roles: DESIGN,
     placeholder: true,
     papers: [
       { src: m("sortacase", "102-sortacase-1"), x: 60, y: 18, w: 240, h: 170, r: 1 },
