@@ -20,9 +20,11 @@ type Props = {
   clone?: boolean;
   /** position in the load-in stagger */
   enter?: number;
+  /** wait hidden until FolderStack reveals it on scroll */
+  reveal?: boolean;
 };
 
-export function Folder({ project, clone, enter = 0 }: Props) {
+export function Folder({ project, clone, enter = 0, reveal }: Props) {
   const { slug, title, year, fill, text, roles, papers } = project;
   const gradientId = `folder-fill-${slug}`;
 
@@ -30,6 +32,7 @@ export function Folder({ project, clone, enter = 0 }: Props) {
     <article
       className={styles.folder}
       data-slug={slug}
+      data-reveal={reveal ? "wait" : undefined}
       aria-hidden={clone || undefined}
       aria-label={clone ? undefined : `${title}, ${year}`}
       style={{ "--tint": fill[1], "--text": text, "--enter": enter } as CSSProperties}
