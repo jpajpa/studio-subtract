@@ -34,13 +34,18 @@
 }
 
 /* Phones: each folder rises in as it scrolls into view (see FolderStack),
-   slower and without overshoot so it settles seamlessly. */
-.folder[data-reveal="wait"] {
+   slower and without overshoot so it settles seamlessly. Without JS
+   (no .js on <html>) they keep the plain load-in above. */
+:global(.js) .folder[data-reveal="wait"] {
   animation: none;
   opacity: 0;
 }
 .folder[data-reveal="in"] {
-  animation: folder-rise 1500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* gentle ease-out (cubic): movement is spread across the whole rise
+     instead of front-loaded, so it never reads as a jump */
+  animation:
+    folder-rise 1400ms cubic-bezier(0.33, 1, 0.68, 1) both,
+    folder-fade 1000ms cubic-bezier(0.39, 0.575, 0.565, 1) both;
   animation-delay: calc(80ms + var(--enter, 0) * 160ms);
 }
 .folder[data-reveal="done"] {
@@ -49,15 +54,7 @@
 
 @keyframes folder-rise {
   from {
-    opacity: 0;
-    transform: translateY(40px) scale(0.97);
-  }
-  55% {
-    opacity: 1;
-  }
-  to {
-    opacity: 1;
-    transform: none;
+    transform: translateY(48px) scale(0.97);
   }
 }
 
