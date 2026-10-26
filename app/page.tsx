@@ -1,5 +1,5 @@
-import { Folder } from "@/components/Folder";
 import { FolderRail } from "@/components/FolderRail";
+import { FolderStack } from "@/components/FolderStack";
 import { projects } from "@/content/projects";
 import styles from "./page.module.css";
 
@@ -18,11 +18,7 @@ export default function Home() {
         <div className={styles.rail}>
           <FolderRail projects={projects} />
         </div>
-        <div className={styles.stack}>
-          {projects.map((p) => (
-            <Folder key={p.slug} project={p} />
-          ))}
-        </div>
+        <FolderStack projects={projects} className={styles.stack} />
       </section>
     </main>
   );

@@ -45,7 +45,7 @@
 @media (max-width: 767px) {
   .nav {
     position: static;
-    padding: 40px 24px 0;
+    padding: 96px 28px 0;
   }
 
   .work {
@@ -61,7 +61,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 56px;
-    padding: 72px 0 96px;
+    gap: 128px;
+    /* bottom room lets the last folder reach the middle and open */
+    padding: 144px 0 calc(50svh - 100px);
   }
 }

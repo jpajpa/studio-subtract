@@ -37,9 +37,9 @@ export const projects: Project[] = [
     slug: "chess",
     title: "Chess",
     year: "2025",
-    fill: ["#373737", "#191919"],
+    fill: WHITE,
     shadow: NEUTRAL_SHADOW,
-    text: "#cecece",
+    text: "#ececec", // light: sits over dark/saturated imagery
     dots: ["#d2c091", "#bababa", "#000000"],
     papers: [
       { src: m("chess", "slides-2-0004-page-5"), x: 13, y: 40, w: 264, h: 211 },
@@ -51,9 +51,9 @@ export const projects: Project[] = [
     slug: "vic",
     title: "The Vic Mensa Show",
     year: "2026",
-    fill: ["#ff966c", "#b33216"],
-    shadow: "rgba(133, 75, 29, 0.15)",
-    text: "#ffffff",
+    fill: WHITE,
+    shadow: NEUTRAL_SHADOW,
+    text: "#ffffff", // light: sits over dark/saturated imagery
     dots: ["#000000", "#e7952a", "#bf5321"],
     papers: [
       { src: m("vic", "original-5f23f4c46077841d3bd9bd2609d7cde0"), x: 112, y: 101, w: 173, h: 130 },
@@ -124,9 +124,9 @@ export const projects: Project[] = [
     slug: "hikarinoyami",
     title: "Hikari no Yami",
     year: "2025",
-    fill: ["#2e2e2e", "#141414"],
+    fill: WHITE,
     shadow: NEUTRAL_SHADOW,
-    text: "#cecece",
+    text: "#454545",
     dots: ["#000000", "#5a5a5a", "#e6e6e6"],
     placeholder: true,
     papers: [

@@ -123,7 +123,19 @@
   white-space: nowrap;
 }
 
-/* ── Hover: papers lift & fan, front tips open ──────────── */
+/* ── Open: papers lift & fan, front tips open ───────────── */
+/* Desktop opens on hover; touch screens open the folder in the
+   middle of the viewport via data-open (see FolderStack). */
+
+.folder[data-open] .paper {
+  transform: translateY(calc(-22px - var(--i) * 6px)) rotate(calc(var(--r) - 3deg));
+}
+.folder[data-open] .paper:nth-child(even) {
+  transform: translateY(calc(-28px - var(--i) * 6px)) rotate(calc(var(--r) + 3.5deg));
+}
+.folder[data-open] .front {
+  transform: perspective(900px) rotateX(-24deg);
+}
 
 @media (hover: hover) {
   .folder:hover .paper {
