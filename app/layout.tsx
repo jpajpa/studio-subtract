@@ -4,7 +4,6 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Studio Subtract",
-  description: "Studio Subtract — selected work.",
 };
 
 // Lets the mobile nav sit under the status bar using safe-area insets.
