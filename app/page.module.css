@@ -1,0 +1,67 @@
+.page {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+.nav {
+  position: absolute;
+  z-index: 1;
+  top: clamp(40px, 17.5vh, 186px);
+  left: var(--page-margin);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nav a {
+  text-decoration: none;
+  line-height: 18px;
+}
+
+.nav a[aria-current="page"] {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+/* Desktop: folders centred vertically, like the Sketch comp */
+.work {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+}
+
+.rail {
+  width: 100%;
+}
+
+.stack {
+  display: none;
+}
+
+/* Phones: vertical stack, normal page scroll */
+@media (max-width: 767px) {
+  .nav {
+    position: static;
+    padding: 40px 24px 0;
+  }
+
+  .work {
+    display: block;
+    min-height: 0;
+  }
+
+  .rail {
+    display: none;
+  }
+
+  .stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 56px;
+    padding: 72px 0 96px;
+  }
+}

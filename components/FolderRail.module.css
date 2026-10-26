@@ -1,0 +1,28 @@
+.rail {
+  --rail-margin: var(--page-margin);
+
+  position: relative;
+  width: 100%;
+  /* room for hover lift above and drop shadows below */
+  padding: 64px 0 48px;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  outline: none;
+}
+
+.rail:global(.is-dragging) {
+  cursor: grabbing;
+}
+
+.rail:focus-visible {
+  outline: 1px solid var(--ink-soft);
+  outline-offset: -1px;
+}
+
+.track {
+  display: flex;
+  gap: var(--folder-gap);
+  width: max-content;
+  will-change: transform;
+}
