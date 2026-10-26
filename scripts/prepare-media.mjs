@@ -1,5 +1,5 @@
-// Builds lightweight WebP "papers" for the homepage folders from the raw
-// project files in public/work/<slug>. Raw files are never modified.
+// Builds lightweight WebP "papers" for the homepage folders from the
+// original files in media-src/<slug> (not deployed). Originals are never modified.
 import { readdir, mkdir } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -7,7 +7,7 @@ import path from "node:path";
 import sharp from "sharp";
 
 const run = promisify(execFile);
-const SRC = "public/work";
+const SRC = "media-src";
 const OUT = "public/media";
 const MAX = 960; // long edge, ~3x the largest paper on screen
 
