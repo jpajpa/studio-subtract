@@ -1,20 +1,29 @@
 import type { CSSProperties } from "react";
-import type { Project } from "@/content/projects";
+import { ROLES, type Project } from "@/content/projects";
 import styles from "./Folder.module.css";
 
-// Back panel outline in folder space (320 × 261): tab top-left, body from y=34.
+// Back panel outline in folder space (320 × 285): tab top-left, body from y=34.
 const BACK_PATH =
   "M0 17C0 7.6 7.6 0 17 0H84C93 0 97 5 101 13C105 25 109 34 120 34H302" +
-  "C312 34 320 41 320 51V241C320 252 311 261 300 261H20C9 261 0 252 0 241Z";
+  "C312 34 320 41 320 51V265C320 276 311 285 300 285H20C9 285 0 276 0 265Z";
+
+// Most papers are placed in y within 0–250. Push them down slightly so the
+// taller back panel shows more of them above the front.
+const PAPER_Y = 6;
+
+/** Paper geometry in folder units, scaled by --u (see Folder.module.css). */
+const u = (n: number) => `calc(${n} * var(--u))`;
 
 type Props = {
   project: Project;
   /** decorative duplicate inside the infinite rail */
   clone?: boolean;
+  /** position in the load-in stagger */
+  enter?: number;
 };
 
-export function Folder({ project, clone }: Props) {
-  const { slug, title, year, fill, shadow, text, papers } = project;
+export function Folder({ project, clone, enter = 0 }: Props) {
+  const { slug, title, year, fill, text, roles, papers } = project;
   const gradientId = `folder-fill-${slug}`;
 
   return (
@@ -23,21 +32,19 @@ export function Folder({ project, clone }: Props) {
       data-slug={slug}
       aria-hidden={clone || undefined}
       aria-label={clone ? undefined : `${title}, ${year}`}
-      style={{ "--shadow": shadow, "--text": text } as CSSProperties}
+      style={{ "--tint": fill[1], "--text": text, "--enter": enter } as CSSProperties}
     >
-      <svg className={styles.back} viewBox="0 0 320 261" aria-hidden>
-        {Array.isArray(fill) && (
-          <defs>
-            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor={fill[0]} />
-              <stop offset="1" stopColor={fill[1]} />
-            </linearGradient>
-          </defs>
-        )}
+      <svg className={styles.back} viewBox="0 0 320 285" aria-hidden>
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor={fill[0]} />
+            <stop offset="1" stopColor={fill[1]} />
+          </linearGradient>
+        </defs>
         <path
           d={BACK_PATH}
-          fill={Array.isArray(fill) ? `url(#${gradientId})` : fill}
-          stroke="#dedede"
+          fill={`url(#${gradientId})`}
+          stroke="rgba(0, 0, 0, 0.06)"
           strokeWidth="1"
           vectorEffect="non-scaling-stroke"
         />
@@ -56,10 +63,10 @@ export function Folder({ project, clone }: Props) {
             draggable={false}
             style={
               {
-                left: p.x,
-                top: p.y,
-                width: p.w,
-                height: p.h,
+                left: u(p.x),
+                top: u(p.y + PAPER_Y),
+                width: u(p.w),
+                height: u(p.h),
                 "--r": `${p.r ?? 0}deg`,
                 "--i": i,
                 "--n": papers.length,
@@ -71,6 +78,13 @@ export function Folder({ project, clone }: Props) {
 
       <div className={styles.front}>
         <div className={styles.glass} />
+        <ul className={styles.dots} aria-label="Roles">
+          {ROLES.filter((r) => roles.includes(r.id)).map((r) => (
+            <li key={r.id} data-role={r.id} title={r.label}>
+              <span className={styles.srOnly}>{r.label}</span>
+            </li>
+          ))}
+        </ul>
         <p className={styles.label}>
           <span>{title}</span>
           <span>{year}</span>

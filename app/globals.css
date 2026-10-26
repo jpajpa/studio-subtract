@@ -13,18 +13,29 @@
 
   --page-margin: 150px;
   --folder-w: 320px;
-  --folder-h: 261px;
   --folder-gap: 90px;
   --glass-blur: 12px;
+
+  /* role swatches: creative direction, design */
+  --dot-cd: #111111;
+  --dot-design: #ffffff;
 
   /* Sketch "Mobile/Home": nav row 34px below the status bar, 64px sides */
   --mobile-nav-top: 34px;
   --mobile-nav-side: 64px;
+  /* room either side of a folder on phones */
+  --mobile-folder-side: 48px;
 }
 
 @media (max-width: 1100px) {
   :root {
     --page-margin: 64px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --folder-w: min(320px, 100vw - 2 * var(--mobile-folder-side));
   }
 }
 

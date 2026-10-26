@@ -7,6 +7,7 @@ import { Folder } from "./Folder";
 // Folders only open when their centre is this close to the viewport centre
 // (as a fraction of viewport height), so nothing opens between two folders.
 const OPEN_ZONE = 0.22;
+const ENTER_MAX = 4; // only the first few are on screen at load
 
 /**
  * Vertical list of folders for touch screens. There is no hover, so the
@@ -57,8 +58,8 @@ export function FolderStack({ projects, className }: { projects: Project[]; clas
 
   return (
     <div ref={ref} className={className}>
-      {projects.map((p) => (
-        <Folder key={p.slug} project={p} />
+      {projects.map((p, i) => (
+        <Folder key={p.slug} project={p} enter={Math.min(i, ENTER_MAX)} />
       ))}
     </div>
   );

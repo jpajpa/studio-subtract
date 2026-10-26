@@ -1,5 +1,6 @@
-// Homepage folders. Geometry is in folder space (320 × 261), taken from the
-// Sketch comps "Home, 1" / "Home, 2". Papers are listed bottom → top.
+// Homepage folders. Paper geometry is in folder space (320 wide, y from the
+// top of the back panel), taken from the Sketch comps "Home, 1" / "Home, 2".
+// Papers are listed bottom → top.
 
 export type Paper = {
   src: string;
@@ -11,23 +12,31 @@ export type Paper = {
   r?: number;
 };
 
+/** What the studio did on a project; shown as the two mono dots. */
+export type Role = "cd" | "design";
+
+export const ROLES: { id: Role; label: string }[] = [
+  { id: "cd", label: "Creative Direction" },
+  { id: "design", label: "Design" },
+];
+
 export type Project = {
   slug: string;
   title: string;
   year: string;
-  /** back panel fill: a color, or [top, bottom] gradient */
-  fill: string | [string, string];
-  /** tint of the folder's drop shadow */
-  shadow: string;
+  /** the project's own color as a [top, bottom] gradient; tints the back
+   *  panel, the glass and the shadows */
+  fill: [string, string];
   /** label color, set by hand per folder */
   text: string;
+  roles: Role[];
   papers: Paper[];
   /** true until the real title/year/colors are supplied */
   placeholder?: boolean;
 };
 
-const WHITE = "#ffffff";
-const NEUTRAL_SHADOW = "rgba(84, 84, 84, 0.15)";
+// Roles are not confirmed yet: every project shows both dots for now.
+const BOTH: Role[] = ["cd", "design"];
 const m = (slug: string, file: string) => `/media/${slug}/${file}.webp`;
 
 export const projects: Project[] = [
@@ -35,9 +44,9 @@ export const projects: Project[] = [
     slug: "chess",
     title: "Chess",
     year: "2025",
-    fill: WHITE,
-    shadow: NEUTRAL_SHADOW,
-    text: "#ececec", // light: sits over dark/saturated imagery
+    fill: ["#3a3735", "#1a1816"],
+    text: "#e6e3df", // light: sits over a dark folder
+    roles: BOTH,
     papers: [
       { src: m("chess", "slides-2-0004-page-5"), x: 13, y: 40, w: 264, h: 211 },
       { src: m("chess", "slides-2-0001-page-2"), x: 56, y: 23, w: 246, h: 197, r: 0.6 },
@@ -48,9 +57,9 @@ export const projects: Project[] = [
     slug: "vic",
     title: "The Vic Mensa Show",
     year: "2026",
-    fill: WHITE,
-    shadow: NEUTRAL_SHADOW,
-    text: "#ffffff", // light: sits over dark/saturated imagery
+    fill: ["#f98a4c", "#b9380f"],
+    text: "#ffffff", // light: sits over a saturated folder
+    roles: BOTH,
     papers: [
       { src: m("vic", "original-5f23f4c46077841d3bd9bd2609d7cde0"), x: 112, y: 101, w: 173, h: 130 },
       { src: m("vic", "original-c2c273672eb6c99e3a6e9e90dccc6f9b"), x: 12, y: 80, w: 228, h: 171 },
@@ -62,9 +71,9 @@ export const projects: Project[] = [
     slug: "sjj",
     title: "SJJ",
     year: "2025",
-    fill: WHITE,
-    shadow: NEUTRAL_SHADOW,
+    fill: ["#ededed", "#d3d3d3"],
     text: "#454545",
+    roles: BOTH,
     papers: [
       { src: m("sjj", "interface-system"), x: 22, y: 122, w: 276, h: 114 },
       { src: m("sjj", "mockup-5-1-4-1-combined-60-bpm"), x: 22, y: 5, w: 147, h: 244 },
@@ -75,9 +84,9 @@ export const projects: Project[] = [
     slug: "spaciom",
     title: "Spaciom",
     year: "2026",
-    fill: WHITE,
-    shadow: NEUTRAL_SHADOW,
+    fill: ["#e5e4e7", "#cac9ce"],
     text: "#3b3b3b",
+    roles: BOTH,
     papers: [
       { src: m("spaciom", "logoconstruction-2inv"), x: 76, y: 23, w: 230, h: 163 },
       { src: m("spaciom", "logoconstruction-1inv"), x: 19, y: 70, w: 230, h: 163 },
@@ -88,9 +97,9 @@ export const projects: Project[] = [
     slug: "vector",
     title: "Vector Studio",
     year: "2026",
-    fill: WHITE,
-    shadow: NEUTRAL_SHADOW,
-    text: "#3b3b3b",
+    fill: ["#d2d1d1", "#a9a8a8"],
+    text: "#2f2f2f",
+    roles: BOTH,
     papers: [
       { src: m("vector", "original-aba9a49d5ec5ebd58869da8fdb14f3ad"), x: 39, y: 41, w: 270, h: 191, r: 1.2 },
       { src: m("vector", "original-206ddf04bacc81e30cd0334f93aeda1e"), x: 23, y: 41, w: 270, h: 180 },
@@ -100,9 +109,9 @@ export const projects: Project[] = [
     slug: "furniture",
     title: "Furniture",
     year: "2026",
-    fill: WHITE,
-    shadow: NEUTRAL_SHADOW,
-    text: "#454545",
+    fill: ["#c3c5c9", "#979aa1"],
+    text: "#2f2f2f",
+    roles: BOTH,
     papers: [
       { src: m("furniture", "65-dining-set7"), x: 16, y: 26, w: 155, h: 116 },
       { src: m("furniture", "66-dining-set3"), x: 142, y: 37, w: 155, h: 116 },
@@ -111,14 +120,14 @@ export const projects: Project[] = [
     ],
   },
 
-  // — Not in Sketch yet: titles, years and colors are placeholders. —
+  // — Not in Sketch yet: titles and years are placeholders. —
   {
     slug: "hikarinoyami",
     title: "Hikari no Yami",
     year: "2025",
-    fill: WHITE,
-    shadow: NEUTRAL_SHADOW,
-    text: "#454545",
+    fill: ["#353535", "#141414"],
+    text: "#d6d6d6",
+    roles: BOTH,
     placeholder: true,
     papers: [
       { src: m("hikarinoyami", "61-hikarinoyami-01"), x: 30, y: 18, w: 150, h: 212, r: -2 },
@@ -130,9 +139,9 @@ export const projects: Project[] = [
     slug: "erosion",
     title: "Erosion",
     year: "2023",
-    fill: WHITE,
-    shadow: NEUTRAL_SHADOW,
-    text: "#454545",
+    fill: ["#acadaa", "#7f807c"],
+    text: "#2b2b2b",
+    roles: BOTH,
     placeholder: true,
     papers: [
       { src: m("erosion", "5-erosion-zellerfeldsample-1"), x: 176, y: 16, w: 124, h: 165, r: 1.5 },
@@ -144,9 +153,9 @@ export const projects: Project[] = [
     slug: "loho",
     title: "Loho",
     year: "2025",
-    fill: WHITE,
-    shadow: NEUTRAL_SHADOW,
+    fill: ["#f0edf1", "#d6d2d8"],
     text: "#454545",
+    roles: BOTH,
     placeholder: true,
     papers: [
       { src: m("loho", "16-loho-kur-commercial1"), x: 18, y: 22, w: 250, h: 141, r: -1 },
@@ -158,9 +167,9 @@ export const projects: Project[] = [
     slug: "sortacase",
     title: "Sortacase",
     year: "2025",
-    fill: WHITE,
-    shadow: NEUTRAL_SHADOW,
+    fill: ["#f9f9f9", "#e0e0e0"],
     text: "#454545",
+    roles: BOTH,
     placeholder: true,
     papers: [
       { src: m("sortacase", "102-sortacase-1"), x: 60, y: 18, w: 240, h: 170, r: 1 },
@@ -173,9 +182,9 @@ export const projects: Project[] = [
     slug: "ihategum",
     title: "I Hate Gum",
     year: "2025",
-    fill: WHITE,
-    shadow: NEUTRAL_SHADOW,
+    fill: ["#e3e3e3", "#c6c6c6"],
     text: "#454545",
+    roles: BOTH,
     placeholder: true,
     papers: [],
   },

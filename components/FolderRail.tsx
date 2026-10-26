@@ -8,6 +8,7 @@ import styles from "./FolderRail.module.css";
 const EASE = 0.09; // per-frame approach to the target at 60fps
 const FLING = 14; // how far a drag release coasts (× release velocity in px/frame)
 const WHEEL_LINE = 16;
+const ENTER_MAX = 8; // folders past this in the load-in stagger all start together
 
 const mod = (n: number, m: number) => ((n % m) + m) % m;
 
@@ -165,7 +166,15 @@ export function FolderRail({ projects }: { projects: Project[] }) {
     >
       <div ref={trackRef} className={styles.track}>
         {Array.from({ length: copies }, (_, c) =>
-          projects.map((p) => <Folder key={`${c}-${p.slug}`} project={p} clone={c !== 1} />),
+          projects.map((p, i) => (
+            <Folder
+              key={`${c}-${p.slug}`}
+              project={p}
+              clone={c !== 1}
+              // the row starts on copy 1, so stagger from its first folder
+              enter={Math.min(Math.max((c - 1) * projects.length + i, 0), ENTER_MAX)}
+            />
+          )),
         )}
       </div>
     </div>

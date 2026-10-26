@@ -3,8 +3,9 @@
 
   position: relative;
   width: 100%;
-  /* room for hover lift above and drop shadows below */
-  padding: 64px 0 48px;
+  /* room for hover lift above and the deep drop shadows below */
+  padding: 64px 0 128px;
+  margin-bottom: -80px;
   overflow: hidden;
   cursor: grab;
   touch-action: pan-y;

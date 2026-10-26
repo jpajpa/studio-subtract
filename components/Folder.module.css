@@ -1,14 +1,36 @@
 .folder {
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --dur: 650ms;
+  /* one folder-space unit: geometry is drawn on a 320-wide folder */
+  --u: calc(var(--folder-w) / 320);
+  /* the folder's own color, darkened, tints every shadow it casts */
+  --shade: color-mix(in srgb, var(--tint) 45%, #1c1c1c);
 
   position: relative;
   flex: none;
   width: var(--folder-w);
-  height: var(--folder-h);
+  height: calc(285 * var(--u));
   color: var(--text);
   user-select: none;
   -webkit-user-select: none;
+  animation: folder-in 1000ms cubic-bezier(0.3, 1.35, 0.5, 1) both;
+  animation-delay: calc(150ms + var(--enter, 0) * 80ms);
+}
+
+/* ── Load-in: folders pop up one after another ─────────── */
+
+@keyframes folder-in {
+  from {
+    opacity: 0;
+    transform: translateY(56px) scale(0.92);
+  }
+  40% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* ── Back panel ─────────────────────────────────────────── */
@@ -19,7 +41,10 @@
   width: 100%;
   height: 100%;
   overflow: visible;
-  filter: drop-shadow(0 8px 12px var(--shadow));
+  /* contact shadow + a soft, wide one: the folder sits above the page */
+  filter: drop-shadow(0 1px 1.5px color-mix(in srgb, var(--shade) 22%, transparent))
+    drop-shadow(0 12px 16px color-mix(in srgb, var(--shade) 16%, transparent))
+    drop-shadow(0 30px 40px color-mix(in srgb, var(--shade) 14%, transparent));
 }
 
 /* ── Papers ─────────────────────────────────────────────── */
@@ -33,7 +58,11 @@
   position: absolute;
   object-fit: cover;
   border-radius: 2px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.12),
+    0 6px 16px -4px rgba(0, 0, 0, 0.16);
+  /* lower papers sit deeper in the folder, so a little darker */
+  filter: brightness(calc(1 - (var(--n) - 1 - var(--i)) * 0.06));
   transform: rotate(var(--r));
   transform-origin: 50% 100%;
   transition: transform var(--dur) var(--ease);
@@ -46,9 +75,14 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: 59px;
-  height: 202px;
-  border-radius: 20px;
+  top: calc(83 * var(--u));
+  height: calc(202 * var(--u));
+  border-radius: calc(20 * var(--u));
+  /* casts up onto the papers behind it, and lifts off the back panel */
+  box-shadow:
+    0 -1px 3px -1px color-mix(in srgb, var(--shade) 30%, transparent),
+    0 -8px 18px -6px color-mix(in srgb, var(--shade) 48%, transparent),
+    0 14px 26px -14px color-mix(in srgb, var(--shade) 40%, transparent);
   transform-origin: 50% 100%;
   transform: perspective(900px) rotateX(0deg);
   transition: transform var(--dur) var(--ease);
@@ -61,12 +95,15 @@
   /* Fallback frost: Safari / Firefox */
   backdrop-filter: blur(var(--glass-blur)) saturate(1.5) brightness(1.03);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5) brightness(1.03);
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.24) 0%,
-    rgba(255, 255, 255, 0.08) 45%,
-    rgba(255, 255, 255, 0.12) 100%
-  );
+  /* white sheen over a wash of the folder's color */
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.24) 0%,
+      rgba(255, 255, 255, 0.08) 45%,
+      rgba(255, 255, 255, 0.12) 100%
+    ),
+    color-mix(in srgb, var(--tint) 34%, transparent);
   box-shadow:
     inset 0 1px 0.5px rgba(255, 255, 255, 0.85),
     inset 0 0 0 1px rgba(255, 255, 255, 0.22),
@@ -92,13 +129,56 @@
   backdrop-filter: blur(var(--glass-blur)) url(#liquid-glass) saturate(1.5) brightness(1.03);
 }
 
+/* ── Role dots: black = creative direction, white = design ── */
+
+.dots {
+  position: absolute;
+  left: calc(33 * var(--u));
+  top: calc(72 * var(--u));
+  display: flex;
+  gap: calc(6 * var(--u));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dots li {
+  width: calc(22 * var(--u));
+  height: calc(22 * var(--u));
+  border-radius: 50%;
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.25),
+    0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.dots [data-role="cd"] {
+  background: var(--dot-cd);
+  /* faint rim keeps it visible on dark folders */
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.22),
+    0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.dots [data-role="design"] {
+  background: var(--dot-design);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 /* ── Label ──────────────────────────────────────────────── */
 
 .label {
   position: absolute;
-  left: 32px;
-  right: 32px;
-  top: 160px;
+  left: calc(32 * var(--u));
+  right: calc(32 * var(--u));
+  top: calc(160 * var(--u));
   margin: 0;
   display: flex;
   gap: 16px;
@@ -143,8 +223,18 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .folder {
+    animation-name: folder-fade;
+    animation-duration: 400ms;
+  }
   .paper,
   .front {
     transition-duration: 1ms;
+  }
+}
+
+@keyframes folder-fade {
+  from {
+    opacity: 0;
   }
 }
