@@ -33,6 +33,34 @@
   }
 }
 
+/* Phones: each folder rises in as it scrolls into view (see FolderStack),
+   slower and without overshoot so it settles seamlessly. */
+.folder[data-reveal="wait"] {
+  animation: none;
+  opacity: 0;
+}
+.folder[data-reveal="in"] {
+  animation: folder-rise 1500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(80ms + var(--enter, 0) * 160ms);
+}
+.folder[data-reveal="done"] {
+  animation: none;
+}
+
+@keyframes folder-rise {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.97);
+  }
+  55% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* ── Back panel ─────────────────────────────────────────── */
 
 .back {
@@ -223,7 +251,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .folder {
+  .folder,
+  .folder[data-reveal="in"] {
     animation-name: folder-fade;
     animation-duration: 400ms;
   }
