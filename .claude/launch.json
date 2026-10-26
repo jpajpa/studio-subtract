@@ -21,6 +21,15 @@
         "3003"
       ],
       "port": 3003
+    },
+    {
+      "name": "web-prod",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "npm run build && npm run start -- -p 3004"
+      ],
+      "port": 3004
     }
   ]
 }

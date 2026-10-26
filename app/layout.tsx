@@ -13,9 +13,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    // `liquid` class is added before hydration by LiquidGlass's inline script
+    // `js` and `liquid` classes are added before hydration by inline scripts
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* lets CSS hold back the phone folders until the stack script reveals them */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
         <link
           rel="preload"
           href="/fonts/ABCAreal/ABCArealSuperfamilyVariable.woff2"
