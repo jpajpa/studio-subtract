@@ -1,10 +1,15 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { LiquidGlass } from "@/components/LiquidGlass";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Studio Subtract",
   description: "Studio Subtract — selected work.",
+};
+
+// Lets the mobile nav sit under the status bar using safe-area insets.
+export const viewport: Viewport = {
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

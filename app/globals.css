@@ -16,6 +16,10 @@
   --folder-h: 261px;
   --folder-gap: 90px;
   --glass-blur: 12px;
+
+  /* Sketch "Mobile/Home": nav row 34px below the status bar, 64px sides */
+  --mobile-nav-top: 34px;
+  --mobile-nav-side: 64px;
 }
 
 @media (max-width: 1100px) {

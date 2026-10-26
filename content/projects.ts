@@ -21,8 +21,6 @@ export type Project = {
   shadow: string;
   /** label color, set by hand per folder */
   text: string;
-  /** three swatches, left → right */
-  dots: [string, string, string];
   papers: Paper[];
   /** true until the real title/year/colors are supplied */
   placeholder?: boolean;
@@ -40,7 +38,6 @@ export const projects: Project[] = [
     fill: WHITE,
     shadow: NEUTRAL_SHADOW,
     text: "#ececec", // light: sits over dark/saturated imagery
-    dots: ["#d2c091", "#bababa", "#000000"],
     papers: [
       { src: m("chess", "slides-2-0004-page-5"), x: 13, y: 40, w: 264, h: 211 },
       { src: m("chess", "slides-2-0001-page-2"), x: 56, y: 23, w: 246, h: 197, r: 0.6 },
@@ -54,7 +51,6 @@ export const projects: Project[] = [
     fill: WHITE,
     shadow: NEUTRAL_SHADOW,
     text: "#ffffff", // light: sits over dark/saturated imagery
-    dots: ["#000000", "#e7952a", "#bf5321"],
     papers: [
       { src: m("vic", "original-5f23f4c46077841d3bd9bd2609d7cde0"), x: 112, y: 101, w: 173, h: 130 },
       { src: m("vic", "original-c2c273672eb6c99e3a6e9e90dccc6f9b"), x: 12, y: 80, w: 228, h: 171 },
@@ -69,7 +65,6 @@ export const projects: Project[] = [
     fill: WHITE,
     shadow: NEUTRAL_SHADOW,
     text: "#454545",
-    dots: ["#000000", "#329d94", "#dee481"],
     papers: [
       { src: m("sjj", "interface-system"), x: 22, y: 122, w: 276, h: 114 },
       { src: m("sjj", "mockup-5-1-4-1-combined-60-bpm"), x: 22, y: 5, w: 147, h: 244 },
@@ -83,7 +78,6 @@ export const projects: Project[] = [
     fill: WHITE,
     shadow: NEUTRAL_SHADOW,
     text: "#3b3b3b",
-    dots: ["#000000", "#bababa", "#f8f8f8"],
     papers: [
       { src: m("spaciom", "logoconstruction-2inv"), x: 76, y: 23, w: 230, h: 163 },
       { src: m("spaciom", "logoconstruction-1inv"), x: 19, y: 70, w: 230, h: 163 },
@@ -97,7 +91,6 @@ export const projects: Project[] = [
     fill: WHITE,
     shadow: NEUTRAL_SHADOW,
     text: "#3b3b3b",
-    dots: ["#000000", "#bababa", "#f8f8f8"],
     papers: [
       { src: m("vector", "original-aba9a49d5ec5ebd58869da8fdb14f3ad"), x: 39, y: 41, w: 270, h: 191, r: 1.2 },
       { src: m("vector", "original-206ddf04bacc81e30cd0334f93aeda1e"), x: 23, y: 41, w: 270, h: 180 },
@@ -110,7 +103,6 @@ export const projects: Project[] = [
     fill: WHITE,
     shadow: NEUTRAL_SHADOW,
     text: "#454545",
-    dots: ["#000000", "#e0e0e0", "#f2f2f7"],
     papers: [
       { src: m("furniture", "65-dining-set7"), x: 16, y: 26, w: 155, h: 116 },
       { src: m("furniture", "66-dining-set3"), x: 142, y: 37, w: 155, h: 116 },
@@ -127,7 +119,6 @@ export const projects: Project[] = [
     fill: WHITE,
     shadow: NEUTRAL_SHADOW,
     text: "#454545",
-    dots: ["#000000", "#5a5a5a", "#e6e6e6"],
     placeholder: true,
     papers: [
       { src: m("hikarinoyami", "61-hikarinoyami-01"), x: 30, y: 18, w: 150, h: 212, r: -2 },
@@ -142,7 +133,6 @@ export const projects: Project[] = [
     fill: WHITE,
     shadow: NEUTRAL_SHADOW,
     text: "#454545",
-    dots: ["#000000", "#8a8a8a", "#e9e9e9"],
     placeholder: true,
     papers: [
       { src: m("erosion", "5-erosion-zellerfeldsample-1"), x: 176, y: 16, w: 124, h: 165, r: 1.5 },
@@ -157,7 +147,6 @@ export const projects: Project[] = [
     fill: WHITE,
     shadow: NEUTRAL_SHADOW,
     text: "#454545",
-    dots: ["#000000", "#bababa", "#f8f8f8"],
     placeholder: true,
     papers: [
       { src: m("loho", "16-loho-kur-commercial1"), x: 18, y: 22, w: 250, h: 141, r: -1 },
@@ -172,7 +161,6 @@ export const projects: Project[] = [
     fill: WHITE,
     shadow: NEUTRAL_SHADOW,
     text: "#454545",
-    dots: ["#000000", "#bababa", "#f8f8f8"],
     placeholder: true,
     papers: [
       { src: m("sortacase", "102-sortacase-1"), x: 60, y: 18, w: 240, h: 170, r: 1 },
@@ -188,7 +176,6 @@ export const projects: Project[] = [
     fill: WHITE,
     shadow: NEUTRAL_SHADOW,
     text: "#454545",
-    dots: ["#000000", "#bababa", "#f8f8f8"],
     placeholder: true,
     papers: [],
   },

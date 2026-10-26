@@ -4,27 +4,6 @@
   min-height: 100svh;
 }
 
-.nav {
-  position: absolute;
-  z-index: 1;
-  top: clamp(40px, 17.5vh, 186px);
-  left: var(--page-margin);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.nav a {
-  text-decoration: none;
-  line-height: 18px;
-}
-
-.nav a[aria-current="page"] {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  text-decoration-thickness: 1px;
-}
-
 /* Desktop: folders centred vertically, like the Sketch comp */
 .work {
   min-height: 100vh;
@@ -43,11 +22,6 @@
 
 /* Phones: vertical stack, normal page scroll */
 @media (max-width: 767px) {
-  .nav {
-    position: static;
-    padding: 96px 28px 0;
-  }
-
   .work {
     display: block;
     min-height: 0;
@@ -63,6 +37,8 @@
     align-items: center;
     gap: 128px;
     /* bottom room lets the last folder reach the middle and open */
-    padding: 144px 0 calc(50svh - 100px);
+    /* fixed nav row + 128px, as in Sketch "Mobile/Home" */
+    padding: calc(var(--mobile-nav-top) + env(safe-area-inset-top) + 18px + 128px) 0
+      calc(50svh - 100px);
   }
 }

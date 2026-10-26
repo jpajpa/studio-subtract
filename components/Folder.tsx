@@ -14,7 +14,7 @@ type Props = {
 };
 
 export function Folder({ project, clone }: Props) {
-  const { slug, title, year, fill, shadow, text, dots, papers } = project;
+  const { slug, title, year, fill, shadow, text, papers } = project;
   const gradientId = `folder-fill-${slug}`;
 
   return (
@@ -71,11 +71,6 @@ export function Folder({ project, clone }: Props) {
 
       <div className={styles.front}>
         <div className={styles.glass} />
-        <div className={styles.dots}>
-          {dots.map((c, i) => (
-            <span key={i} style={{ background: c }} />
-          ))}
-        </div>
         <p className={styles.label}>
           <span>{title}</span>
           <span>{year}</span>
