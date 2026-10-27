@@ -1,0 +1,48 @@
+.page {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+/* Desktop: folders centred vertically, like the Sketch comp */
+.work {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  /* Clips the endless folder row sideways. It sits here, on a box as tall
+     as the screen, because Safari can clip GPU-composited children (the
+     papers lifted out of a folder) on both axes, not just this one. */
+  overflow-x: clip;
+}
+
+.rail {
+  width: 100%;
+}
+
+.stack {
+  display: none;
+}
+
+/* Phones: vertical stack, normal page scroll */
+@media (max-width: 767px) {
+  .work {
+    display: block;
+    min-height: 0;
+  }
+
+  .rail {
+    display: none;
+  }
+
+  .stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 128px;
+    /* bottom room lets the last folder reach the middle and open */
+    /* fixed nav row + 128px, as in Sketch "Mobile/Home" */
+    padding: calc(var(--mobile-nav-top) + env(safe-area-inset-top) + 18px + 128px) 0
+      calc(50svh - 100px);
+  }
+}

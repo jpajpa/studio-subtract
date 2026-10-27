@@ -1,0 +1,43 @@
+title: "SJJ"
+year: "2025"
+description: ''
+roles:
+  - design
+colour:
+  top: "#ededed"
+  bottom: "#d3d3d3"
+  label: "#454545"
+media:
+  - discriminant: video
+    value:
+      video: /projects/sjj/media/0/value/video.mp4
+      poster: /projects/sjj/media/0/value/poster.jpg
+      alt: ''
+  - discriminant: video
+    value:
+      video: /projects/sjj/media/1/value/video.mp4
+      poster: /projects/sjj/media/1/value/poster.jpg
+      alt: ''
+  - discriminant: image
+    value:
+      image: /projects/sjj/media/2/value/image.png
+      alt: ''
+folder:
+  - item: 1
+    x: 125
+    y: 0
+    w: 147
+    h: 244
+    rotation: 0
+  - item: 2
+    x: 22
+    y: 5
+    w: 147
+    h: 244
+    rotation: 0
+  - item: 3
+    x: 22
+    y: 122
+    w: 276
+    h: 114
+    rotation: 0

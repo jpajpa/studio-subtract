@@ -44,7 +44,7 @@ export function SiteNav() {
   }, []);
 
   return (
-    <nav className={styles.nav} data-hidden={hidden || undefined} aria-label="Main">
+    <nav className={styles.nav} data-chrome data-hidden={hidden || undefined} aria-label="Main">
       <a href="/" aria-current="page">
         Work
       </a>
