@@ -1,12 +1,12 @@
-title: "I Hate Gum"
-year: "2025"
-description: ''
+title: iHategum Collab
+year: '2025'
+description: A collaborative phone cast in pink stone with iHategum, Subtracted of function. An identity you can hold but not use.
 roles:
   - cd
   - design
 colour:
-  top: "#e3e3e3"
-  bottom: "#c6c6c6"
-  label: "#454545"
+  top: '#e3e3e3'
+  bottom: '#c6c6c6'
+  label: '#454545'
 media: []
 folder: []

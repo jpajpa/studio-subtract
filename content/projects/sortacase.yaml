@@ -1,7 +1,8 @@
 title: Sortacase
 year: '2025'
-description: ''
+description: New identity, eCommerce site, product imagery, and physically printed product catalog. Built using the same logic as the product grid system.
 roles:
+  - cd
   - design
 colour:
   top: '#f9f9f9'
