@@ -46,6 +46,8 @@
 .intro {
   flex: none;
   width: 300px;
+  /* more air before the first frame than Sketch's 24: 80 in all, as on phones */
+  margin-right: 56px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -56,7 +58,7 @@
   margin: 0;
   font-size: 44px;
   line-height: 54px;
-  font-weight: 400;
+  font-weight: 500; /* Medium, as in Sketch */
   letter-spacing: -0.8px;
 }
 
@@ -186,4 +188,62 @@
   background: var(--ink);
   transform: scaleX(0);
   transform-origin: 0 50%;
+}
+
+/* Back / Next at the end of the page: phones only */
+.pager {
+  display: none;
+}
+
+.pager a {
+  line-height: 19px;
+  letter-spacing: 0.1px;
+  text-decoration: none;
+}
+
+/* ── Phones ─────────────────────────────────────────────── */
+/* Sketch "Mobile/Inner Page 1 & 2": one 350-wide column (26px sides),
+   heading inset 25px, frames 48 apart; the page scrolls vertically. */
+
+@media (max-width: 767px) {
+  .viewport {
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    cursor: auto;
+  }
+
+  .track {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 48px;
+    width: auto;
+    height: auto;
+    /* heading starts where the folders do on "Mobile/Home" */
+    padding: calc(var(--mobile-nav-top) + env(safe-area-inset-top) + 18px + 128px) 26px
+      calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .intro {
+    width: auto;
+    max-width: 300px;
+    padding: 0 25px;
+    /* a little more air between the text and the first image than in Sketch */
+    margin: 0 0 32px;
+  }
+
+  .panel {
+    width: 100%;
+    height: auto;
+  }
+
+  .back,
+  .progress {
+    display: none;
+  }
+
+  .pager {
+    display: flex;
+    justify-content: space-between;
+  }
 }

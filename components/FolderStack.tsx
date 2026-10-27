@@ -50,6 +50,12 @@ function stackScript(cfg: typeof config) {
   };
   update();
   addEventListener("scroll", schedule, { passive: true });
+  // after a project page closes over the stack: start again from the scroll
+  addEventListener("folderstack:sync", () => {
+    for (const el of folders) el.removeAttribute("data-open");
+    open = null;
+    update();
+  });
   addEventListener("resize", schedule);
 
   // Each folder rises the first time it scrolls into view, once its images
@@ -93,11 +99,24 @@ function stackScript(cfg: typeof config) {
   for (const el of folders) io.observe(el);
 }
 
-/** Vertical list of folders for touch screens. */
-export function FolderStack({ projects, className }: { projects: Project[]; className?: string }) {
+type Props = {
+  projects: Project[];
+  className?: string;
+  onOpen?: (slug: string, folder: HTMLElement) => void;
+};
+
+/** Vertical list of folders for touch screens. Tapping a folder opens it. */
+export function FolderStack({ projects, className, onOpen }: Props) {
   return (
     <>
-      <div className={className} data-folder-stack>
+      <div
+        className={className}
+        data-folder-stack
+        onClick={(e) => {
+          const folder = (e.target as HTMLElement).closest<HTMLElement>("[data-slug]");
+          if (folder?.dataset.slug) onOpen?.(folder.dataset.slug, folder);
+        }}
+      >
         {projects.map((p, i) => (
           <Folder key={p.slug} project={p} reveal eager={i < ON_SCREEN_AT_LOAD} />
         ))}

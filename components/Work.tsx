@@ -48,7 +48,7 @@ export function Work({ projects, initialSlug }: { projects: Project[]; initialSl
   }, [slug, projects]);
 
   const open = useCallback((next: string, folder: HTMLElement) => {
-    if (slug || window.matchMedia("(max-width: 767px)").matches) return; // desktop only for now
+    if (slug) return;
     source.current = folder;
     pushed.current = true;
     window.history.pushState(null, "", `/work/${next}`);
@@ -63,7 +63,15 @@ export function Work({ projects, initialSlug }: { projects: Project[]; initialSl
     }
   }, []);
 
-  const project = slug ? projects.find((p) => p.slug === slug) : undefined;
+  // Next swaps the open project in place: "Back" still returns to the folders
+  const openNext = useCallback(() => {
+    const i = projects.findIndex((p) => p.slug === slug);
+    source.current = null;
+    window.history.replaceState(null, "", `/work/${projects[(i + 1) % projects.length].slug}`);
+  }, [projects, slug]);
+
+  const index = slug ? projects.findIndex((p) => p.slug === slug) : -1;
+  const project = index >= 0 ? projects[index] : undefined;
 
   return (
     <main className={styles.page}>
@@ -74,7 +82,7 @@ export function Work({ projects, initialSlug }: { projects: Project[]; initialSl
         <div className={styles.rail} data-rail>
           <FolderRail projects={projects} onOpen={open} />
         </div>
-        <FolderStack projects={projects} className={styles.stack} />
+        <FolderStack projects={projects} className={styles.stack} onOpen={open} />
       </section>
 
       {project && (
@@ -84,6 +92,8 @@ export function Work({ projects, initialSlug }: { projects: Project[]; initialSl
           project={project}
           source={source.current}
           onClose={requestClose}
+          nextSlug={projects[(index + 1) % projects.length].slug}
+          onNext={openNext}
         />
       )}
     </main>

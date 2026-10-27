@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import styles from "./SiteNav.module.css";
 
 const TOP_ZONE = 24; // always shown this close to the top
@@ -13,14 +14,23 @@ const SHOW_AFTER = 12; // px scrolled up before showing again
  */
 export function SiteNav() {
   const [hidden, setHidden] = useState(false);
-  const s = useRef({ lastY: 0, travel: 0 });
+  const s = useRef({ lastY: 0, travel: 0, scroller: null as EventTarget | null });
+  const pathname = usePathname();
+
+  // a project page opening or closing starts at its top: show the nav
+  useEffect(() => {
+    s.current.scroller = null;
+    setHidden(false);
+  }, [pathname]);
 
   useEffect(() => {
     let raf = 0;
     const update = () => {
       raf = 0;
-      const y = Math.max(window.scrollY, 0);
       const st = s.current;
+      // the page, or a project page scrolling on its own over it
+      const el = st.scroller instanceof Element ? st.scroller : null;
+      const y = Math.max(el ? el.scrollTop : window.scrollY, 0);
       const delta = y - st.lastY;
       st.lastY = y;
       if (y < TOP_ZONE) {
@@ -33,18 +43,26 @@ export function SiteNav() {
       if (st.travel > HIDE_AFTER) setHidden(true);
       else if (st.travel < -SHOW_AFTER) setHidden(false);
     };
-    const onScroll = () => {
+    const onScroll = (e: Event) => {
+      const st = s.current;
+      if (e.target !== st.scroller) {
+        // a different scroller: measure from its own position
+        st.scroller = e.target;
+        st.lastY = e.target instanceof Element ? e.target.scrollTop : window.scrollY;
+        st.travel = 0;
+      }
       if (!raf) raf = requestAnimationFrame(update);
     };
-    window.addEventListener("scroll", onScroll, { passive: true });
+    // capture: scroll events from elements don't bubble
+    document.addEventListener("scroll", onScroll, { capture: true, passive: true });
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("scroll", onScroll, { capture: true });
     };
   }, []);
 
   return (
-    <nav className={styles.nav} data-chrome data-hidden={hidden || undefined} aria-label="Main">
+    <nav className={styles.nav} data-chrome="nav" data-hidden={hidden || undefined} aria-label="Main">
       <a href="/" aria-current="page">
         Work
       </a>
