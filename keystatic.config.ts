@@ -46,6 +46,21 @@ export default config({
         title: fields.slug({ name: { label: "Title" }, slug: { label: "URL", description: "studiosubtract.com/work/…" } }),
         year: fields.text({ label: "Year", validation: { isRequired: true } }),
         description: fields.text({ label: "Description", multiline: true }),
+        link: fields.object(
+          {
+            url: fields.url({ label: "Link", description: "Shown under the description. Opens in a new tab." }),
+            label: fields.text({ label: "Link text", description: "Leave empty to show the web address." }),
+          },
+          { label: "Link", layout: [8, 4] },
+        ),
+        credits: fields.array(
+          fields.object({ role: fields.text({ label: "Role" }), name: fields.text({ label: "Name" }) }, { layout: [6, 6] }),
+          {
+            label: "Credits",
+            description: "Collaborators, listed under the description.",
+            itemLabel: (p) => [p.fields.role.value, p.fields.name.value].filter(Boolean).join(": ") || "Credit",
+          },
+        ),
         roles: fields.multiselect({
           label: "Roles",
           description: "Shown as the dots on the folder.",

@@ -8,6 +8,7 @@ colour:
   top: '#e5e4e7'
   bottom: '#cac9ce'
   label: '#3b3b3b'
+credits: []
 media:
   - discriminant: image
     value:

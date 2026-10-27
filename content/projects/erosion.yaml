@@ -7,6 +7,10 @@ colour:
   top: '#acadaa'
   bottom: '#7f807c'
   label: '#2b2b2b'
+link:
+  url: https://www.zellerfeld.com/products/erosion
+  label: ''
+credits: []
 media:
   - discriminant: video
     value:

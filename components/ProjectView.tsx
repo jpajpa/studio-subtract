@@ -258,8 +258,11 @@ export function ProjectView({ project, source, onClose, ref }: Props) {
       SplitText.create(title.current!, { type: "lines,chars", mask: "lines", linesClass: styles.line }),
       SplitText.create(body.current!, { type: "lines", mask: "lines", linesClass: styles.line }),
     ];
-    return { chars: st.split[0].chars, lines: st.split[1].lines };
+    return { chars: st.split[0].chars, lines: [...st.split[1].lines, ...metaLines()] };
   };
+
+  // link and credit rows animate like body lines; each row is its own mask
+  const metaLines = () => q(`.${styles.row} > *`);
 
   useEffect(() => () => s.current.split.forEach((sp) => sp.revert()), []);
 
@@ -461,9 +464,8 @@ export function ProjectView({ project, source, onClose, ref }: Props) {
         const tl = gsap.timeline({ onComplete: done });
         tl.to(el, { backgroundColor: "rgba(247, 247, 247, 0)", duration: 0.6, ease: "power1.out" }, 0.2);
         tl.to(st.split[0].chars, { yPercent: -115, duration: 0.55, ease: "power3.in", stagger: 0.015 }, 0);
-        if (st.split[1].lines.length) {
-          tl.to(st.split[1].lines, { yPercent: -115, duration: 0.5, ease: "power3.in", stagger: 0.04 }, 0.05);
-        }
+        const lines = [...st.split[1].lines, ...metaLines()];
+        if (lines.length) tl.to(lines, { yPercent: -115, duration: 0.5, ease: "power3.in", stagger: 0.04 }, 0.05);
         tl.to([back.current, bar.current!.parentElement], { opacity: 0, duration: 0.35 }, 0);
 
         // Frames fly to just above the folder (bottom one first, so the top
@@ -539,6 +541,28 @@ export function ProjectView({ project, source, onClose, ref }: Props) {
             <p ref={body} className={styles.body} hidden={!project.description}>
               {project.description}
             </p>
+            {(project.credits.length > 0 || project.link) && (
+              <div className={styles.meta}>
+                {project.credits.length > 0 && (
+                  <ul className={styles.credits}>
+                    {project.credits.map((c, i) => (
+                      <li key={i} className={styles.row}>
+                        <span>
+                          <span className={styles.role}>{c.role}</span> {c.name}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {project.link && (
+                  <p className={styles.row}>
+                    <a className={styles.link} href={project.link.url} target="_blank" rel="noreferrer">
+                      {project.link.label} ↗
+                    </a>
+                  </p>
+                )}
+              </div>
+            )}
           </header>
 
           {media.map((m, i) => (

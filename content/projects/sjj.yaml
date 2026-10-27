@@ -8,6 +8,10 @@ colour:
   top: '#ededed'
   bottom: '#d3d3d3'
   label: '#454545'
+link:
+  url: https://www.jamesjfrys.studio
+  label: ''
+credits: []
 media:
   - discriminant: video
     value:

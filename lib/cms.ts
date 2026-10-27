@@ -7,6 +7,15 @@ import type { Media, Paper, Project, Role } from "./projects";
 
 const reader = createReader(process.cwd(), config);
 
+/** A link's default text: the address without scheme or "www.", and without
+ *  the path when it is only a query (youtube.com/watch?v=… → youtube.com). */
+function address(url: string) {
+  const u = new URL(url);
+  const host = u.hostname.replace(/^www\./, "");
+  const path = u.search ? "" : u.pathname.replace(/\/$/, "");
+  return host + path;
+}
+
 // Fan used when a project has no folder papers set: up to three items, top
 // first, each fitted to its own aspect ratio.
 const AUTO = [
@@ -71,6 +80,8 @@ export const getProjects = cache(async (): Promise<Project[]> => {
         title: entry.title,
         year: entry.year,
         description: entry.description,
+        link: entry.link.url ? { url: entry.link.url, label: entry.link.label || address(entry.link.url) } : undefined,
+        credits: entry.credits.filter((c) => c.role || c.name),
         fill: [entry.colour.top, entry.colour.bottom],
         text: entry.colour.label,
         roles: entry.roles as Role[],

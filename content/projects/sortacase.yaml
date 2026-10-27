@@ -8,6 +8,10 @@ colour:
   top: '#f9f9f9'
   bottom: '#e0e0e0'
   label: '#454545'
+link:
+  url: https://www.sortacase.com
+  label: ''
+credits: []
 media:
   - discriminant: image
     value:
