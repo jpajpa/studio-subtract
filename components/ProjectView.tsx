@@ -19,6 +19,15 @@ const LIFT = 0.55; // s for a paper to rise out of (or sink into) its folder
 const LIFT_CLEAR = 14; // px a lifted paper clears the folder's glass front by
 const LIFT_STEP = 8; // px each lower paper rises less high, so they stay stacked
 
+/** Phones: the page scrolls vertically and natively (see ProjectView.module.css). */
+const isPhone = () => window.matchMedia("(max-width: 767px)").matches;
+
+/** Nav and key; on phones the nav stays put over the project page. */
+const chromeEls = () =>
+  Array.from(
+    document.querySelectorAll<HTMLElement>(isPhone() ? '[data-chrome]:not([data-chrome="nav"])' : "[data-chrome]"),
+  );
+
 export type ProjectViewHandle = { close: () => Promise<void> };
 
 type Props = {
@@ -26,6 +35,9 @@ type Props = {
   /** the folder that was clicked; null when the page was opened by URL */
   source: HTMLElement | null;
   onClose: () => void;
+  /** the project after this one: phones show a Next link at the end */
+  nextSlug: string;
+  onNext: () => void;
   ref?: Ref<ProjectViewHandle>;
 };
 
@@ -79,12 +91,17 @@ function liftOf(paper: HTMLElement, front: HTMLElement | null, i: number) {
   return Math.max(paper.getBoundingClientRect().bottom - top + LIFT_CLEAR - i * LIFT_STEP, 0);
 }
 
-/** Rail folders that are on screen. */
+/** Every folder in the rail (desktop) and the stack (phones). */
+const allFolders = () =>
+  Array.from(document.querySelectorAll<HTMLElement>("[data-rail] [data-slug], [data-folder-stack] [data-slug]"));
+
+/** Folders that are on screen (the hidden layout's have no size). */
 function visibleFolders() {
   const vw = window.innerWidth;
-  return Array.from(document.querySelectorAll<HTMLElement>("[data-rail] [data-slug]")).filter((el) => {
+  const vh = window.innerHeight;
+  return allFolders().filter((el) => {
     const r = el.getBoundingClientRect();
-    return r.right > -100 && r.left < vw + 100;
+    return r.width > 0 && r.right > -100 && r.left < vw + 100 && r.bottom > -100 && r.top < vh + 100;
   });
 }
 
@@ -104,13 +121,18 @@ const centre = (el: HTMLElement) => {
   return [r.left + r.width / 2, r.top + r.height / 2] as const;
 };
 
+const offCentre = (el: HTMLElement) => {
+  const [x, y] = centre(el);
+  return [x - innerWidth / 2, y - innerHeight / 2] as const;
+};
+
 /**
  * Project page: a horizontal strip of heading, body text and media that
  * scrolls sideways with wheel, trackpad, drag or arrow keys. It opens by
  * flying the clicked folder's papers out into the gallery frames while the
  * other folders rush past the camera, and closes by reversing that.
  */
-export function ProjectView({ project, source, onClose, ref }: Props) {
+export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }: Props) {
   const { media, papers: folderPapers } = project;
   // each gallery item flies from its topmost paper in the folder, if it has one
   const paperOf = media.map((_, i) => folderPapers.findLastIndex((p) => p.media === i));
@@ -121,6 +143,7 @@ export function ProjectView({ project, source, onClose, ref }: Props) {
   const title = useRef<HTMLHeadingElement>(null);
   const body = useRef<HTMLParagraphElement>(null);
   const back = useRef<HTMLAnchorElement>(null);
+  const pager = useRef<HTMLElement>(null);
   const bar = useRef<HTMLSpanElement>(null);
 
   const s = useRef({
@@ -177,7 +200,8 @@ export function ProjectView({ project, source, onClose, ref }: Props) {
     const t = track.current;
     const v = viewport.current;
     if (!t || !v) return;
-    st.max = Math.max(t.offsetWidth - v.clientWidth, 0);
+    // phones scroll the page natively, so the strip stays put
+    st.max = isPhone() ? 0 : Math.max(t.offsetWidth - v.clientWidth, 0);
     st.target = gsap.utils.clamp(0, st.max, st.target);
     st.current = gsap.utils.clamp(0, st.max, st.current);
     render();
@@ -187,6 +211,7 @@ export function ProjectView({ project, source, onClose, ref }: Props) {
     const v = viewport.current;
     if (!v) return;
     const onWheel = (e: WheelEvent) => {
+      if (isPhone()) return;
       e.preventDefault();
       if (!s.current.live) return;
       const scale = e.deltaMode === 1 ? WHEEL_LINE : e.deltaMode === 2 ? v.clientWidth : 1;
@@ -197,6 +222,7 @@ export function ProjectView({ project, source, onClose, ref }: Props) {
       if (!s.current.live) return;
       const step = window.innerWidth * 0.5;
       if (e.key === "Escape") onClose();
+      else if (isPhone()) return;
       else if (e.key === "ArrowRight" || e.key === "PageDown") moveTo(s.current.target + step);
       else if (e.key === "ArrowLeft" || e.key === "PageUp") moveTo(s.current.target - step);
       else if (e.key === "Home") moveTo(0);
@@ -219,7 +245,7 @@ export function ProjectView({ project, source, onClose, ref }: Props) {
 
   const onPointerDown = (e: React.PointerEvent) => {
     const st = s.current;
-    if (e.button !== 0 || !st.live || (e.target as HTMLElement).closest("a")) return;
+    if (e.button !== 0 || !st.live || isPhone() || (e.target as HTMLElement).closest("a")) return;
     st.drag = { id: e.pointerId, x: e.clientX, target: st.target, vx: 0, t: performance.now() };
     viewport.current?.setPointerCapture(e.pointerId);
     viewport.current?.classList.add(styles.dragging);
@@ -262,7 +288,7 @@ export function ProjectView({ project, source, onClose, ref }: Props) {
   };
 
   // link and credit rows animate like body lines; each row is its own mask
-  const metaLines = () => q(`.${styles.row} > *`);
+  const metaLines = () => q(`.${styles.intro} .${styles.row} > *`);
 
   useEffect(() => () => s.current.split.forEach((sp) => sp.revert()), []);
 
@@ -281,8 +307,9 @@ export function ProjectView({ project, source, onClose, ref }: Props) {
     const panels = q("[data-panel]");
     const frames = q("[data-media]");
     const shadows = q("[data-shadow]");
-    const chrome = Array.from(document.querySelectorAll<HTMLElement>("[data-chrome]"));
+    const chrome = chromeEls();
     const folders = visibleFolders();
+    const phone = isPhone();
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const { chars, lines } = splitText();
     measure();
@@ -363,7 +390,9 @@ export function ProjectView({ project, source, onClose, ref }: Props) {
       const cy = window.innerHeight / 2;
       folders.forEach((f) => gsap.set(f, dolly(f, cx, cy)));
       gsap.set(chrome, { opacity: 0 });
-      tl.from(
+      if (phone) {
+        tl.from(panels, { y: window.innerHeight * 0.3, opacity: 0, duration: 1.5, ease: "expo.out", stagger: 0.09 }, 0.15);
+      } else tl.from(
         panels,
         {
           x: window.innerWidth * 0.55,
@@ -383,7 +412,7 @@ export function ProjectView({ project, source, onClose, ref }: Props) {
     const t = source ? LIFT + 0.75 : 0.3;
     tl.from(chars, { yPercent: 115, duration: 1.1, ease: "expo.out", stagger: 0.028 }, t);
     if (lines.length) tl.from(lines, { yPercent: 115, duration: 1, ease: "expo.out", stagger: 0.08 }, t + 0.18);
-    tl.from(back.current, { opacity: 0, y: 8, duration: 0.8, ease: "power3.out" }, t + 0.3);
+    tl.from([back.current, pager.current], { opacity: 0, y: 8, duration: 0.8, ease: "power3.out" }, t + 0.3);
     tl.from(bar.current!.parentElement, { scaleX: 0, transformOrigin: "0% 50%", duration: 1.2, ease: "expo.inOut" }, t + 0.2);
   };
 
@@ -402,11 +431,11 @@ export function ProjectView({ project, source, onClose, ref }: Props) {
         const panels = q("[data-panel]");
         const frames = q("[data-media]");
         const shadows = q("[data-shadow]");
-        const chrome = Array.from(document.querySelectorAll<HTMLElement>("[data-chrome]"));
+        const chrome = chromeEls();
         const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
         // Folders back at rest for measuring (still invisible: same frame).
-        const folders = Array.from(document.querySelectorAll<HTMLElement>("[data-rail] [data-slug]"));
+        const folders = allFolders();
         gsap.set(folders, { clearProps: "transform,opacity" });
         const onScreen = visibleFolders();
         // the clicked folder, or this project's folder nearest the middle of the screen
@@ -414,7 +443,7 @@ export function ProjectView({ project, source, onClose, ref }: Props) {
           (source?.isConnected && onScreen.includes(source) ? source : null) ??
           onScreen
             .filter((f) => f.dataset.slug === project.slug)
-            .sort((a, b) => Math.abs(centre(a)[0] - innerWidth / 2) - Math.abs(centre(b)[0] - innerWidth / 2))[0] ??
+            .sort((a, b) => Math.hypot(...offCentre(a)) - Math.hypot(...offCentre(b)))[0] ??
           null;
         const [hx, hy] = home ? centre(home) : [innerWidth / 2, innerHeight / 2];
         const from = new Map(onScreen.map((f) => [f, dolly(f, hx, hy)]));
@@ -424,6 +453,8 @@ export function ProjectView({ project, source, onClose, ref }: Props) {
             gsap.set(home.querySelectorAll("img"), { clearProps: "visibility,transform,transition" });
             home.removeAttribute("data-open"); // closes with its own CSS transition
           }
+          // phones: the stack re-opens whichever folder is mid-screen
+          window.dispatchEvent(new Event("folderstack:sync"));
           gsap.set([...folders, ...chrome], { clearProps: "transform,opacity" });
           resolve();
         };
@@ -466,7 +497,7 @@ export function ProjectView({ project, source, onClose, ref }: Props) {
         tl.to(st.split[0].chars, { yPercent: -115, duration: 0.55, ease: "power3.in", stagger: 0.015 }, 0);
         const lines = [...st.split[1].lines, ...metaLines()];
         if (lines.length) tl.to(lines, { yPercent: -115, duration: 0.5, ease: "power3.in", stagger: 0.04 }, 0.05);
-        tl.to([back.current, bar.current!.parentElement], { opacity: 0, duration: 0.35 }, 0);
+        tl.to([back.current, pager.current, bar.current!.parentElement], { opacity: 0, duration: 0.35 }, 0);
 
         // Frames fly to just above the folder (bottom one first, so the top
         // paper goes in last), then become papers and sink back in.
@@ -582,8 +613,9 @@ export function ProjectView({ project, source, onClose, ref }: Props) {
                     alt={m.alt}
                     width={m.w}
                     height={m.h}
-                    // every frame is FRAME_H of the viewport tall; its width follows the image
-                    sizes={`calc(${(FRAME_H * 100).toFixed(2)}svh * ${(m.w / m.h).toFixed(4)})`}
+                    // desktop: every frame is FRAME_H of the viewport tall, its width follows
+                    // the image; phones: frames span the column
+                    sizes={`(max-width: 767px) calc(100vw - 52px), calc(${(FRAME_H * 100).toFixed(2)}svh * ${(m.w / m.h).toFixed(4)})`}
                     quality={90}
                     loading={i < 3 ? "eager" : "lazy"}
                     draggable={false}
@@ -592,6 +624,27 @@ export function ProjectView({ project, source, onClose, ref }: Props) {
               </div>
             </figure>
           ))}
+
+          <nav ref={pager} className={styles.pager} aria-label="Projects">
+            <a
+              href="/"
+              onClick={(e) => {
+                e.preventDefault();
+                if (s.current.live) onClose();
+              }}
+            >
+              &lt;- Back
+            </a>
+            <a
+              href={`/work/${nextSlug}`}
+              onClick={(e) => {
+                e.preventDefault();
+                if (s.current.live) onNext();
+              }}
+            >
+              Next -&gt;
+            </a>
+          </nav>
         </div>
       </div>
 

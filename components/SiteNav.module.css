@@ -23,6 +23,8 @@
 @media (max-width: 767px) {
   .nav {
     position: fixed;
+    /* above the project page, which keeps the nav (Sketch "Mobile/Inner Page") */
+    z-index: 30;
     top: 0;
     left: 0;
     right: 0;
