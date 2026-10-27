@@ -1,20 +1,11 @@
-// Server only: reads CMS content from the repo and measures media.
-import path from "node:path";
+// Server only: reads CMS content from the repo. Media lives on Vercel Blob;
+// the CMS stores each image's URL and pixel size.
 import { cache } from "react";
 import { createReader } from "@keystatic/core/reader";
-import sharp from "sharp";
 import config from "@/keystatic.config";
 import type { Media, Paper, Project, Role } from "./projects";
 
 const reader = createReader(process.cwd(), config);
-
-/** Pixel size of a file in public/, upright (EXIF rotation applied). */
-async function measure(src: string): Promise<[number, number]> {
-  const meta = await sharp(path.join(process.cwd(), "public", src)).metadata();
-  const w = meta.autoOrient?.width ?? meta.width ?? 4;
-  const h = meta.autoOrient?.height ?? meta.height ?? 3;
-  return [w, h];
-}
 
 // Fan used when a project has no folder papers set: up to three items, top
 // first, each fitted to its own aspect ratio.
@@ -46,23 +37,20 @@ export const getProjects = cache(async (): Promise<Project[]> => {
 
   const projects = await Promise.all(
     entries.map(async ({ slug, entry }): Promise<Project> => {
-      const media = (
-        await Promise.all(
-          entry.media.map(async (item): Promise<Media | null> => {
-            const still = item.discriminant === "video" ? item.value.poster : item.value.image;
-            if (!still) return null;
-            const [w, h] = await measure(still);
-            return {
-              kind: item.discriminant,
-              src: still,
-              video: item.discriminant === "video" ? (item.value.video ?? undefined) : undefined,
-              w,
-              h,
-              alt: item.value.alt,
-            };
-          }),
-        )
-      ).filter((m): m is Media => m !== null);
+      const media = entry.media
+        .map((item): Media | null => {
+          const still = item.discriminant === "video" ? item.value.poster : item.value.image;
+          if (!still) return null;
+          return {
+            kind: item.discriminant,
+            src: still.src,
+            video: item.discriminant === "video" ? (item.value.video ?? undefined) : undefined,
+            w: still.width,
+            h: still.height,
+            alt: item.value.alt,
+          };
+        })
+        .filter((m): m is Media => m !== null);
 
       // the CMS lists papers top first; the folder draws bottom → top
       const papers: Paper[] = entry.folder

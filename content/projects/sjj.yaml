@@ -1,43 +1,52 @@
-title: "SJJ"
-year: "2025"
+title: SJJ
+year: '2025'
 description: ''
 roles:
   - design
 colour:
-  top: "#ededed"
-  bottom: "#d3d3d3"
-  label: "#454545"
+  top: '#ededed'
+  bottom: '#d3d3d3'
+  label: '#454545'
 media:
   - discriminant: video
     value:
-      video: /projects/sjj/media/0/value/video.mp4
-      poster: /projects/sjj/media/0/value/poster.jpg
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/1.mp4
+      poster:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/1-still.jpg
+        width: 1280
+        height: 2120
       alt: ''
   - discriminant: video
     value:
-      video: /projects/sjj/media/1/value/video.mp4
-      poster: /projects/sjj/media/1/value/poster.jpg
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/2.mp4
+      poster:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/2-still.jpg
+        width: 1280
+        height: 2120
       alt: ''
   - discriminant: image
     value:
-      image: /projects/sjj/media/2/value/image.png
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/3.png
+        width: 874
+        height: 388
       alt: ''
 folder:
   - item: 1
     x: 125
-    y: 0
+    'y': 0
     w: 147
     h: 244
     rotation: 0
   - item: 2
     x: 22
-    y: 5
+    'y': 5
     w: 147
     h: 244
     rotation: 0
   - item: 3
     x: 22
-    y: 122
+    'y': 122
     w: 276
     h: 114
     rotation: 0

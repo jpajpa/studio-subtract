@@ -1,44 +1,53 @@
-title: "Loho"
-year: "2025"
+title: Loho
+year: '2025'
 description: ''
 roles:
   - cd
 colour:
-  top: "#f0edf1"
-  bottom: "#d6d2d8"
-  label: "#454545"
+  top: '#f0edf1'
+  bottom: '#d6d2d8'
+  label: '#454545'
 media:
   - discriminant: video
     value:
-      video: /projects/loho/media/0/value/video.mp4
-      poster: /projects/loho/media/0/value/poster.jpg
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/loho/1.mp4
+      poster:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/loho/1-still.jpg
+        width: 3840
+        height: 2160
       alt: ''
   - discriminant: video
     value:
-      video: /projects/loho/media/1/value/video.mp4
-      poster: /projects/loho/media/1/value/poster.jpg
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/loho/2.mp4
+      poster:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/loho/2-still.jpg
+        width: 3840
+        height: 2160
       alt: ''
   - discriminant: video
     value:
-      video: /projects/loho/media/2/value/video.mp4
-      poster: /projects/loho/media/2/value/poster.jpg
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/loho/3.mp4
+      poster:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/loho/3-still.jpg
+        width: 3840
+        height: 2160
       alt: ''
 folder:
   - item: 1
     x: 30
-    y: 92
+    'y': 92
     w: 250
     h: 141
     rotation: 0
   - item: 2
     x: 52
-    y: 52
+    'y': 52
     w: 250
     h: 141
     rotation: 1
   - item: 3
     x: 18
-    y: 22
+    'y': 22
     w: 250
     h: 141
     rotation: -1
