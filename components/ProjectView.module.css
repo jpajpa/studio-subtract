@@ -67,6 +67,48 @@
   letter-spacing: 0.1px;
 }
 
+/* Credits and link under the body */
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: 2px;
+  line-height: 19px;
+  letter-spacing: 0.1px;
+}
+
+.credits {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* one masked line, like the body's SplitText lines */
+.row {
+  margin: 0;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.row > * {
+  display: inline-block;
+}
+
+.role {
+  color: var(--ink-soft);
+}
+
+.link {
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
 /* SplitText line masks: a little room so descenders aren't clipped */
 .line {
   padding-bottom: 0.08em;

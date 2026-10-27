@@ -38,6 +38,8 @@ export type Project = {
   title: string;
   year: string;
   description: string;
+  link?: { url: string; label: string };
+  credits: { role: string; name: string }[];
   /** the project's own color as a [top, bottom] gradient; tints the back
    *  panel, the glass and the shadows */
   fill: [string, string];
