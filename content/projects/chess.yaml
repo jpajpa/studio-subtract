@@ -1,8 +1,7 @@
 title: Chess
 year: '2025'
-description: ''
+description: A chess set weighing nearly 40kg, every piece hand-cast from moulds made by hand. Colour is removed, and the squares are communicated through negative space. Built as a deep exploration of subtraction.
 roles:
-  - cd
   - design
 colour:
   top: '#3a3735'

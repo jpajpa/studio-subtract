@@ -1,7 +1,8 @@
-title: SJJ
+title: Studio James Jefferys
 year: '2025'
-description: ''
+description: A website built as one singular surface. Every button, label, and state built to exist as material rather than on a screen. Inspired by the idea that ‘the best interface is the human body’.
 roles:
+  - cd
   - design
 colour:
   top: '#ededed'
