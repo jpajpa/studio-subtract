@@ -1,7 +1,8 @@
 import { collection, config, fields, singleton } from "@keystatic/core";
+import { blobFile, blobImage } from "./lib/blob-field";
 
-// Content editor at /keystatic (dev server only). Everything is saved as
-// files in this repo: text in content/, media in public/projects/<slug>/.
+// Content editor at /keystatic (dev server only). Text is saved as files in
+// content/; media uploads go to Vercel Blob and the YAML keeps their URLs.
 
 const hex = (label: string, description?: string) =>
   fields.text({
@@ -10,7 +11,7 @@ const hex = (label: string, description?: string) =>
     validation: { isRequired: true, pattern: { regex: /^#[0-9a-fA-F]{6}$/, message: "A hex colour, e.g. #f98a4c" } },
   });
 
-const MEDIA_DIR = { directory: "public/projects", publicPath: "/projects/" };
+const MEDIA = { folder: "projects" };
 
 export default config({
   storage: { kind: "local" },
@@ -75,16 +76,16 @@ export default config({
             }),
             {
               image: fields.object({
-                image: fields.image({ label: "Image", ...MEDIA_DIR, validation: { isRequired: true } }),
+                image: blobImage({ label: "Image", ...MEDIA, isRequired: true }),
                 alt: fields.text({ label: "Alt text" }),
               }),
               video: fields.object({
-                video: fields.file({ label: "Video (mp4)", ...MEDIA_DIR, validation: { isRequired: true } }),
-                poster: fields.image({
+                video: blobFile({ label: "Video (mp4)", accept: "video/mp4,video/webm", ...MEDIA, isRequired: true }),
+                poster: blobImage({
                   label: "Still",
                   description: "A frame of the video at full size. Shown in the folder and while the video loads.",
-                  ...MEDIA_DIR,
-                  validation: { isRequired: true },
+                  ...MEDIA,
+                  isRequired: true,
                 }),
                 alt: fields.text({ label: "Alt text" }),
               }),
@@ -96,10 +97,13 @@ export default config({
             itemLabel: (p) => {
               const v = p.value as unknown as { fields: Record<string, { value: unknown }> };
               const file = v.fields[p.discriminant === "video" ? "video" : "image"]?.value as
-                | { filename?: string }
+                | string
+                | { src?: string }
                 | null
                 | undefined;
-              return `${p.discriminant === "video" ? "Video" : "Image"}${file?.filename ? ` · ${file.filename}` : ""}`;
+              const url = typeof file === "string" ? file : file?.src;
+              const name = url ? decodeURIComponent(url.split("/").pop() ?? "") : "";
+              return `${p.discriminant === "video" ? "Video" : "Image"}${name ? ` · ${name}` : ""}`;
             },
           },
         ),

@@ -9,14 +9,23 @@ colour:
 media:
   - discriminant: image
     value:
-      image: /projects/vic/media/0/value/image.png
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/1.png
+        width: 1200
+        height: 900
       alt: ''
   - discriminant: image
     value:
-      image: /projects/vic/media/1/value/image.png
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/2.png
+        width: 1200
+        height: 900
   - discriminant: image
     value:
-      image: /projects/vic/media/2/value/image.png
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/3.png
+        width: 1200
+        height: 900
 folder:
   - item: 1
     x: 121

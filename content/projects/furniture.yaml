@@ -1,51 +1,63 @@
-title: "Furniture"
-year: "2026"
+title: Furniture
+year: '2026'
 description: ''
 roles:
   - design
 colour:
-  top: "#c3c5c9"
-  bottom: "#979aa1"
-  label: "#2f2f2f"
+  top: '#c3c5c9'
+  bottom: '#979aa1'
+  label: '#2f2f2f'
 media:
   - discriminant: image
     value:
-      image: /projects/furniture/media/0/value/image.png
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/furniture/1.png
+        width: 2000
+        height: 1500
       alt: ''
   - discriminant: image
     value:
-      image: /projects/furniture/media/1/value/image.png
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/furniture/2.png
+        width: 2000
+        height: 1500
       alt: ''
   - discriminant: image
     value:
-      image: /projects/furniture/media/2/value/image.png
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/furniture/3.png
+        width: 2000
+        height: 1500
       alt: ''
   - discriminant: image
     value:
-      image: /projects/furniture/media/3/value/image.png
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/furniture/4.png
+        width: 2000
+        height: 1500
       alt: ''
 folder:
   - item: 1
     x: 141
-    y: 126
+    'y': 126
     w: 155
     h: 116
     rotation: 0
   - item: 2
     x: 28
-    y: 126
+    'y': 126
     w: 155
     h: 116
     rotation: 0
   - item: 3
     x: 142
-    y: 37
+    'y': 37
     w: 155
     h: 116
     rotation: 0
   - item: 4
     x: 16
-    y: 26
+    'y': 26
     w: 155
     h: 116
     rotation: 0

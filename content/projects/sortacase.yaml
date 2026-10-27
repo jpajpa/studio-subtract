@@ -1,41 +1,50 @@
-title: "Sortacase"
-year: "2025"
+title: Sortacase
+year: '2025'
 description: ''
 roles:
   - design
 colour:
-  top: "#f9f9f9"
-  bottom: "#e0e0e0"
-  label: "#454545"
+  top: '#f9f9f9'
+  bottom: '#e0e0e0'
+  label: '#454545'
 media:
   - discriminant: image
     value:
-      image: /projects/sortacase/media/0/value/image.png
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/1.png
+        width: 1782
+        height: 1261
       alt: ''
   - discriminant: image
     value:
-      image: /projects/sortacase/media/1/value/image.png
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/2.png
+        width: 1782
+        height: 1257
       alt: ''
   - discriminant: image
     value:
-      image: /projects/sortacase/media/2/value/image.jpg
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/3.jpg
+        width: 3507
+        height: 2480
       alt: ''
 folder:
   - item: 1
     x: 80
-    y: 84
+    'y': 84
     w: 220
     h: 156
     rotation: -1
   - item: 2
     x: 14
-    y: 50
+    'y': 50
     w: 230
     h: 163
     rotation: 0
   - item: 3
     x: 60
-    y: 18
+    'y': 18
     w: 240
     h: 170
     rotation: 1

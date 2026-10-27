@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
     // folder papers at 85, gallery frames at 90 (see Folder, ProjectView)
     qualities: [75, 85, 90],
     formats: ["image/avif", "image/webp"],
+    // media uploaded through the CMS (see lib/blob-field.tsx)
+    remotePatterns: [{ protocol: "https", hostname: "*.public.blob.vercel-storage.com" }],
   },
 };
 
