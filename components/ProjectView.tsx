@@ -1,0 +1,579 @@
+"use client";
+
+import { useEffect, useImperativeHandle, useLayoutEffect, useRef, type CSSProperties, type Ref } from "react";
+import Image from "next/image";
+import gsap from "gsap";
+import { SplitText } from "gsap/SplitText";
+import type { Project } from "@/lib/projects";
+import styles from "./ProjectView.module.css";
+
+if (typeof window !== "undefined") gsap.registerPlugin(SplitText);
+
+const EASE = 0.085; // per-frame approach of the gallery to its target at 60fps
+const FLING = 14;
+const WHEEL_LINE = 16;
+const FRAME_H = 780 / 1080; // frame height as a share of the viewport (Sketch)
+const INTRO_DRIFT = 0.22; // heading trails the gallery: reads as further back
+const DOLLY = 1.9; // how far the folders scale as the camera moves into one
+const LIFT = 0.55; // s for a paper to rise out of (or sink into) its folder
+const LIFT_CLEAR = 14; // px a lifted paper clears the folder's glass front by
+const LIFT_STEP = 8; // px each lower paper rises less high, so they stay stacked
+
+export type ProjectViewHandle = { close: () => Promise<void> };
+
+type Props = {
+  project: Project;
+  /** the folder that was clicked; null when the page was opened by URL */
+  source: HTMLElement | null;
+  onClose: () => void;
+  ref?: Ref<ProjectViewHandle>;
+};
+
+/* ── Geometry for the folder ⇄ gallery flight ─────────────── */
+
+type Pose = { cx: number; cy: number; w: number; h: number; angle: number };
+
+/** Where a paper sits on screen right now, including its hover lift and tilt. */
+function paperPose(img: HTMLElement, folder: HTMLElement): Pose {
+  const fr = folder.getBoundingClientRect();
+  const t = getComputedStyle(img).transform;
+  const m = t && t !== "none" ? new DOMMatrix(t) : new DOMMatrix();
+  const w = img.offsetWidth;
+  const h = img.offsetHeight;
+  // papers rotate about their bottom centre (transform-origin: 50% 100%)
+  const ox = fr.left + img.offsetLeft + w / 2;
+  const oy = fr.top + img.offsetTop + h;
+  return {
+    cx: ox + m.c * (-h / 2) + m.e,
+    cy: oy + m.d * (-h / 2) + m.f,
+    w,
+    h,
+    angle: (Math.atan2(m.b, m.a) * 180) / Math.PI,
+  };
+}
+
+/**
+ * Transform that lays an (untransformed) gallery frame over a paper. The frame
+ * scales uniformly so its image is never stretched, and a clip trims it to the
+ * paper's crop.
+ */
+function flight(panel: HTMLElement, p: Pose) {
+  const r = panel.getBoundingClientRect();
+  const s = Math.max(p.w / r.width, p.h / r.height);
+  const ix = (r.width - p.w / s) / 2;
+  const iy = (r.height - p.h / s) / 2;
+  return {
+    panel: { x: p.cx - (r.left + r.width / 2), y: p.cy - (r.top + r.height / 2), scale: s, rotation: p.angle },
+    clip: `inset(${iy}px ${ix}px ${iy}px ${ix}px round ${2 / s}px)`,
+  };
+}
+
+const CLIP_OPEN = "inset(0px 0px 0px 0px round 0px)";
+
+/**
+ * How far a paper must rise for its bottom edge to clear the folder's glass
+ * front (the `i`th paper from the top rises a little less).
+ */
+function liftOf(paper: HTMLElement, front: HTMLElement | null, i: number) {
+  const top = front?.getBoundingClientRect().top ?? paper.getBoundingClientRect().top;
+  return Math.max(paper.getBoundingClientRect().bottom - top + LIFT_CLEAR - i * LIFT_STEP, 0);
+}
+
+/** Rail folders that are on screen. */
+function visibleFolders() {
+  const vw = window.innerWidth;
+  return Array.from(document.querySelectorAll<HTMLElement>("[data-rail] [data-slug]")).filter((el) => {
+    const r = el.getBoundingClientRect();
+    return r.right > -100 && r.left < vw + 100;
+  });
+}
+
+/** A camera moving into (cx, cy): everything grows away from that point. */
+const dolly = (el: HTMLElement, cx: number, cy: number) => {
+  const r = el.getBoundingClientRect();
+  return {
+    x: (r.left + r.width / 2 - cx) * (DOLLY - 1),
+    y: (r.top + r.height / 2 - cy) * (DOLLY - 1),
+    scale: DOLLY,
+    opacity: 0,
+  };
+};
+
+const centre = (el: HTMLElement) => {
+  const r = el.getBoundingClientRect();
+  return [r.left + r.width / 2, r.top + r.height / 2] as const;
+};
+
+/**
+ * Project page: a horizontal strip of heading, body text and media that
+ * scrolls sideways with wheel, trackpad, drag or arrow keys. It opens by
+ * flying the clicked folder's papers out into the gallery frames while the
+ * other folders rush past the camera, and closes by reversing that.
+ */
+export function ProjectView({ project, source, onClose, ref }: Props) {
+  const { media, papers: folderPapers } = project;
+  // each gallery item flies from its topmost paper in the folder, if it has one
+  const paperOf = media.map((_, i) => folderPapers.findLastIndex((p) => p.media === i));
+  const root = useRef<HTMLDivElement>(null);
+  const viewport = useRef<HTMLDivElement>(null);
+  const track = useRef<HTMLDivElement>(null);
+  const intro = useRef<HTMLElement>(null);
+  const title = useRef<HTMLHeadingElement>(null);
+  const body = useRef<HTMLParagraphElement>(null);
+  const back = useRef<HTMLAnchorElement>(null);
+  const bar = useRef<HTMLSpanElement>(null);
+
+  const s = useRef({
+    current: 0,
+    target: 0,
+    max: 0,
+    raf: 0,
+    last: 0,
+    live: false, // accepts input (off while animating in/out)
+    drag: null as null | { id: number; x: number; target: number; vx: number; t: number },
+    split: [] as SplitText[],
+  });
+
+  const q = (sel: string) => Array.from(root.current?.querySelectorAll<HTMLElement>(sel) ?? []);
+
+  /* ── Gallery scroll ───────────────────────────────────── */
+
+  const render = () => {
+    const st = s.current;
+    if (!track.current) return;
+    gsap.set(track.current, { x: -st.current });
+    gsap.set(intro.current, { x: st.current * INTRO_DRIFT });
+    if (bar.current) gsap.set(bar.current, { scaleX: st.max ? st.current / st.max : 0 });
+  };
+
+  const tick = (now: number) => {
+    const st = s.current;
+    const dt = st.last ? Math.min((now - st.last) / (1000 / 60), 3) : 1;
+    st.last = now;
+    st.current += (st.target - st.current) * (1 - Math.pow(1 - EASE, dt));
+    render();
+    if (Math.abs(st.target - st.current) > 0.05 || st.drag) {
+      st.raf = requestAnimationFrame(tick);
+    } else {
+      st.current = st.target;
+      render();
+      st.raf = 0;
+      st.last = 0;
+    }
+  };
+
+  const kick = () => {
+    if (!s.current.raf) s.current.raf = requestAnimationFrame(tick);
+  };
+
+  const moveTo = (x: number) => {
+    const st = s.current;
+    st.target = gsap.utils.clamp(0, st.max, x);
+    kick();
+  };
+
+  const measure = () => {
+    const st = s.current;
+    const t = track.current;
+    const v = viewport.current;
+    if (!t || !v) return;
+    st.max = Math.max(t.offsetWidth - v.clientWidth, 0);
+    st.target = gsap.utils.clamp(0, st.max, st.target);
+    st.current = gsap.utils.clamp(0, st.max, st.current);
+    render();
+  };
+
+  useEffect(() => {
+    const v = viewport.current;
+    if (!v) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      if (!s.current.live) return;
+      const scale = e.deltaMode === 1 ? WHEEL_LINE : e.deltaMode === 2 ? v.clientWidth : 1;
+      const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      moveTo(s.current.target + d * scale);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (!s.current.live) return;
+      const step = window.innerWidth * 0.5;
+      if (e.key === "Escape") onClose();
+      else if (e.key === "ArrowRight" || e.key === "PageDown") moveTo(s.current.target + step);
+      else if (e.key === "ArrowLeft" || e.key === "PageUp") moveTo(s.current.target - step);
+      else if (e.key === "Home") moveTo(0);
+      else if (e.key === "End") moveTo(s.current.max);
+      else return;
+      e.preventDefault();
+    };
+    const ro = new ResizeObserver(measure);
+    ro.observe(v);
+    v.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("keydown", onKey);
+    return () => {
+      ro.disconnect();
+      v.removeEventListener("wheel", onWheel);
+      window.removeEventListener("keydown", onKey);
+      cancelAnimationFrame(s.current.raf);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onClose]);
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    const st = s.current;
+    if (e.button !== 0 || !st.live || (e.target as HTMLElement).closest("a")) return;
+    st.drag = { id: e.pointerId, x: e.clientX, target: st.target, vx: 0, t: performance.now() };
+    viewport.current?.setPointerCapture(e.pointerId);
+    viewport.current?.classList.add(styles.dragging);
+    kick();
+  };
+
+  const onPointerMove = (e: React.PointerEvent) => {
+    const st = s.current;
+    const drag = st.drag;
+    if (!drag || drag.id !== e.pointerId) return;
+    const now = performance.now();
+    const next = gsap.utils.clamp(0, st.max, drag.target - (e.clientX - drag.x));
+    const frames = Math.max((now - drag.t) / (1000 / 60), 0.5);
+    drag.vx = drag.vx * 0.6 + ((next - st.target) / frames) * 0.4;
+    drag.t = now;
+    st.target = st.current = next;
+    kick();
+  };
+
+  const endDrag = (e: React.PointerEvent) => {
+    const st = s.current;
+    if (!st.drag || st.drag.id !== e.pointerId) return;
+    const idle = performance.now() - st.drag.t > 80;
+    const vx = st.drag.vx;
+    st.drag = null;
+    viewport.current?.classList.remove(styles.dragging);
+    moveTo(st.target + (idle ? 0 : vx * FLING));
+  };
+
+  /* ── Text ─────────────────────────────────────────────── */
+
+  const splitText = () => {
+    const st = s.current;
+    st.split.forEach((sp) => sp.revert());
+    st.split = [
+      SplitText.create(title.current!, { type: "lines,chars", mask: "lines", linesClass: styles.line }),
+      SplitText.create(body.current!, { type: "lines", mask: "lines", linesClass: styles.line }),
+    ];
+    return { chars: st.split[0].chars, lines: st.split[1].lines };
+  };
+
+  useEffect(() => () => s.current.split.forEach((sp) => sp.revert()), []);
+
+  /* ── Open ─────────────────────────────────────────────── */
+
+  useLayoutEffect(() => {
+    // a context so a re-run (React StrictMode in dev) starts from a clean slate
+    const ctx = gsap.context(() => open());
+    return () => ctx.revert();
+    // mount only: the view is keyed by project
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const open = () => {
+    const el = root.current!;
+    const panels = q("[data-panel]");
+    const frames = q("[data-media]");
+    const shadows = q("[data-shadow]");
+    const chrome = Array.from(document.querySelectorAll<HTMLElement>("[data-chrome]"));
+    const folders = visibleFolders();
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const { chars, lines } = splitText();
+    measure();
+    el.dataset.ready = "";
+
+    // folders and nav were animated in by CSS; that would override GSAP
+    for (const f of [...folders, ...chrome]) f.style.animation = "none";
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        s.current.live = true;
+        gsap.set(panels, { clearProps: "zIndex" });
+        render();
+        viewport.current?.focus({ preventScroll: true });
+      },
+    });
+
+    if (reduced) {
+      gsap.set([...folders, ...chrome], { opacity: 0 });
+      tl.from(el, { opacity: 0, duration: 0.4 });
+      return;
+    }
+
+    tl.to(chrome, { opacity: 0, y: -8, duration: 0.4, ease: "power2.in" }, 0);
+
+    if (source) {
+      gsap.set(el, { backgroundColor: "transparent" });
+      const papers = Array.from(source.querySelectorAll<HTMLElement>("img"));
+      const front = source.querySelector<HTMLElement>("[data-front]");
+      const [sx, sy] = centre(source);
+      source.setAttribute("data-open", "");
+      // GSAP drives the papers now, not their hover transition
+      gsap.set(papers, { transition: "none" });
+
+      // 1. The papers rise up out of the folder, from behind its glass, top
+      //    one first. 2. Clear of it, each becomes its gallery frame and flies
+      //    into place.
+      let handoff = 0;
+      panels.forEach((panel, i) => {
+        const paper = papers[paperOf[i]];
+        if (!paper) {
+          // not in the folder: drift in once the others are under way
+          tl.from(panel, { y: 60, opacity: 0, duration: 1.2, ease: "expo.out" }, LIFT + 0.3 + i * 0.07);
+          return;
+        }
+        const up = i * 0.06;
+        const lift = liftOf(paper, front, i);
+        const pose = paperPose(paper, source);
+        tl.to(paper, { y: `-=${lift}`, duration: LIFT, ease: "power3.inOut" }, up);
+
+        const at = up + LIFT;
+        handoff = Math.max(handoff, at);
+        const f = flight(panel, { ...pose, cy: pose.cy - lift });
+        gsap.set(panel, { ...f.panel, zIndex: panels.length - i, opacity: 0 });
+        gsap.set(frames[i], { clipPath: f.clip });
+        // its big soft shadow fades in late: scaled down, it breaks up in WebKit
+        gsap.set(shadows[i], { opacity: 0 });
+        tl.set(panel, { opacity: 1 }, at);
+        tl.set(paper, { visibility: "hidden" }, at);
+        tl.to(panel, { x: 0, y: 0, scale: 1, rotation: 0, duration: 1.35, ease: "expo.inOut" }, at);
+        tl.to(frames[i], { clipPath: CLIP_OPEN, duration: 1.15, ease: "expo.inOut" }, at + 0.08);
+        tl.to(shadows[i], { opacity: 1, duration: 0.6, ease: "power1.in" }, at + 0.75);
+      });
+
+      // The camera dives into the folder: the rest rush outward past it.
+      const dive = Math.max(handoff - 0.2, 0);
+      const others = folders.filter((f) => f !== source);
+      others.forEach((f) => {
+        const { opacity, ...to } = dolly(f, sx, sy);
+        tl.to(f, { ...to, duration: 1.1, ease: "power3.in" }, dive);
+        tl.to(f, { opacity, duration: 0.7, ease: "power1.in" }, dive + 0.15);
+      });
+      tl.to(source, { scale: DOLLY, duration: 1.1, ease: "power3.in" }, dive + 0.12);
+      tl.to(source, { opacity: 0, duration: 0.55, ease: "power1.in" }, dive + 0.35);
+    } else {
+      // Opened by URL: the folders wait out of shot; the gallery glides in.
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2;
+      folders.forEach((f) => gsap.set(f, dolly(f, cx, cy)));
+      gsap.set(chrome, { opacity: 0 });
+      tl.from(
+        panels,
+        {
+          x: window.innerWidth * 0.55,
+          rotationY: -24,
+          z: -260,
+          opacity: 0,
+          transformPerspective: 1800,
+          transformOrigin: "0% 50%",
+          duration: 1.7,
+          ease: "expo.out",
+          stagger: 0.09,
+        },
+        0.15,
+      );
+    }
+
+    const t = source ? LIFT + 0.75 : 0.3;
+    tl.from(chars, { yPercent: 115, duration: 1.1, ease: "expo.out", stagger: 0.028 }, t);
+    if (lines.length) tl.from(lines, { yPercent: 115, duration: 1, ease: "expo.out", stagger: 0.08 }, t + 0.18);
+    tl.from(back.current, { opacity: 0, y: 8, duration: 0.8, ease: "power3.out" }, t + 0.3);
+    tl.from(bar.current!.parentElement, { scaleX: 0, transformOrigin: "0% 50%", duration: 1.2, ease: "expo.inOut" }, t + 0.2);
+  };
+
+  /* ── Close ────────────────────────────────────────────── */
+
+  useImperativeHandle(ref, () => ({
+    close: () =>
+      new Promise<void>((resolve) => {
+        const st = s.current;
+        const el = root.current!;
+        st.live = false;
+        st.drag = null;
+        cancelAnimationFrame(st.raf);
+        st.raf = 0;
+
+        const panels = q("[data-panel]");
+        const frames = q("[data-media]");
+        const shadows = q("[data-shadow]");
+        const chrome = Array.from(document.querySelectorAll<HTMLElement>("[data-chrome]"));
+        const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        // Folders back at rest for measuring (still invisible: same frame).
+        const folders = Array.from(document.querySelectorAll<HTMLElement>("[data-rail] [data-slug]"));
+        gsap.set(folders, { clearProps: "transform,opacity" });
+        const onScreen = visibleFolders();
+        // the clicked folder, or this project's folder nearest the middle of the screen
+        const home =
+          (source?.isConnected && onScreen.includes(source) ? source : null) ??
+          onScreen
+            .filter((f) => f.dataset.slug === project.slug)
+            .sort((a, b) => Math.abs(centre(a)[0] - innerWidth / 2) - Math.abs(centre(b)[0] - innerWidth / 2))[0] ??
+          null;
+        const [hx, hy] = home ? centre(home) : [innerWidth / 2, innerHeight / 2];
+        const from = new Map(onScreen.map((f) => [f, dolly(f, hx, hy)]));
+
+        const done = () => {
+          if (home) {
+            gsap.set(home.querySelectorAll("img"), { clearProps: "visibility,transform,transition" });
+            home.removeAttribute("data-open"); // closes with its own CSS transition
+          }
+          gsap.set([...folders, ...chrome], { clearProps: "transform,opacity" });
+          resolve();
+        };
+
+        if (reduced) {
+          gsap.set(onScreen, { opacity: 0 });
+          gsap.timeline({ onComplete: done })
+            .to(el, { opacity: 0, duration: 0.3 })
+            .to([...onScreen, ...chrome], { opacity: 1, duration: 0.3 });
+          return;
+        }
+
+        // Where each frame lands: just above the home folder (held open, at
+        // rest), where its paper then takes over and sinks back in.
+        let poses: (Pose | null)[] = panels.map(() => null);
+        const lifts: number[] = [];
+        const homePapers = home ? Array.from(home.querySelectorAll<HTMLElement>("img")) : [];
+        if (home) {
+          const front = home.querySelector<HTMLElement>("[data-front]");
+          gsap.set([...homePapers, front], { transition: "none" });
+          home.setAttribute("data-open", "");
+          poses = paperOf.map((k, i) => {
+            const paper = homePapers[k];
+            if (!paper) return null;
+            const pose = paperPose(paper, home);
+            lifts[i] = liftOf(paper, front, i);
+            return { ...pose, cy: pose.cy - lifts[i] };
+          });
+          gsap.set(front, { clearProps: "transition" });
+          // only papers that have a frame to come back from leave the folder
+          paperOf.forEach((k, i) => {
+            if (homePapers[k]) gsap.set(homePapers[k], { visibility: "hidden", y: `-=${lifts[i]}` });
+          });
+        }
+
+        onScreen.forEach((f) => gsap.set(f, from.get(f)!));
+
+        const tl = gsap.timeline({ onComplete: done });
+        tl.to(el, { backgroundColor: "rgba(247, 247, 247, 0)", duration: 0.6, ease: "power1.out" }, 0.2);
+        tl.to(st.split[0].chars, { yPercent: -115, duration: 0.55, ease: "power3.in", stagger: 0.015 }, 0);
+        if (st.split[1].lines.length) {
+          tl.to(st.split[1].lines, { yPercent: -115, duration: 0.5, ease: "power3.in", stagger: 0.04 }, 0.05);
+        }
+        tl.to([back.current, bar.current!.parentElement], { opacity: 0, duration: 0.35 }, 0);
+
+        // Frames fly to just above the folder (bottom one first, so the top
+        // paper goes in last), then become papers and sink back in.
+        let order = 0;
+        for (let i = panels.length - 1; i >= 0; i--) {
+          const panel = panels[i];
+          const pose = poses[i];
+          gsap.set(panel, { zIndex: panels.length - i });
+          if (!pose) {
+            tl.to(panel, { y: 60, opacity: 0, duration: 0.6, ease: "power2.in" }, 0.15 + i * 0.05);
+            continue;
+          }
+          const at = 0.15 + order++ * 0.06;
+          const f = flight(panel, pose);
+          tl.to(panel, { ...f.panel, duration: 1.15, ease: "expo.inOut" }, at);
+          tl.to(frames[i], { clipPath: f.clip, duration: 1, ease: "expo.inOut" }, at);
+          tl.to(shadows[i], { opacity: 0, duration: 0.4, ease: "power1.out" }, at);
+
+          const paper = homePapers[paperOf[i]];
+          const above = at + 1.15;
+          const sink = above + 0.04;
+          tl.set(paper, { visibility: "visible" }, above);
+          tl.set(panel, { opacity: 0 }, above);
+          tl.to(paper, { y: `+=${lifts[i]}`, duration: LIFT, ease: "power3.inOut" }, sink);
+        }
+
+        // The camera pulls back out of the folder.
+        onScreen.forEach((f) => {
+          const at = f === home ? 0.25 : 0.4;
+          tl.to(f, { x: 0, y: 0, scale: 1, duration: f === home ? 1 : 1.1, ease: "expo.out" }, at);
+          tl.to(f, { opacity: 1, duration: 0.6, ease: "power1.out" }, at);
+        });
+        tl.to(chrome, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.9);
+      }),
+  }));
+
+  return (
+    <div
+      ref={root}
+      className={styles.view}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${project.title}, ${project.year}`}
+      style={{ "--tint": project.fill[1] } as CSSProperties}
+    >
+      <a
+        ref={back}
+        className={styles.back}
+        href="/"
+        onClick={(e) => {
+          e.preventDefault();
+          if (s.current.live) onClose();
+        }}
+      >
+        Back
+      </a>
+
+      <div
+        ref={viewport}
+        className={styles.viewport}
+        tabIndex={-1}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+      >
+        <div ref={track} className={styles.track}>
+          <header ref={intro} className={styles.intro}>
+            <h1 ref={title} className={styles.title}>
+              {project.title}
+            </h1>
+            <p ref={body} className={styles.body} hidden={!project.description}>
+              {project.description}
+            </p>
+          </header>
+
+          {media.map((m, i) => (
+            <figure
+              key={`${i}-${m.src}`}
+              className={styles.panel}
+              data-panel
+              style={{ "--ar": `${m.w} / ${m.h}` } as CSSProperties}
+            >
+              <div className={styles.shadow} data-shadow />
+              <div className={styles.media} data-media>
+                {m.kind === "video" ? (
+                  <video src={m.video} poster={m.src} width={m.w} height={m.h} muted loop playsInline autoPlay aria-label={m.alt || undefined} />
+                ) : (
+                  <Image
+                    src={m.src}
+                    alt={m.alt}
+                    width={m.w}
+                    height={m.h}
+                    // every frame is FRAME_H of the viewport tall; its width follows the image
+                    sizes={`calc(${(FRAME_H * 100).toFixed(2)}svh * ${(m.w / m.h).toFixed(4)})`}
+                    quality={90}
+                    loading={i < 3 ? "eager" : "lazy"}
+                    draggable={false}
+                  />
+                )}
+              </div>
+            </figure>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.progress} aria-hidden>
+        <span ref={bar} />
+      </div>
+    </div>
+  );
+}

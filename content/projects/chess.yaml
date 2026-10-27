@@ -1,0 +1,42 @@
+title: "Chess"
+year: "2025"
+description: ''
+roles:
+  - cd
+  - design
+colour:
+  top: "#3a3735"
+  bottom: "#1a1816"
+  label: "#e6e3df"
+media:
+  - discriminant: image
+    value:
+      image: /projects/chess/media/0/value/image.jpg
+      alt: ''
+  - discriminant: image
+    value:
+      image: /projects/chess/media/1/value/image.jpg
+      alt: ''
+  - discriminant: image
+    value:
+      image: /projects/chess/media/2/value/image.jpg
+      alt: ''
+folder:
+  - item: 1
+    x: 61
+    y: 55
+    w: 246
+    h: 197
+    rotation: 0
+  - item: 2
+    x: 56
+    y: 23
+    w: 246
+    h: 197
+    rotation: 0.6
+  - item: 3
+    x: 13
+    y: 40
+    w: 264
+    h: 211
+    rotation: 0

@@ -1,0 +1,44 @@
+title: The Vic Mensa Show
+year: '2026'
+roles:
+  - cd
+colour:
+  top: '#f98a4c'
+  bottom: '#b9380f'
+  label: '#ffffff'
+media:
+  - discriminant: image
+    value:
+      image: /projects/vic/media/0/value/image.png
+      alt: ''
+  - discriminant: image
+    value:
+      image: /projects/vic/media/1/value/image.png
+  - discriminant: image
+    value:
+      image: /projects/vic/media/2/value/image.png
+folder:
+  - item: 1
+    x: 121
+    'y': 45
+    w: 173
+    h: 130
+    rotation: 1
+  - item: 2
+    x: 16
+    'y': 46
+    w: 173
+    h: 130
+    rotation: 0
+  - item: 3
+    x: 12
+    'y': 80
+    w: 228
+    h: 171
+    rotation: 0
+  - item: 2
+    x: 112
+    'y': 101
+    w: 173
+    h: 130
+    rotation: 0

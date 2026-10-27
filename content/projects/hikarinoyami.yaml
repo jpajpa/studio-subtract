@@ -1,0 +1,41 @@
+title: "Hikari no Yami"
+year: "2025"
+description: ''
+roles:
+  - cd
+colour:
+  top: "#353535"
+  bottom: "#141414"
+  label: "#d6d6d6"
+media:
+  - discriminant: image
+    value:
+      image: /projects/hikarinoyami/media/0/value/image.jpg
+      alt: ''
+  - discriminant: image
+    value:
+      image: /projects/hikarinoyami/media/1/value/image.png
+      alt: ''
+  - discriminant: image
+    value:
+      image: /projects/hikarinoyami/media/2/value/image.png
+      alt: ''
+folder:
+  - item: 1
+    x: 85
+    y: 40
+    w: 150
+    h: 212
+    rotation: 0
+  - item: 2
+    x: 140
+    y: 10
+    w: 150
+    h: 212
+    rotation: 1.5
+  - item: 3
+    x: 30
+    y: 18
+    w: 150
+    h: 212
+    rotation: -2

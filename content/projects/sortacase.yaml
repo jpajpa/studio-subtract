@@ -1,0 +1,41 @@
+title: "Sortacase"
+year: "2025"
+description: ''
+roles:
+  - design
+colour:
+  top: "#f9f9f9"
+  bottom: "#e0e0e0"
+  label: "#454545"
+media:
+  - discriminant: image
+    value:
+      image: /projects/sortacase/media/0/value/image.png
+      alt: ''
+  - discriminant: image
+    value:
+      image: /projects/sortacase/media/1/value/image.png
+      alt: ''
+  - discriminant: image
+    value:
+      image: /projects/sortacase/media/2/value/image.jpg
+      alt: ''
+folder:
+  - item: 1
+    x: 80
+    y: 84
+    w: 220
+    h: 156
+    rotation: -1
+  - item: 2
+    x: 14
+    y: 50
+    w: 230
+    h: 163
+    rotation: 0
+  - item: 3
+    x: 60
+    y: 18
+    w: 240
+    h: 170
+    rotation: 1

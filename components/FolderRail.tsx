@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import type { Project } from "@/content/projects";
+import type { Project } from "@/lib/projects";
 import { Folder } from "./Folder";
 import styles from "./FolderRail.module.css";
 
@@ -9,6 +9,7 @@ const EASE = 0.09; // per-frame approach to the target at 60fps
 const FLING = 14; // how far a drag release coasts (× release velocity in px/frame)
 const WHEEL_LINE = 16;
 const ENTER_MAX = 8; // folders past this in the load-in stagger all start together
+const CLICK_SLOP = 6; // px a press can travel and still count as a click
 
 const mod = (n: number, m: number) => ((n % m) + m) % m;
 
@@ -17,7 +18,14 @@ const mod = (n: number, m: number) => ((n % m) + m) % m;
  * times to cover the viewport and the offset wraps by one set width, so the
  * row never ends in either direction.
  */
-export function FolderRail({ projects }: { projects: Project[] }) {
+export function FolderRail({
+  projects,
+  onOpen,
+}: {
+  projects: Project[];
+  /** a folder was clicked (not dragged) */
+  onOpen?: (slug: string, folder: HTMLElement) => void;
+}) {
   const railRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [copies, setCopies] = useState(3);
@@ -135,10 +143,16 @@ export function FolderRail({ projects }: { projects: Project[] }) {
     if (!st.drag || st.drag.id !== e.pointerId) return;
     // Ignore stale velocity if the pointer rested before release.
     const idle = performance.now() - st.drag.t > 80;
-    if (!idle) st.target += st.drag.vx * FLING;
+    const click = e.type === "pointerup" && Math.abs(e.clientX - st.drag.x) < CLICK_SLOP;
+    if (!idle && !click) st.target += st.drag.vx * FLING;
     st.drag = null;
     railRef.current?.classList.remove("is-dragging");
     kick();
+    if (click) {
+      // pointer capture retargets events to the rail, so find the folder by position
+      const folder = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>("[data-slug]");
+      if (folder?.dataset.slug && railRef.current?.contains(folder)) onOpen?.(folder.dataset.slug, folder);
+    }
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {

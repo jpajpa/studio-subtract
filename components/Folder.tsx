@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
-import { ROLES, type Project } from "@/content/projects";
+import Image from "next/image";
+import { ROLES, type Project } from "@/lib/projects";
 import styles from "./Folder.module.css";
 
 // Back panel outline in folder space (320 × 285): tab top-left, body from y=34.
@@ -59,14 +60,17 @@ export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
 
       <div className={styles.papers}>
         {papers.map((p, i) => (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             key={i}
             className={styles.paper}
             src={p.src}
             alt=""
+            width={p.w}
+            height={p.h}
+            // papers are drawn at folder units ≈ CSS px on desktop
+            sizes={`${Math.ceil(p.w)}px`}
+            quality={85}
             loading={eager ? "eager" : "lazy"}
-            decoding="async"
             draggable={false}
             style={
               {
@@ -83,7 +87,7 @@ export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
         ))}
       </div>
 
-      <div className={styles.front}>
+      <div className={styles.front} data-front>
         <div className={styles.glass} />
         <ul className={styles.dots} aria-label="Roles">
           {ROLES.filter((r) => roles.includes(r.id)).map((r) => (

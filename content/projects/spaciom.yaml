@@ -1,0 +1,42 @@
+title: "Spaciom"
+year: "2026"
+description: ''
+roles:
+  - cd
+  - design
+colour:
+  top: "#e5e4e7"
+  bottom: "#cac9ce"
+  label: "#3b3b3b"
+media:
+  - discriminant: image
+    value:
+      image: /projects/spaciom/media/0/value/image.png
+      alt: ''
+  - discriminant: image
+    value:
+      image: /projects/spaciom/media/1/value/image.png
+      alt: ''
+  - discriminant: image
+    value:
+      image: /projects/spaciom/media/2/value/image.png
+      alt: ''
+folder:
+  - item: 1
+    x: 0
+    y: 93
+    w: 230
+    h: 163
+    rotation: 0
+  - item: 2
+    x: 19
+    y: 70
+    w: 230
+    h: 163
+    rotation: 0
+  - item: 3
+    x: 76
+    y: 23
+    w: 230
+    h: 163
+    rotation: 0

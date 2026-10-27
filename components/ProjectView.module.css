@@ -1,0 +1,147 @@
+/* Sketch "SJJ, Example": 1440 × 1080, text column at the page margin,
+   frames 780 tall with 150 above and below, 24 apart. */
+
+.view {
+  --panel-h: calc(100svh * 780 / 1080); /* FRAME_H in ProjectView */
+  --panel-gap: 24px;
+
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  /* opaque until the folders behind are set up (see ProjectView) */
+  background: var(--bg);
+}
+
+/* hold the strip back until the open animation has placed it */
+.view:not([data-ready]) .viewport,
+.view:not([data-ready]) .progress {
+  visibility: hidden;
+}
+
+.viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  outline: none;
+}
+
+.dragging {
+  cursor: grabbing;
+}
+
+.track {
+  display: flex;
+  align-items: center;
+  gap: var(--panel-gap);
+  width: max-content;
+  height: 100%;
+  padding: 0 var(--page-margin);
+  will-change: transform;
+}
+
+/* ── Heading + body ─────────────────────────────────────── */
+
+.intro {
+  flex: none;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  will-change: transform;
+}
+
+.title {
+  margin: 0;
+  font-size: 44px;
+  line-height: 54px;
+  font-weight: 400;
+  letter-spacing: -0.8px;
+}
+
+.body {
+  margin: 0;
+  padding-left: 2px;
+  line-height: 19px;
+  letter-spacing: 0.1px;
+}
+
+/* SplitText line masks: a little room so descenders aren't clipped */
+.line {
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+/* ── Media frames ───────────────────────────────────────── */
+
+.panel {
+  position: relative;
+  flex: none;
+  height: var(--panel-h);
+  aspect-ratio: var(--ar);
+  margin: 0;
+  will-change: transform;
+}
+
+.shadow {
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    0 12px 64px rgba(0, 0, 0, 0.1),
+    0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.media {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--tint) 16%, #e2e2e2);
+  clip-path: inset(0px 0px 0px 0px round 0px);
+}
+
+.media > * {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ── Chrome ─────────────────────────────────────────────── */
+
+/* above the frames, mirroring the progress line below them, so the
+   gallery never scrolls underneath it */
+.back {
+  position: absolute;
+  z-index: 2;
+  top: calc((100svh - var(--panel-h)) / 4 - 9px);
+  left: var(--page-margin);
+  line-height: 18px;
+  text-decoration: none;
+}
+
+.back:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.progress {
+  position: absolute;
+  left: var(--page-margin);
+  right: var(--page-margin);
+  bottom: calc((100svh - var(--panel-h)) / 4);
+  height: 1px;
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+  pointer-events: none;
+}
+
+.progress span {
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}

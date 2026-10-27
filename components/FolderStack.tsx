@@ -1,4 +1,4 @@
-import type { Project } from "@/content/projects";
+import type { Project } from "@/lib/projects";
 import { Folder } from "./Folder";
 
 const config = {

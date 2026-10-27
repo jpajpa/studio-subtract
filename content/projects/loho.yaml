@@ -1,0 +1,44 @@
+title: "Loho"
+year: "2025"
+description: ''
+roles:
+  - cd
+colour:
+  top: "#f0edf1"
+  bottom: "#d6d2d8"
+  label: "#454545"
+media:
+  - discriminant: video
+    value:
+      video: /projects/loho/media/0/value/video.mp4
+      poster: /projects/loho/media/0/value/poster.jpg
+      alt: ''
+  - discriminant: video
+    value:
+      video: /projects/loho/media/1/value/video.mp4
+      poster: /projects/loho/media/1/value/poster.jpg
+      alt: ''
+  - discriminant: video
+    value:
+      video: /projects/loho/media/2/value/video.mp4
+      poster: /projects/loho/media/2/value/poster.jpg
+      alt: ''
+folder:
+  - item: 1
+    x: 30
+    y: 92
+    w: 250
+    h: 141
+    rotation: 0
+  - item: 2
+    x: 52
+    y: 52
+    w: 250
+    h: 141
+    rotation: 1
+  - item: 3
+    x: 18
+    y: 22
+    w: 250
+    h: 141
+    rotation: -1

@@ -6,13 +6,19 @@
   /* room for hover lift above and the deep drop shadows below */
   padding: 64px 0 128px;
   margin-bottom: -80px;
-  overflow: hidden;
+  /* no clipping here: papers lifted out of a folder (see ProjectView) rise
+     well above the row. The page's work section clips it sideways. */
   cursor: grab;
   touch-action: pan-y;
   outline: none;
 }
 
-.rail:global(.is-dragging) {
+.rail :global(article) {
+  cursor: pointer;
+}
+
+.rail:global(.is-dragging),
+.rail:global(.is-dragging) :global(article) {
   cursor: grabbing;
 }
 
