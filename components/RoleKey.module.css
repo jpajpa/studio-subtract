@@ -21,24 +21,10 @@
   line-height: 18px;
 }
 
-.dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  box-shadow:
-    inset 0 1px 1.5px rgba(0, 0, 0, 0.25),
-    0 0 0 0.5px rgba(0, 0, 0, 0.12);
-}
-
-.dot[data-role="cd"] {
-  background: var(--dot-cd);
-}
-
-.dot[data-role="design"] {
-  background: var(--dot-design);
-  box-shadow:
-    inset 0 1px 1.5px rgba(0, 0, 0, 0.2),
-    0 0 0 1px rgba(0, 0, 0, 0.14);
+.tag {
+  flex: none;
+  width: 14px;
+  height: 14px;
 }
 
 @keyframes key-in {
@@ -57,5 +43,12 @@
     flex-direction: row;
     justify-content: center;
     gap: 28px;
+  }
+}
+
+/* the narrowest phones: keep all three on one row */
+@media (max-width: 359px) {
+  .key {
+    gap: 16px;
   }
 }

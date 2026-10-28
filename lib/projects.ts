@@ -2,13 +2,25 @@
 // keystatic.config.ts and lib/cms.ts); this file has no server code so client
 // components can import it.
 
-/** What the studio did on a project; shown as the folder's dots. */
+/** What the studio did on a project; shown as the folder's tag. */
 export type Role = "cd" | "design";
 
 export const ROLES: { id: Role; label: string }[] = [
   { id: "cd", label: "Creative Direction" },
   { id: "design", label: "Design" },
 ];
+
+/** A folder's tag: circle, square, or triangle for both roles. */
+export type Tag = Role | "both";
+
+export const TAGS: { id: Tag; label: string }[] = [
+  { id: "cd", label: "Creative Direction" },
+  { id: "design", label: "Design" },
+  { id: "both", label: "CD+D" },
+];
+
+export const tagOf = (roles: Role[]): Tag | null =>
+  roles.includes("cd") && roles.includes("design") ? "both" : (roles[0] ?? null);
 
 /** One gallery item at its full size. Videos use their still for `src`. */
 export type Media = {
