@@ -105,14 +105,18 @@ function visibleFolders() {
   });
 }
 
-/** A camera moving into (cx, cy): everything grows away from that point. */
+/**
+ * A camera moving into (cx, cy): everything grows away from that point.
+ * Folders never fade themselves: the view's scrim fades over them instead,
+ * because WebKit mis-draws their glass (backdrop-filter) and shadows
+ * (filter) while an ancestor's opacity animates.
+ */
 const dolly = (el: HTMLElement, cx: number, cy: number) => {
   const r = el.getBoundingClientRect();
   return {
     x: (r.left + r.width / 2 - cx) * (DOLLY - 1),
     y: (r.top + r.height / 2 - cy) * (DOLLY - 1),
     scale: DOLLY,
-    opacity: 0,
   };
 };
 
@@ -137,6 +141,7 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
   // each gallery item flies from its topmost paper in the folder, if it has one
   const paperOf = media.map((_, i) => folderPapers.findLastIndex((p) => p.media === i));
   const root = useRef<HTMLDivElement>(null);
+  const scrim = useRef<HTMLDivElement>(null);
   const viewport = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
   const intro = useRef<HTMLElement>(null);
@@ -296,8 +301,18 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
 
   useLayoutEffect(() => {
     // a context so a re-run (React StrictMode in dev) starts from a clean slate
-    const ctx = gsap.context(() => open());
-    return () => ctx.revert();
+    let raf = 0;
+    const ctx = gsap.context(() => {
+      const tl = open();
+      // Mounting the page and splitting its text makes the next frame late;
+      // starting the clock after that frame keeps the first moves from
+      // skipping ahead (most visible on phones).
+      raf = requestAnimationFrame(() => (raf = requestAnimationFrame(() => tl.play())));
+    });
+    return () => {
+      cancelAnimationFrame(raf);
+      ctx.revert();
+    };
     // mount only: the view is keyed by project
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -314,14 +329,19 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
     const { chars, lines } = splitText();
     measure();
     el.dataset.ready = "";
+    // the scrim covers the folders from here on (opaque unless flying out)
+    gsap.set(el, { backgroundColor: "transparent" });
 
     // folders and nav were animated in by CSS; that would override GSAP
     for (const f of [...folders, ...chrome]) f.style.animation = "none";
 
     const tl = gsap.timeline({
+      paused: true,
       onComplete: () => {
         s.current.live = true;
         gsap.set(panels, { clearProps: "zIndex" });
+        // out of sight under the scrim: stop compositing their glass
+        gsap.set(folders, { opacity: 0 });
         render();
         viewport.current?.focus({ preventScroll: true });
       },
@@ -330,14 +350,14 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
     if (reduced) {
       gsap.set([...folders, ...chrome], { opacity: 0 });
       tl.from(el, { opacity: 0, duration: 0.4 });
-      return;
+      return tl;
     }
 
     tl.to(chrome, { opacity: 0, y: -8, duration: 0.4, ease: "power2.in" }, 0);
 
     if (source) {
-      gsap.set(el, { backgroundColor: "transparent" });
-      const papers = Array.from(source.querySelectorAll<HTMLElement>("img"));
+      gsap.set(scrim.current, { opacity: 0 });
+      const papers = Array.from(source.querySelectorAll("img"));
       const front = source.querySelector<HTMLElement>("[data-front]");
       const [sx, sy] = centre(source);
       source.setAttribute("data-open", "");
@@ -360,30 +380,36 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
         const pose = paperPose(paper, source);
         tl.to(paper, { y: `-=${lift}`, duration: LIFT, ease: "power3.inOut" }, up);
 
-        const at = up + LIFT;
+        // phones hand over as the paper eases into the top of its rise (under
+        // a pixel short of it), so it doesn't sit there before flying
+        const at = up + LIFT * (phone ? 0.85 : 1);
         handoff = Math.max(handoff, at);
         const f = flight(panel, { ...pose, cy: pose.cy - lift });
         gsap.set(panel, { ...f.panel, zIndex: panels.length - i, opacity: 0 });
-        gsap.set(frames[i], { clipPath: f.clip });
+        // the paper's image (already loaded) shows until the frame's own
+        // larger one arrives, so a frame never flies in empty
+        gsap.set(frames[i], { clipPath: f.clip, backgroundImage: `url("${paper.currentSrc || paper.src}")` });
         // its big soft shadow fades in late: scaled down, it breaks up in WebKit
         gsap.set(shadows[i], { opacity: 0 });
         tl.set(panel, { opacity: 1 }, at);
         tl.set(paper, { visibility: "hidden" }, at);
-        tl.to(panel, { x: 0, y: 0, scale: 1, rotation: 0, duration: 1.35, ease: "expo.inOut" }, at);
-        tl.to(frames[i], { clipPath: CLIP_OPEN, duration: 1.15, ease: "expo.inOut" }, at + 0.08);
+        // phones: short flights; expo's long flat start reads as the papers
+        // stalling after they rise
+        const fly = phone ? { duration: 1.05, ease: "power2.inOut" } : { duration: 1.35, ease: "expo.inOut" };
+        const unclip = phone ? { duration: 0.9, ease: "power2.inOut" } : { duration: 1.15, ease: "expo.inOut" };
+        tl.to(panel, { x: 0, y: 0, scale: 1, rotation: 0, ...fly }, at);
+        tl.to(frames[i], { clipPath: CLIP_OPEN, ...unclip }, at + 0.08);
         tl.to(shadows[i], { opacity: 1, duration: 0.6, ease: "power1.in" }, at + 0.75);
       });
 
-      // The camera dives into the folder: the rest rush outward past it.
+      // The camera dives into the folder: the rest rush outward past it
+      // while the page fades up over them.
       const dive = Math.max(handoff - 0.2, 0);
-      const others = folders.filter((f) => f !== source);
-      others.forEach((f) => {
-        const { opacity, ...to } = dolly(f, sx, sy);
-        tl.to(f, { ...to, duration: 1.1, ease: "power3.in" }, dive);
-        tl.to(f, { opacity, duration: 0.7, ease: "power1.in" }, dive + 0.15);
-      });
+      folders
+        .filter((f) => f !== source)
+        .forEach((f) => tl.to(f, { ...dolly(f, sx, sy), duration: 1.1, ease: "power3.in" }, dive));
       tl.to(source, { scale: DOLLY, duration: 1.1, ease: "power3.in" }, dive + 0.12);
-      tl.to(source, { opacity: 0, duration: 0.55, ease: "power1.in" }, dive + 0.35);
+      tl.to(scrim.current, { opacity: 1, duration: 0.75, ease: "power1.in" }, dive + 0.2);
     } else {
       // Opened by URL: the folders wait out of shot; the gallery glides in.
       const cx = window.innerWidth / 2;
@@ -414,6 +440,7 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
     if (lines.length) tl.from(lines, { yPercent: 115, duration: 1, ease: "expo.out", stagger: 0.08 }, t + 0.18);
     tl.from([back.current, pager.current], { opacity: 0, y: 8, duration: 0.8, ease: "power3.out" }, t + 0.3);
     tl.from(bar.current!.parentElement, { scaleX: 0, transformOrigin: "0% 50%", duration: 1.2, ease: "expo.inOut" }, t + 0.2);
+    return tl;
   };
 
   /* ── Close ────────────────────────────────────────────── */
@@ -433,6 +460,9 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
         const shadows = q("[data-shadow]");
         const chrome = chromeEls();
         const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        // phones: the same quicker flights as on opening
+        const fly = isPhone() ? { duration: 1, ease: "power2.inOut" } : { duration: 1.15, ease: "expo.inOut" };
+        const clip = isPhone() ? { duration: 0.9, ease: "power2.inOut" } : { duration: 1, ease: "expo.inOut" };
 
         // Folders back at rest for measuring (still invisible: same frame).
         const folders = allFolders();
@@ -493,7 +523,7 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
         onScreen.forEach((f) => gsap.set(f, from.get(f)!));
 
         const tl = gsap.timeline({ onComplete: done });
-        tl.to(el, { backgroundColor: "rgba(247, 247, 247, 0)", duration: 0.6, ease: "power1.out" }, 0.2);
+        tl.to(scrim.current, { opacity: 0, duration: 0.7, ease: "power1.out" }, 0.25);
         tl.to(st.split[0].chars, { yPercent: -115, duration: 0.55, ease: "power3.in", stagger: 0.015 }, 0);
         const lines = [...st.split[1].lines, ...metaLines()];
         if (lines.length) tl.to(lines, { yPercent: -115, duration: 0.5, ease: "power3.in", stagger: 0.04 }, 0.05);
@@ -512,12 +542,12 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
           }
           const at = 0.15 + order++ * 0.06;
           const f = flight(panel, pose);
-          tl.to(panel, { ...f.panel, duration: 1.15, ease: "expo.inOut" }, at);
-          tl.to(frames[i], { clipPath: f.clip, duration: 1, ease: "expo.inOut" }, at);
+          tl.to(panel, { ...f.panel, ...fly }, at);
+          tl.to(frames[i], { clipPath: f.clip, ...clip }, at);
           tl.to(shadows[i], { opacity: 0, duration: 0.4, ease: "power1.out" }, at);
 
           const paper = homePapers[paperOf[i]];
-          const above = at + 1.15;
+          const above = at + fly.duration;
           const sink = above + 0.04;
           tl.set(paper, { visibility: "visible" }, above);
           tl.set(panel, { opacity: 0 }, above);
@@ -528,7 +558,6 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
         onScreen.forEach((f) => {
           const at = f === home ? 0.25 : 0.4;
           tl.to(f, { x: 0, y: 0, scale: 1, duration: f === home ? 1 : 1.1, ease: "expo.out" }, at);
-          tl.to(f, { opacity: 1, duration: 0.6, ease: "power1.out" }, at);
         });
         tl.to(chrome, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.9);
       }),
@@ -543,6 +572,8 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
       aria-label={`${project.title}, ${project.year}`}
       style={{ "--tint": project.fill[1] } as CSSProperties}
     >
+      <div ref={scrim} className={styles.scrim} aria-hidden />
+
       <a
         ref={back}
         className={styles.back}

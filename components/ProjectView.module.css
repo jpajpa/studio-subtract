@@ -12,6 +12,14 @@
   background: var(--bg);
 }
 
+/* Covers the folders behind the page. The open/close animation fades it
+   instead of the folders themselves (see dolly() in ProjectView). */
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+}
+
 /* hold the strip back until the open animation has placed it */
 .view:not([data-ready]) .viewport,
 .view:not([data-ready]) .progress {
@@ -140,7 +148,7 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background: color-mix(in srgb, var(--tint) 16%, #e2e2e2);
+  background: color-mix(in srgb, var(--tint) 16%, #e2e2e2) 50% 50% / cover no-repeat;
   clip-path: inset(0px 0px 0px 0px round 0px);
 }
 
@@ -230,6 +238,14 @@
     padding: 0 25px;
     /* a little more air between the text and the first image than in Sketch */
     margin: 0 0 32px;
+  }
+
+  /* the strip doesn't move on phones; a layer per full-width frame only
+     costs memory there (and dropped frames in iOS Safari) */
+  .track,
+  .intro,
+  .panel {
+    will-change: auto;
   }
 
   .panel {
