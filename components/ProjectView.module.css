@@ -62,17 +62,18 @@
   will-change: transform;
 }
 
+/* Sketch "SJJ, New type": body size in Medium; the body still starts
+   66px below the heading's top, as before */
 .title {
-  margin: 0;
-  font-size: 44px;
-  line-height: 54px;
-  font-weight: 500; /* Medium, as in Sketch */
-  letter-spacing: -0.8px;
+  margin: 0 0 35px;
+  font-size: 14px;
+  line-height: 19px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
 }
 
 .body {
   margin: 0;
-  padding-left: 2px;
   line-height: 19px;
   letter-spacing: 0.1px;
 }
@@ -82,7 +83,6 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding-left: 2px;
   line-height: 19px;
   letter-spacing: 0.1px;
 }

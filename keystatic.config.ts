@@ -63,7 +63,7 @@ export default config({
         ),
         roles: fields.multiselect({
           label: "Roles",
-          description: "Shown as the dots on the folder.",
+          description: "Shown as the folder's tag: circle, square, or triangle for both.",
           options: [
             { label: "Creative Direction", value: "cd" },
             { label: "Design", value: "design" },

@@ -1,14 +1,15 @@
-import { ROLES } from "@/lib/projects";
+import { TAGS } from "@/lib/projects";
+import { Tag } from "./Tag";
 import styles from "./RoleKey.module.css";
 
-/** Key for the two role dots on every folder. */
+/** Key for the role tag on every folder. */
 export function RoleKey() {
   return (
     <ul className={styles.key} aria-label="Key" data-chrome>
-      {ROLES.map((r) => (
-        <li key={r.id}>
-          <span className={styles.dot} data-role={r.id} aria-hidden />
-          {r.label}
+      {TAGS.map((t) => (
+        <li key={t.id}>
+          <Tag kind={t.id} className={styles.tag} />
+          {t.label}
         </li>
       ))}
     </ul>

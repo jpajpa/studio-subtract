@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
-import { ROLES, type Project } from "@/lib/projects";
+import { ROLES, tagOf, type Project } from "@/lib/projects";
+import { Tag } from "./Tag";
 import styles from "./Folder.module.css";
 
 // Back panel outline in folder space (320 × 285): tab top-left, body from y=34.
@@ -30,6 +31,10 @@ type Props = {
 export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
   const { slug, title, year, fill, text, roles, papers } = project;
   const gradientId = `folder-fill-${slug}`;
+  const tag = tagOf(roles);
+  const tagLabel = ROLES.filter((r) => roles.includes(r.id))
+    .map((r) => r.label)
+    .join(" & ");
 
   return (
     <article
@@ -89,13 +94,12 @@ export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
 
       <div className={styles.front} data-front>
         <div className={styles.glass} />
-        <ul className={styles.dots} aria-label="Roles">
-          {ROLES.filter((r) => roles.includes(r.id)).map((r) => (
-            <li key={r.id} data-role={r.id} title={r.label}>
-              <span className={styles.srOnly}>{r.label}</span>
-            </li>
-          ))}
-        </ul>
+        {tag && (
+          <p className={styles.tag} title={tagLabel}>
+            <Tag kind={tag} className={styles.tagShape} />
+            <span className={styles.srOnly}>{tagLabel}</span>
+          </p>
+        )}
         <p className={styles.label}>
           <span>{title}</span>
           <span>{year}</span>
