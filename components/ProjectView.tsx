@@ -5,6 +5,7 @@ import Image from "next/image";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 import type { Project } from "@/lib/projects";
+import { SiteNav } from "./SiteNav";
 import styles from "./ProjectView.module.css";
 
 if (typeof window !== "undefined") gsap.registerPlugin(SplitText);
@@ -22,11 +23,8 @@ const LIFT_STEP = 8; // px each lower paper rises less high, so they stay stacke
 /** Phones: the page scrolls vertically and natively (see ProjectView.module.css). */
 const isPhone = () => window.matchMedia("(max-width: 767px)").matches;
 
-/** Nav and key; on phones the nav stays put over the project page. */
-const chromeEls = () =>
-  Array.from(
-    document.querySelectorAll<HTMLElement>(isPhone() ? '[data-chrome]:not([data-chrome="nav"])' : "[data-chrome]"),
-  );
+/** Nav and key; phones swap the nav for the page's own stacked one. */
+const chromeEls = () => Array.from(document.querySelectorAll<HTMLElement>("[data-chrome]"));
 
 export type ProjectViewHandle = { close: () => Promise<void> };
 
@@ -334,6 +332,8 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
 
     // folders and nav were animated in by CSS; that would override GSAP
     for (const f of [...folders, ...chrome]) f.style.animation = "none";
+    // the phone nav's scroll-hide transitions would trail every GSAP tick
+    gsap.set(chrome, { transition: "none" });
 
     const tl = gsap.timeline({
       paused: true,
@@ -439,6 +439,14 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
     tl.from(chars, { yPercent: 115, duration: 1.1, ease: "expo.out", stagger: 0.028 }, t);
     if (lines.length) tl.from(lines, { yPercent: 115, duration: 1, ease: "expo.out", stagger: 0.08 }, t + 0.18);
     tl.from([back.current, pager.current], { opacity: 0, y: 8, duration: 0.8, ease: "power3.out" }, t + 0.3);
+    // phones' nav: explicit end values (its CSS transitions would be read
+    // mid-way), then handed back to CSS so it can slide away on scroll
+    tl.fromTo(
+      q("[data-inner-nav]"),
+      { opacity: 0, y: 8, transition: "none" },
+      { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", clearProps: "all" },
+      t + 0.3,
+    );
     tl.from(bar.current!.parentElement, { scaleX: 0, transformOrigin: "0% 50%", duration: 1.2, ease: "expo.inOut" }, t + 0.2);
     return tl;
   };
@@ -459,6 +467,7 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
         const frames = q("[data-media]");
         const shadows = q("[data-shadow]");
         const chrome = chromeEls();
+        gsap.set(chrome, { transition: "none" });
         const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         // phones: the same quicker flights as on opening
         const fly = isPhone() ? { duration: 1, ease: "power2.inOut" } : { duration: 1.15, ease: "expo.inOut" };
@@ -485,7 +494,8 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
           }
           // phones: the stack re-opens whichever folder is mid-screen
           window.dispatchEvent(new Event("folderstack:sync"));
-          gsap.set([...folders, ...chrome], { clearProps: "transform,opacity" });
+          gsap.set(folders, { clearProps: "transform,opacity" });
+          gsap.set(chrome, { clearProps: "transform,opacity,transition" });
           resolve();
         };
 
@@ -527,7 +537,8 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
         tl.to(st.split[0].chars, { yPercent: -115, duration: 0.55, ease: "power3.in", stagger: 0.015 }, 0);
         const lines = [...st.split[1].lines, ...metaLines()];
         if (lines.length) tl.to(lines, { yPercent: -115, duration: 0.5, ease: "power3.in", stagger: 0.04 }, 0.05);
-        tl.to([back.current, pager.current, bar.current!.parentElement], { opacity: 0, duration: 0.35 }, 0);
+        gsap.set(q("[data-inner-nav]"), { transition: "none" });
+        tl.to([back.current, pager.current, bar.current!.parentElement, ...q("[data-inner-nav]")], { opacity: 0, duration: 0.35 }, 0);
 
         // Frames fly to just above the folder (bottom one first, so the top
         // paper goes in last), then become papers and sink back in.
@@ -573,6 +584,8 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
       style={{ "--tint": project.fill[1] } as CSSProperties}
     >
       <div ref={scrim} className={styles.scrim} aria-hidden />
+
+      <SiteNav inner onWork={() => s.current.live && onClose()} />
 
       <a
         ref={back}
@@ -659,21 +672,23 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
           <nav ref={pager} className={styles.pager} aria-label="Projects">
             <a
               href="/"
+              aria-label="Back"
               onClick={(e) => {
                 e.preventDefault();
                 if (s.current.live) onClose();
               }}
             >
-              &lt;- Back
+              <Arrow />
             </a>
             <a
               href={`/work/${nextSlug}`}
+              aria-label="Next project"
               onClick={(e) => {
                 e.preventDefault();
                 if (s.current.live) onNext();
               }}
             >
-              Next -&gt;
+              <Arrow next />
             </a>
           </nav>
         </div>
@@ -683,5 +698,14 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
         <span ref={bar} />
       </div>
     </div>
+  );
+}
+
+/** Footer arrow (Sketch "Mobile/Inner Page 2"): left for Back, right for Next. */
+function Arrow({ next }: { next?: boolean }) {
+  return (
+    <svg width="24" height="19" viewBox="0 0 24 19" fill="none" aria-hidden style={next ? { transform: "scaleX(-1)" } : undefined}>
+      <path d="M3 9.5h18M10.5 2 3 9.5l7.5 7.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
