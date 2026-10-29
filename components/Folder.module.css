@@ -234,6 +234,79 @@
   }
 }
 
+/* Phones (the stack's folders have data-reveal): how far a folder is open
+   follows where it sits on screen, scrubbed by the scroll itself. It opens
+   as it nears the middle and closes as it leaves, moving with the finger, so
+   it never fires on its own or snaps. The FolderStack script's data-open is
+   the fallback where this isn't supported. A tapped folder hands its papers
+   to the project page's flight (data-flight, see ProjectView). */
+@supports (animation-timeline: view()) {
+  @media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+    .folder[data-reveal] {
+      view-timeline: --folder block;
+    }
+    .folder[data-reveal] .paper,
+    .folder[data-reveal] .front {
+      animation: paper-open ease-in-out both;
+      animation-duration: auto;
+      animation-timeline: --folder;
+      /* 0% the folder's top meets the screen's foot, 50% it's centred,
+         100% its foot leaves the top */
+      animation-range: cover 0% cover 100%;
+    }
+    .folder[data-reveal] .paper:nth-child(even) {
+      animation-name: paper-open-even;
+    }
+    .folder[data-reveal] .front {
+      animation-name: front-open;
+    }
+    .folder[data-flight] .paper,
+    .folder[data-flight] .paper:nth-child(even),
+    .folder[data-flight] .front {
+      animation: none;
+    }
+  }
+}
+
+/* closed until 30%, fully open from 44% to 56%, closed again by 70%: a
+   neighbour a folder's pitch away is closed while one is centred */
+@keyframes paper-open {
+  0%,
+  30%,
+  70%,
+  100% {
+    transform: rotate(var(--r));
+  }
+  44%,
+  56% {
+    transform: translateY(calc(-22px - var(--i) * 6px)) rotate(calc(var(--r) - 3deg));
+  }
+}
+@keyframes paper-open-even {
+  0%,
+  30%,
+  70%,
+  100% {
+    transform: rotate(var(--r));
+  }
+  44%,
+  56% {
+    transform: translateY(calc(-28px - var(--i) * 6px)) rotate(calc(var(--r) + 3.5deg));
+  }
+}
+@keyframes front-open {
+  0%,
+  30%,
+  70%,
+  100% {
+    transform: perspective(900px) rotateX(0deg);
+  }
+  44%,
+  56% {
+    transform: perspective(900px) rotateX(-24deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .folder,
   .folder[data-reveal="in"] {

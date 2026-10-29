@@ -379,6 +379,12 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
       const papers = papersIn(source);
       const front = source.querySelector<HTMLElement>("[data-front]");
       const [sx, sy] = centre(source);
+      // phones scrub a folder open with the scroll (Folder.module.css): the
+      // papers hold the pose they're in, and the flight takes them from there
+      // (through GSAP, so its context's revert leaves no inline pose behind)
+      const held = papers.map((p) => getComputedStyle(p).transform);
+      papers.forEach((p, i) => gsap.set(p, { transform: held[i] }));
+      source.setAttribute("data-flight", "");
       source.setAttribute("data-open", "");
       // GSAP drives the papers now, not their hover transition
       gsap.set(papers, { transition: "none" });
@@ -514,6 +520,9 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
             gsap.set(papersIn(home), { clearProps: "visibility,transform,transition,--paper-shadow" });
             home.removeAttribute("data-open"); // closes with its own CSS transition
           }
+          // phones: the scroll takes over the folders' opening again
+          if (home) gsap.set(home.querySelector("[data-front]"), { clearProps: "transform" });
+          for (const f of folders) f.removeAttribute("data-flight");
           // phones: the stack re-opens whichever folder is mid-screen
           window.dispatchEvent(new Event("folderstack:sync"));
           gsap.set(folders, { clearProps: "transform,opacity" });
@@ -536,8 +545,21 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         const homePapers = home ? papersIn(home) : [];
         if (home) {
           const front = home.querySelector<HTMLElement>("[data-front]");
+          // phones: the pose the scroll holds this folder in (Folder.module.css).
+          // The papers sink back to it, so the scroll takes over without a jump
+          // (it can't ease in like the CSS transition does elsewhere).
+          home.removeAttribute("data-flight");
+          const held = [...homePapers, front].map((el) =>
+            el && getComputedStyle(el).animationName !== "none" ? getComputedStyle(el).transform : null,
+          );
+          home.setAttribute("data-flight", "");
           gsap.set([...homePapers, front], { transition: "none" });
           home.setAttribute("data-open", "");
+          [...homePapers, front].forEach((el, k) => {
+            if (!el || !held[k]) return;
+            gsap.set(el, { clearProps: "transform" });
+            gsap.set(el, { transform: held[k] });
+          });
           poses = paperOf.map((k, i) => {
             const paper = homePapers[k];
             if (!paper) return null;
