@@ -1,17 +1,20 @@
 name: Gabriel
 role: Management
+link: {}
 media:
   - discriminant: image
     value:
       image:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/gabriel/portrait.png
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/gabriel/portrait.png
         width: 1080
         height: 1080
       alt: Portrait of Gabriel
-folder:
-  - item: 1
-    x: 42
-    'y': -2
-    w: 221
-    h: 221
-    rotation: 0
+  - discriminant: image
+    value:
+      image:
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/Gabriel-K7la7x6Ur6llOdGapIGUhg1HbL93Tu.jpeg
+        width: 1581
+        height: 2048
+folder: []
