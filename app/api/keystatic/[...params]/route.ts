@@ -1,10 +1,11 @@
 import { makeRouteHandler } from "@keystatic/next/route-handler";
 import config from "@/keystatic.config";
+import { editorReady } from "@/lib/editor";
 
-const handler = makeRouteHandler({ config });
+// GitHub mode throws without its env vars, so the live site 404s until
+// they're set (see docs/keystatic-github.md)
+const handler = editorReady ? makeRouteHandler({ config }) : null;
 const notFound = () => new Response("Not found", { status: 404 });
 
-// local editing only (see app/keystatic/layout.tsx)
-const live = process.env.NODE_ENV === "production";
-export const GET = live ? notFound : handler.GET;
-export const POST = live ? notFound : handler.POST;
+export const GET = handler?.GET ?? notFound;
+export const POST = handler?.POST ?? notFound;

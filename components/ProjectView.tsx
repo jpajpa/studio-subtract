@@ -4,7 +4,8 @@ import { useEffect, useImperativeHandle, useLayoutEffect, useRef, type CSSProper
 import Image from "next/image";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
-import type { Project } from "@/lib/projects";
+import type { Project, Section } from "@/lib/projects";
+import { SiteNav } from "./SiteNav";
 import styles from "./ProjectView.module.css";
 
 if (typeof window !== "undefined") gsap.registerPlugin(SplitText);
@@ -22,11 +23,8 @@ const LIFT_STEP = 8; // px each lower paper rises less high, so they stay stacke
 /** Phones: the page scrolls vertically and natively (see ProjectView.module.css). */
 const isPhone = () => window.matchMedia("(max-width: 767px)").matches;
 
-/** Nav and key; on phones the nav stays put over the project page. */
-const chromeEls = () =>
-  Array.from(
-    document.querySelectorAll<HTMLElement>(isPhone() ? '[data-chrome]:not([data-chrome="nav"])' : "[data-chrome]"),
-  );
+/** Nav and key; phones swap the nav for the page's own stacked one. */
+const chromeEls = () => Array.from(document.querySelectorAll<HTMLElement>("[data-chrome]"));
 
 export type ProjectViewHandle = { close: () => Promise<void> };
 
@@ -35,6 +33,7 @@ type Props = {
   /** the folder that was clicked; null when the page was opened by URL */
   source: HTMLElement | null;
   onClose: () => void;
+  section: Section;
   /** the project after this one: phones show a Next link at the end */
   nextSlug: string;
   onNext: () => void;
@@ -136,7 +135,7 @@ const offCentre = (el: HTMLElement) => {
  * flying the clicked folder's papers out into the gallery frames while the
  * other folders rush past the camera, and closes by reversing that.
  */
-export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }: Props) {
+export function ProjectView({ project, source, onClose, section, nextSlug, onNext, ref }: Props) {
   const { media, papers: folderPapers } = project;
   // each gallery item flies from its topmost paper in the folder, if it has one
   const paperOf = media.map((_, i) => folderPapers.findLastIndex((p) => p.media === i));
@@ -158,7 +157,9 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
     raf: 0,
     last: 0,
     live: false, // accepts input (off while animating in/out)
-    drag: null as null | { id: number; x: number; target: number; vx: number; t: number },
+    drag: null as null | { id: number; x: number; target: number; vx: number; t: number; moved: boolean },
+    // the last drag moved the gallery: the click that ends it opens nothing
+    dragged: false,
     split: [] as SplitText[],
   });
 
@@ -250,10 +251,11 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
 
   const onPointerDown = (e: React.PointerEvent) => {
     const st = s.current;
-    if (e.button !== 0 || !st.live || isPhone() || (e.target as HTMLElement).closest("a")) return;
-    st.drag = { id: e.pointerId, x: e.clientX, target: st.target, vx: 0, t: performance.now() };
-    viewport.current?.setPointerCapture(e.pointerId);
-    viewport.current?.classList.add(styles.dragging);
+    // PDF covers are links you can also drag the gallery by
+    const link = (e.target as HTMLElement).closest("a");
+    if (e.button !== 0 || !st.live || isPhone() || (link && !link.hasAttribute("data-pdf"))) return;
+    st.drag = { id: e.pointerId, x: e.clientX, target: st.target, vx: 0, t: performance.now(), moved: false };
+    st.dragged = false;
     kick();
   };
 
@@ -261,6 +263,13 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
     const st = s.current;
     const drag = st.drag;
     if (!drag || drag.id !== e.pointerId) return;
+    // capture only once it's a real drag, so a plain click still reaches a PDF link
+    if (!drag.moved) {
+      if (Math.abs(e.clientX - drag.x) < 4) return;
+      drag.moved = st.dragged = true;
+      viewport.current?.setPointerCapture(e.pointerId);
+      viewport.current?.classList.add(styles.dragging);
+    }
     const now = performance.now();
     const next = gsap.utils.clamp(0, st.max, drag.target - (e.clientX - drag.x));
     const frames = Math.max((now - drag.t) / (1000 / 60), 0.5);
@@ -334,6 +343,8 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
 
     // folders and nav were animated in by CSS; that would override GSAP
     for (const f of [...folders, ...chrome]) f.style.animation = "none";
+    // the phone nav's scroll-hide transitions would trail every GSAP tick
+    gsap.set(chrome, { transition: "none" });
 
     const tl = gsap.timeline({
       paused: true,
@@ -439,6 +450,14 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
     tl.from(chars, { yPercent: 115, duration: 1.1, ease: "expo.out", stagger: 0.028 }, t);
     if (lines.length) tl.from(lines, { yPercent: 115, duration: 1, ease: "expo.out", stagger: 0.08 }, t + 0.18);
     tl.from([back.current, pager.current], { opacity: 0, y: 8, duration: 0.8, ease: "power3.out" }, t + 0.3);
+    // phones' nav: explicit end values (its CSS transitions would be read
+    // mid-way), then handed back to CSS so it can slide away on scroll
+    tl.fromTo(
+      q("[data-inner-nav]"),
+      { opacity: 0, y: 8, transition: "none" },
+      { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", clearProps: "all" },
+      t + 0.3,
+    );
     tl.from(bar.current!.parentElement, { scaleX: 0, transformOrigin: "0% 50%", duration: 1.2, ease: "expo.inOut" }, t + 0.2);
     return tl;
   };
@@ -459,6 +478,7 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
         const frames = q("[data-media]");
         const shadows = q("[data-shadow]");
         const chrome = chromeEls();
+        gsap.set(chrome, { transition: "none" });
         const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         // phones: the same quicker flights as on opening
         const fly = isPhone() ? { duration: 1, ease: "power2.inOut" } : { duration: 1.15, ease: "expo.inOut" };
@@ -485,7 +505,8 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
           }
           // phones: the stack re-opens whichever folder is mid-screen
           window.dispatchEvent(new Event("folderstack:sync"));
-          gsap.set([...folders, ...chrome], { clearProps: "transform,opacity" });
+          gsap.set(folders, { clearProps: "transform,opacity" });
+          gsap.set(chrome, { clearProps: "transform,opacity,transition" });
           resolve();
         };
 
@@ -527,7 +548,8 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
         tl.to(st.split[0].chars, { yPercent: -115, duration: 0.55, ease: "power3.in", stagger: 0.015 }, 0);
         const lines = [...st.split[1].lines, ...metaLines()];
         if (lines.length) tl.to(lines, { yPercent: -115, duration: 0.5, ease: "power3.in", stagger: 0.04 }, 0.05);
-        tl.to([back.current, pager.current, bar.current!.parentElement], { opacity: 0, duration: 0.35 }, 0);
+        gsap.set(q("[data-inner-nav]"), { transition: "none" });
+        tl.to([back.current, pager.current, bar.current!.parentElement, ...q("[data-inner-nav]")], { opacity: 0, duration: 0.35 }, 0);
 
         // Frames fly to just above the folder (bottom one first, so the top
         // paper goes in last), then become papers and sink back in.
@@ -563,21 +585,26 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
       }),
   }));
 
+  // PDFs open from their covers in the gallery, so only the project's own link is listed
+  const links = project.link ? [project.link] : [];
+
   return (
     <div
       ref={root}
       className={styles.view}
       role="dialog"
       aria-modal="true"
-      aria-label={`${project.title}, ${project.year}`}
+      aria-label={[project.title, project.year].filter(Boolean).join(", ")}
       style={{ "--tint": project.fill[1] } as CSSProperties}
     >
       <div ref={scrim} className={styles.scrim} aria-hidden />
 
+      <SiteNav section={section} inner onHome={() => s.current.live && onClose()} />
+
       <a
         ref={back}
         className={styles.back}
-        href="/"
+        href={section.home}
         onClick={(e) => {
           e.preventDefault();
           if (s.current.live) onClose();
@@ -603,7 +630,7 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
             <p ref={body} className={styles.body} hidden={!project.description}>
               {project.description}
             </p>
-            {(project.credits.length > 0 || project.link) && (
+            {(project.credits.length > 0 || links.length > 0) && (
               <div className={styles.meta}>
                 {project.credits.length > 0 && (
                   <ul className={styles.credits}>
@@ -616,13 +643,13 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
                     ))}
                   </ul>
                 )}
-                {project.link && (
-                  <p className={styles.row}>
-                    <a className={styles.link} href={project.link.url} target="_blank" rel="noreferrer">
-                      {project.link.label} ↗
+                {links.map((l, i) => (
+                  <p key={i} className={styles.row}>
+                    <a className={styles.link} href={l.url} target="_blank" rel="noreferrer">
+                      {l.label} ↗
                     </a>
                   </p>
-                )}
+                ))}
               </div>
             )}
           </header>
@@ -636,7 +663,31 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
             >
               <div className={styles.shadow} data-shadow />
               <div className={styles.media} data-media>
-                {m.kind === "video" ? (
+                {m.pdf ? (
+                  <a
+                    className={styles.pdf}
+                    href={m.pdf}
+                    target="_blank"
+                    rel="noreferrer"
+                    data-pdf
+                    draggable={false}
+                    onClick={(e) => {
+                      if (s.current.dragged) e.preventDefault();
+                    }}
+                  >
+                    <Image
+                      src={m.src}
+                      alt={m.alt}
+                      width={m.w}
+                      height={m.h}
+                      sizes={`(max-width: 767px) calc(100vw - 52px), calc(${(FRAME_H * 100).toFixed(2)}svh * ${(m.w / m.h).toFixed(4)})`}
+                      quality={90}
+                      loading={i < 3 ? "eager" : "lazy"}
+                      draggable={false}
+                    />
+                    <span className={styles.pdfTag}>View PDF ↗</span>
+                  </a>
+                ) : m.kind === "video" ? (
                   <video src={m.video} poster={m.src} width={m.w} height={m.h} muted loop playsInline autoPlay aria-label={m.alt || undefined} />
                 ) : (
                   <Image
@@ -656,24 +707,26 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
             </figure>
           ))}
 
-          <nav ref={pager} className={styles.pager} aria-label="Projects">
+          <nav ref={pager} className={styles.pager} aria-label={section.label}>
             <a
-              href="/"
+              href={section.home}
+              aria-label="Back"
               onClick={(e) => {
                 e.preventDefault();
                 if (s.current.live) onClose();
               }}
             >
-              &lt;- Back
+              <Arrow />
             </a>
             <a
-              href={`/work/${nextSlug}`}
+              href={`${section.base}/${nextSlug}`}
+              aria-label="Next"
               onClick={(e) => {
                 e.preventDefault();
                 if (s.current.live) onNext();
               }}
             >
-              Next -&gt;
+              <Arrow next />
             </a>
           </nav>
         </div>
@@ -683,5 +736,14 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
         <span ref={bar} />
       </div>
     </div>
+  );
+}
+
+/** Footer arrow (Sketch "Mobile/Inner Page 2"): left for Back, right for Next. */
+function Arrow({ next }: { next?: boolean }) {
+  return (
+    <svg width="24" height="19" viewBox="0 0 24 19" fill="none" aria-hidden style={next ? { transform: "scaleX(-1)" } : undefined}>
+      <path d="M3 9.5h18M10.5 2 3 9.5l7.5 7.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }

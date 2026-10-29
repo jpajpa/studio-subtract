@@ -3,7 +3,7 @@
 import { cache } from "react";
 import { createReader } from "@keystatic/core/reader";
 import config from "@/keystatic.config";
-import type { Media, Paper, Project, Role } from "./projects";
+import { categoryOf, type Media, type Paper, type Project, type Role } from "./projects";
 
 const reader = createReader(process.cwd(), config);
 
@@ -19,9 +19,9 @@ function address(url: string) {
 // Fan used when a project has no folder papers set: up to three items, top
 // first, each fitted to its own aspect ratio.
 const AUTO = [
-  { x: 64, y: 30, r: 1.2 },
-  { x: 22, y: 52, r: -1.5 },
-  { x: 40, y: 78, r: 0 },
+  { x: 64, y: 0, r: 1.2 },
+  { x: 22, y: 22, r: -1.5 },
+  { x: 40, y: 48, r: 0 },
 ];
 const AUTO_BOX = { w: 240, h: 175 };
 
@@ -38,64 +38,115 @@ function autoPapers(media: Media[]): Paper[] {
     .reverse();
 }
 
+// Shapes of the CMS fields both projects and people share
+type MediaEntry = Awaited<ReturnType<typeof reader.collections.projects.all>>[number]["entry"]["media"][number];
+type FolderEntry = Awaited<ReturnType<typeof reader.collections.projects.all>>[number]["entry"]["folder"][number];
+
+function mediaOf(items: readonly MediaEntry[]): Media[] {
+  return items
+    .map((item): Media | null => {
+      if (item.discriminant === "pdf") {
+        const { file, cover, alt } = item.value;
+        if (!file || !cover) return null;
+        return { kind: "pdf", src: cover.src, pdf: file, w: cover.width, h: cover.height, alt };
+      }
+      const still = item.discriminant === "video" ? item.value.poster : item.value.image;
+      if (!still) return null;
+      return {
+        kind: item.discriminant,
+        src: still.src,
+        video: item.discriminant === "video" ? (item.value.video ?? undefined) : undefined,
+        w: still.width,
+        h: still.height,
+        alt: item.value.alt,
+      };
+    })
+    .filter((m): m is Media => m !== null);
+}
+
+function papersOf(folder: readonly FolderEntry[], media: Media[]): Paper[] {
+  // the CMS lists papers top first; the folder draws bottom → top
+  const papers: Paper[] = folder
+    .filter((p) => p.item !== null && media[p.item - 1])
+    .map((p) => ({
+      media: p.item! - 1,
+      src: media[p.item! - 1].src,
+      x: p.x ?? 0,
+      y: p.y ?? 0,
+      w: p.w ?? 1,
+      h: p.h ?? 1,
+      r: p.rotation ?? 0,
+    }))
+    .reverse();
+  return papers.length ? papers : autoPapers(media);
+}
+
+/** Sorts by a CMS order list first, then anything not listed by title. */
+function ordered(items: Project[], order: readonly (string | null)[] | undefined) {
+  const list = (order ?? []).filter((s): s is string => !!s);
+  const rank = (slug: string) => {
+    const i = list.indexOf(slug);
+    return i === -1 ? list.length : i;
+  };
+  return items.sort((a, b) => rank(a.slug) - rank(b.slug) || a.title.localeCompare(b.title));
+}
+
+const linkOf = (link: { url: string | null; label: string }) =>
+  link.url ? { url: link.url, label: link.label || address(link.url) } : undefined;
+
 export const getProjects = cache(async (): Promise<Project[]> => {
   const [entries, home] = await Promise.all([
     reader.collections.projects.all(),
     reader.singletons.home.read(),
   ]);
 
-  const projects = await Promise.all(
-    entries.map(async ({ slug, entry }): Promise<Project> => {
-      const media = entry.media
-        .map((item): Media | null => {
-          const still = item.discriminant === "video" ? item.value.poster : item.value.image;
-          if (!still) return null;
-          return {
-            kind: item.discriminant,
-            src: still.src,
-            video: item.discriminant === "video" ? (item.value.video ?? undefined) : undefined,
-            w: still.width,
-            h: still.height,
-            alt: item.value.alt,
-          };
-        })
-        .filter((m): m is Media => m !== null);
+  const projects = entries.map(({ slug, entry }): Project => {
+    const media = mediaOf(entry.media);
+    return {
+      slug,
+      title: entry.title,
+      year: entry.year,
+      category: categoryOf(entry.roles as Role[]),
+      description: entry.description,
+      link: linkOf(entry.link),
+      credits: entry.credits.filter((c) => c.role || c.name),
+      fill: [entry.colour.top, entry.colour.bottom],
+      text: entry.colour.label,
+      media,
+      papers: papersOf(entry.folder, media),
+    };
+  });
 
-      // the CMS lists papers top first; the folder draws bottom → top
-      const papers: Paper[] = entry.folder
-        .filter((p) => p.item !== null && media[p.item - 1])
-        .map((p) => ({
-          media: p.item! - 1,
-          src: media[p.item! - 1].src,
-          x: p.x ?? 0,
-          y: p.y ?? 0,
-          w: p.w ?? 1,
-          h: p.h ?? 1,
-          r: p.rotation ?? 0,
-        }))
-        .reverse();
+  return ordered(projects, home?.projects);
+});
 
-      return {
-        slug,
-        title: entry.title,
-        year: entry.year,
-        description: entry.description,
-        link: entry.link.url ? { url: entry.link.url, label: entry.link.label || address(entry.link.url) } : undefined,
-        credits: entry.credits.filter((c) => c.role || c.name),
-        fill: [entry.colour.top, entry.colour.bottom],
-        text: entry.colour.label,
-        roles: entry.roles as Role[],
-        media,
-        papers: papers.length ? papers : autoPapers(media),
-      };
-    }),
-  );
+// people have no colour of their own: white folders, grey labels
+const PERSON_FILL: [string, string] = ["#ffffff", "#f2f2f2"];
+const PERSON_TEXT = "#3b3b3b";
 
-  // home order first, then anything not listed
-  const order = (home?.projects ?? []).filter((s): s is string => !!s);
-  const rank = (slug: string) => {
-    const i = order.indexOf(slug);
-    return i === -1 ? order.length : i;
-  };
-  return projects.sort((a, b) => rank(a.slug) - rank(b.slug) || a.title.localeCompare(b.title));
+/** The Studio page's folders, one per person. */
+export const getPeople = cache(async (): Promise<Project[]> => {
+  const [entries, studio] = await Promise.all([
+    reader.collections.people.all(),
+    reader.singletons.studio.read(),
+  ]);
+
+  const people = entries.map(({ slug, entry }): Project => {
+    const media = mediaOf(entry.media);
+    return {
+      slug,
+      title: entry.name,
+      year: "",
+      category: entry.role,
+      description: entry.bio,
+      link: linkOf(entry.link),
+      credits: [],
+      fill: PERSON_FILL,
+      text: PERSON_TEXT,
+      media,
+      papers: papersOf(entry.folder, media),
+    };
+  });
+
+  return ordered(people, studio?.people);
 });

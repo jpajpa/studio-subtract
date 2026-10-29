@@ -1,0 +1,31 @@
+name: Jan
+role: Designer
+bio: Jan addresses visual communication, shapes branding experiences, and designs user interfaces.
+media:
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/jan/portrait.png
+        width: 1787
+        height: 2673
+      alt: Portrait of Jan
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/jan/note.png
+        width: 2480
+        height: 3507
+      alt: ''
+folder:
+  - item: 2
+    x: 122
+    'y': -9
+    w: 185
+    h: 261
+    rotation: 0
+  - item: 1
+    x: 30
+    'y': 8
+    w: 136
+    h: 204
+    rotation: 0

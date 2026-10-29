@@ -161,6 +161,41 @@
   -webkit-user-select: none;
 }
 
+/* PDF: the cover opens the file in a new tab */
+.pdf {
+  position: relative;
+  color: inherit;
+  text-decoration: none;
+}
+
+.pdf img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pdfTag {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: 0.3px;
+  color: #3b3b3b;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: background 200ms ease;
+}
+
+.pdf:hover .pdfTag {
+  background: rgba(255, 255, 255, 0.95);
+}
+
 /* ── Chrome ─────────────────────────────────────────────── */
 
 /* above the frames, mirroring the progress line below them, so the
@@ -204,14 +239,18 @@
 }
 
 .pager a {
-  line-height: 19px;
-  letter-spacing: 0.1px;
-  text-decoration: none;
+  display: block;
+  color: inherit;
+}
+
+.pager svg {
+  display: block;
 }
 
 /* ── Phones ─────────────────────────────────────────────── */
 /* Sketch "Mobile/Inner Page 1 & 2": one 350-wide column (26px sides),
-   heading inset 25px, frames 48 apart; the page scrolls vertically. */
+   text and arrows 36px in, frames 48 apart; the page scrolls vertically
+   under the stacked nav. */
 
 @media (max-width: 767px) {
   .viewport {
@@ -227,15 +266,15 @@
     gap: 48px;
     width: auto;
     height: auto;
-    /* heading starts where the folders do on "Mobile/Home" */
-    padding: calc(var(--mobile-nav-top) + env(safe-area-inset-top) + 18px + 128px) 26px
+    /* heading 64px under the stacked nav (245px below the status bar) */
+    padding: calc(var(--mobile-nav-top) + env(safe-area-inset-top) + 211px) 26px
       calc(96px + env(safe-area-inset-bottom));
   }
 
   .intro {
     width: auto;
-    max-width: 300px;
-    padding: 0 25px;
+    max-width: 340px;
+    padding: 0 10px;
     /* a little more air between the text and the first image than in Sketch */
     margin: 0 0 32px;
   }
@@ -261,5 +300,6 @@
   .pager {
     display: flex;
     justify-content: space-between;
+    padding: 0 10px;
   }
 }

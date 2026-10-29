@@ -84,7 +84,10 @@ export function FolderRail({
       const n = projects.length;
       if (kids.length < n + 1) return;
       const st = s.current;
-      st.setWidth = kids[n].offsetLeft - kids[0].offsetLeft;
+      const setWidth = kids[n].offsetLeft - kids[0].offsetLeft;
+      // not laid out yet (hidden, or a 0px-wide window): nothing to cover
+      if (setWidth <= 0) return;
+      st.setWidth = setWidth;
       st.pitch = st.setWidth / n;
       st.margin = parseFloat(getComputedStyle(rail).getPropertyValue("--rail-margin")) || 0;
       const needed = Math.ceil((rail.clientWidth + st.setWidth) / st.setWidth) + 1;

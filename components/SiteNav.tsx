@@ -2,17 +2,28 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { STUDIO, WORK, type Section } from "@/lib/projects";
 import styles from "./SiteNav.module.css";
 
 const TOP_ZONE = 24; // always shown this close to the top
 const HIDE_AFTER = 8; // px scrolled down before hiding
 const SHOW_AFTER = 12; // px scrolled up before showing again
 
+type Props = {
+  /** the page this nav is on */
+  section?: Section;
+  /** phones' project page: stacked top-left over a fade, the section's own
+   *  link ("Work" or "Studio") closes it */
+  inner?: boolean;
+  onHome?: () => void;
+};
+
 /**
  * Main nav. Desktop: stacked top-left. Phones: one row fixed to the top that
- * slides away while scrolling down and returns on a small scroll up.
+ * slides away while scrolling down and returns on a small scroll up (stacked
+ * on project pages, Sketch "Mobile/Inner Page").
  */
-export function SiteNav() {
+export function SiteNav({ section = WORK, inner, onHome }: Props = {}) {
   const [hidden, setHidden] = useState(false);
   const s = useRef({ lastY: 0, travel: 0, scroller: null as EventTarget | null });
   const pathname = usePathname();
@@ -62,11 +73,33 @@ export function SiteNav() {
   }, []);
 
   return (
-    <nav className={styles.nav} data-chrome="nav" data-hidden={hidden || undefined} aria-label="Main">
-      <a href="/" aria-current="page">
-        Work
-      </a>
-      <a href="#studio">Studio</a>
+    <nav
+      className={inner ? `${styles.nav} ${styles.inner}` : styles.nav}
+      data-chrome={inner ? undefined : "nav"}
+      data-inner-nav={inner || undefined}
+      data-hidden={hidden || undefined}
+      aria-label="Main"
+    >
+      {[WORK, STUDIO].map((link) => {
+        const here = link.id === section.id;
+        return (
+          <a
+            key={link.label}
+            href={link.home}
+            aria-current={here && !inner ? "page" : undefined}
+            onClick={
+              here && onHome
+                ? (e) => {
+                    e.preventDefault();
+                    onHome();
+                  }
+                : undefined
+            }
+          >
+            {link.label}
+          </a>
+        );
+      })}
       <a href="#contact">Contact</a>
     </nav>
   );
