@@ -9,7 +9,7 @@
   position: relative;
   flex: none;
   width: var(--folder-w);
-  height: calc(285 * var(--u));
+  height: calc(261 * var(--u));
   color: var(--text);
   user-select: none;
   -webkit-user-select: none;
@@ -98,10 +98,10 @@
 
 .front {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(83 * var(--u));
-  height: calc(202 * var(--u));
+  left: calc(0.6 * var(--u));
+  right: calc(0.6 * var(--u));
+  top: calc(59.3 * var(--u));
+  height: calc(201.4 * var(--u));
   border-radius: calc(20 * var(--u));
   /* casts up onto the papers behind it, and lifts off the back panel */
   box-shadow:
@@ -154,46 +154,28 @@
   backdrop-filter: blur(var(--glass-blur)) url(#liquid-glass) saturate(1.5) brightness(1.03);
 }
 
-/* ── Role tag: circle = creative direction, square = design,
-      triangle = both. Stamped into the glass, bottom right,
-      centred on the label (Sketch "Home, New tags"). ── */
-
-.tag {
-  position: absolute;
-  right: calc(20 * var(--u));
-  top: calc(155 * var(--u));
-  margin: 0;
-  line-height: 0;
-}
-
-.tagShape {
-  width: calc(26 * var(--u));
-  height: calc(26 * var(--u));
-}
-
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-/* ── Label ──────────────────────────────────────────────── */
+/* ── Labels: category on top, name at the bottom ─────── */
 
 .label {
   position: absolute;
   left: calc(32 * var(--u));
   right: calc(32 * var(--u));
-  top: calc(160 * var(--u));
   margin: 0;
-  display: flex;
-  gap: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 14px;
   line-height: 18px;
   letter-spacing: 0.3px;
   white-space: nowrap;
+}
+
+/* folder-space y of each line, minus the front's own top */
+.top {
+  top: calc((80 - 59.3) * var(--u));
+}
+
+.bottom {
+  top: calc((219 - 59.3) * var(--u));
 }
 
 /* ── Open: papers lift & fan, front tips open ───────────── */

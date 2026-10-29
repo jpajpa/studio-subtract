@@ -3,24 +3,36 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import styles from "@/app/(site)/page.module.css";
-import type { Project } from "@/lib/projects";
+import { SECTIONS, type Project, type Section } from "@/lib/projects";
+import { Folder } from "./Folder";
 import { FolderRail } from "./FolderRail";
 import { FolderStack } from "./FolderStack";
 import { ProjectView, type ProjectViewHandle } from "./ProjectView";
-import { RoleKey } from "./RoleKey";
 import { SiteNav } from "./SiteNav";
 
 const TITLE = "Studio Subtract";
-const slugFrom = (path: string) => path.match(/^\/work\/([^/]+)/)?.[1] ?? null;
+const slugFrom = (path: string, base: string) =>
+  path.startsWith(`${base}/`) ? (path.slice(base.length + 1).split("/")[0] || null) : null;
 
 /**
- * The folders plus the project page that opens over them. Opening a folder
+ * The folders plus the project page that opens over them. Work shows
+ * projects on an endless rail; Studio shows people in a plain row. Opening a folder
  * only changes the URL (history.pushState, which Next keeps in sync), so the
  * folders stay mounted underneath and the transition can fly a folder's
  * papers straight into the gallery and back again.
  */
-export function Work({ projects, initialSlug }: { projects: Project[]; initialSlug?: string }) {
-  const urlSlug = slugFrom(usePathname());
+export function Work({
+  projects,
+  initialSlug,
+  section: id = "work",
+}: {
+  projects: Project[];
+  initialSlug?: string;
+  section?: Section["id"];
+}) {
+  const section = SECTIONS[id];
+  const { home, base } = section;
+  const urlSlug = slugFrom(usePathname(), base);
   const [slug, setSlug] = useState(initialSlug ?? null);
   const view = useRef<ProjectViewHandle>(null);
   // folder that was clicked; null when the page was opened by URL
@@ -44,44 +56,59 @@ export function Work({ projects, initialSlug }: { projects: Project[]; initialSl
   }, [urlSlug, slug]);
 
   useEffect(() => {
-    document.title = slug ? `${projects.find((p) => p.slug === slug)?.title} — ${TITLE}` : TITLE;
-  }, [slug, projects]);
+    const list = id === "work" ? TITLE : `${section.label} — ${TITLE}`;
+    document.title = slug ? `${projects.find((p) => p.slug === slug)?.title} — ${TITLE}` : list;
+  }, [slug, projects, section]);
 
   const open = useCallback((next: string, folder: HTMLElement) => {
     if (slug) return;
     source.current = folder;
     pushed.current = true;
-    window.history.pushState(null, "", `/work/${next}`);
-  }, [slug]);
+    window.history.pushState(null, "", `${base}/${next}`);
+  }, [slug, base]);
 
   const requestClose = useCallback(() => {
     if (pushed.current) {
       pushed.current = false;
       window.history.back();
     } else {
-      window.history.pushState(null, "", "/");
+      window.history.pushState(null, "", home);
     }
-  }, []);
+  }, [home]);
 
   // Next swaps the open project in place: "Back" still returns to the folders
   const openNext = useCallback(() => {
     const i = projects.findIndex((p) => p.slug === slug);
     source.current = null;
-    window.history.replaceState(null, "", `/work/${projects[(i + 1) % projects.length].slug}`);
-  }, [projects, slug]);
+    window.history.replaceState(null, "", `${base}/${projects[(i + 1) % projects.length].slug}`);
+  }, [projects, slug, base]);
 
   const index = slug ? projects.findIndex((p) => p.slug === slug) : -1;
   const project = index >= 0 ? projects[index] : undefined;
 
   return (
     <main className={styles.page}>
-      <SiteNav />
-      <RoleKey />
+      <SiteNav section={section} />
 
-      <section className={styles.work} aria-label="Work" inert={!!project || undefined}>
-        <div className={styles.rail} data-rail>
-          <FolderRail projects={projects} onOpen={open} />
-        </div>
+      <section className={styles.work} aria-label={section.label} inert={!!project || undefined}>
+        {id === "work" ? (
+          <div className={styles.rail} data-rail>
+            <FolderRail projects={projects} onOpen={open} />
+          </div>
+        ) : (
+          <div
+            className={styles.row}
+            data-rail
+            onClick={(e) => {
+              const folder = (e.target as HTMLElement).closest<HTMLElement>("[data-slug]");
+              if (folder?.dataset.slug) open(folder.dataset.slug, folder);
+            }}
+          >
+            {projects.map((p, i) => (
+              <Folder key={p.slug} project={p} enter={i} eager />
+            ))}
+          </div>
+        )}
         <FolderStack projects={projects} className={styles.stack} onOpen={open} />
       </section>
 
@@ -92,6 +119,7 @@ export function Work({ projects, initialSlug }: { projects: Project[]; initialSl
           project={project}
           source={source.current}
           onClose={requestClose}
+          section={section}
           nextSlug={projects[(index + 1) % projects.length].slug}
           onNext={openNext}
         />

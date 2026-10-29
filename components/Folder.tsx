@@ -1,17 +1,14 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
-import { ROLES, tagOf, type Project } from "@/lib/projects";
-import { Tag } from "./Tag";
+import type { Project } from "@/lib/projects";
 import styles from "./Folder.module.css";
 
-// Back panel outline in folder space (320 × 285): tab top-left, body from y=34.
+// Back panel outline in folder space (320 × 261), from Sketch "Home, Folder v2":
+// tab top-left, body from y=34.
 const BACK_PATH =
-  "M0 17C0 7.6 7.6 0 17 0H84C93 0 97 5 101 13C105 25 109 34 120 34H302" +
-  "C312 34 320 41 320 51V265C320 276 311 285 300 285H20C9 285 0 276 0 265Z";
-
-// Most papers are placed in y within 0–250. Push them down slightly so the
-// taller back panel shows more of them above the front.
-const PAPER_Y = 6;
+  "M0.6 17.4C0.6 8.1 8.1 0.6 17.4 0.6H84.5C93.8 0.6 101.3 8.1 101.3 17.4" +
+  "C101.3 26.7 108.8 34.2 118.1 34.2H302.6C311.9 34.2 319.4 41.7 319.4 50.9" +
+  "V240.6C319.4 251.7 310.4 260.7 299.3 260.7H20.7C9.6 260.7 0.6 251.7 0.6 240.6Z";
 
 /** Paper geometry in folder units, scaled by --u (see Folder.module.css). */
 const u = (n: number) => `calc(${n} * var(--u))`;
@@ -29,12 +26,8 @@ type Props = {
 };
 
 export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
-  const { slug, title, year, fill, text, roles, papers } = project;
+  const { slug, title, year, category, fill, text, papers } = project;
   const gradientId = `folder-fill-${slug}`;
-  const tag = tagOf(roles);
-  const tagLabel = ROLES.filter((r) => roles.includes(r.id))
-    .map((r) => r.label)
-    .join(" & ");
 
   return (
     <article
@@ -44,10 +37,10 @@ export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
       // the FolderStack script sets data-reveal/data-open before hydration
       suppressHydrationWarning={reveal}
       aria-hidden={clone || undefined}
-      aria-label={clone ? undefined : `${title}, ${year}`}
+      aria-label={clone ? undefined : [title, year].filter(Boolean).join(", ")}
       style={{ "--tint": fill[1], "--text": text, "--enter": enter } as CSSProperties}
     >
-      <svg className={styles.back} viewBox="0 0 320 285" aria-hidden>
+      <svg className={styles.back} viewBox="0 0 320 261" aria-hidden>
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor={fill[0]} />
@@ -80,7 +73,7 @@ export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
             style={
               {
                 left: u(p.x),
-                top: u(p.y + PAPER_Y),
+                top: u(p.y),
                 width: u(p.w),
                 height: u(p.h),
                 "--r": `${p.r ?? 0}deg`,
@@ -94,16 +87,8 @@ export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
 
       <div className={styles.front} data-front>
         <div className={styles.glass} />
-        {tag && (
-          <p className={styles.tag} title={tagLabel}>
-            <Tag kind={tag} className={styles.tagShape} />
-            <span className={styles.srOnly}>{tagLabel}</span>
-          </p>
-        )}
-        <p className={styles.label}>
-          <span>{title}</span>
-          <span>{year}</span>
-        </p>
+        <p className={`${styles.label} ${styles.top}`}>{category}</p>
+        <p className={`${styles.label} ${styles.bottom}`}>{title}</p>
       </div>
     </article>
   );
