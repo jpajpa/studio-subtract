@@ -11,13 +11,102 @@ const hex = (label: string, description?: string) =>
     validation: { isRequired: true, pattern: { regex: /^#[0-9a-fA-F]{6}$/, message: "A hex colour, e.g. #f98a4c" } },
   });
 
-const MEDIA = { folder: "projects" };
+const itemFile = (p: { discriminant: string; value: unknown }) => {
+  const v = p.value as { fields: Record<string, { value: unknown }> };
+  const key = { image: "image", video: "video", pdf: "file" }[p.discriminant] ?? "image";
+  const file = v.fields[key]?.value as string | { src?: string } | null | undefined;
+  const url = typeof file === "string" ? file : file?.src;
+  return url ? decodeURIComponent(url.split("/").pop() ?? "") : "";
+};
+
+const KIND_LABEL: Record<string, string> = { image: "Image", video: "Video", pdf: "PDF" };
+
+/** Gallery of a project or a person: images, videos and PDFs, uploaded to Blob under `folder`. */
+const mediaField = (folder: string) =>
+  fields.array(
+    fields.conditional(
+      fields.select({
+        label: "Type",
+        options: [
+          { label: "Image", value: "image" },
+          { label: "Video", value: "video" },
+          { label: "PDF", value: "pdf" },
+        ],
+        defaultValue: "image",
+      }),
+      {
+        image: fields.object({
+          image: blobImage({ label: "Image", folder, isRequired: true }),
+          alt: fields.text({ label: "Alt text" }),
+        }),
+        video: fields.object({
+          video: blobFile({ label: "Video (mp4)", accept: "video/mp4,video/webm", folder, isRequired: true }),
+          poster: blobImage({
+            label: "Still",
+            description: "A frame of the video at full size. Shown in the folder and while the video loads.",
+            folder,
+            isRequired: true,
+          }),
+          alt: fields.text({ label: "Alt text" }),
+        }),
+        pdf: fields.object({
+          file: blobFile({ label: "PDF", accept: "application/pdf", folder, isRequired: true }),
+          cover: blobImage({
+            label: "Cover",
+            description: "An image of the first page. Shown in the folder and the gallery.",
+            folder,
+            isRequired: true,
+          }),
+          label: fields.text({
+            label: "Link text",
+            description: "Listed under the description, opens the PDF. Leave empty for “PDF”.",
+          }),
+          alt: fields.text({ label: "Alt text" }),
+        }),
+      },
+    ),
+    {
+      label: "Gallery",
+      description: "Left to right on the page. Uploads keep their full resolution and aspect ratio.",
+      itemLabel: (p) => {
+        const name = itemFile(p);
+        return `${KIND_LABEL[p.discriminant] ?? "Item"}${name ? ` · ${name}` : ""}`;
+      },
+    },
+  );
+
+/** Which gallery items peek out of the folder, and where. */
+const folderField = () =>
+  fields.array(
+    fields.object(
+      {
+        item: fields.integer({
+          label: "Gallery item",
+          description: "1 = first item in the gallery",
+          defaultValue: 1,
+          validation: { isRequired: true, min: 1 },
+        }),
+        x: fields.integer({ label: "X", defaultValue: 30, validation: { isRequired: true } }),
+        y: fields.integer({ label: "Y", defaultValue: 40, validation: { isRequired: true } }),
+        w: fields.integer({ label: "Width", defaultValue: 240, validation: { isRequired: true, min: 1 } }),
+        h: fields.integer({ label: "Height", defaultValue: 180, validation: { isRequired: true, min: 1 } }),
+        rotation: fields.number({ label: "Rotation°", defaultValue: 0, step: 0.1 }),
+      },
+      { layout: [4, 2, 2, 2, 2, 4] },
+    ),
+    {
+      label: "Folder papers",
+      description:
+        "Which gallery items peek out of the folder, top paper first. Positions are in a 320 × 261 folder. Leave empty for an automatic layout of the first three.",
+      itemLabel: (p) => `Item ${p.fields.item.value ?? "?"} at ${p.fields.x.value}, ${p.fields.y.value}`,
+    },
+  );
 
 export default config({
   storage: { kind: "local" },
   ui: {
     brand: { name: "Studio Subtract" },
-    navigation: { Site: ["home"], Work: ["projects"] },
+    navigation: { Site: ["home", "studio"], Work: ["projects"], Studio: ["people"] },
   },
 
   singletons: {
@@ -30,6 +119,18 @@ export default config({
           label: "Folders",
           description: "Order of the folders on the home page, left to right. Projects not listed go at the end.",
           itemLabel: (p) => p.value ?? "Choose a project",
+        }),
+      },
+    }),
+    studio: singleton({
+      label: "Studio",
+      path: "content/studio",
+      format: { data: "yaml" },
+      schema: {
+        people: fields.array(fields.relationship({ label: "Person", collection: "people" }), {
+          label: "Folders",
+          description: "Order of the folders on the Studio page, left to right. People not listed go at the end.",
+          itemLabel: (p) => p.value ?? "Choose a person",
         }),
       },
     }),
@@ -63,7 +164,7 @@ export default config({
         ),
         roles: fields.multiselect({
           label: "Roles",
-          description: "Shown as the folder's tag: circle, square, or triangle for both.",
+          description: "Listed at the top of the folder, e.g. “Design, Creative Direction”.",
           options: [
             { label: "Creative Direction", value: "cd" },
             { label: "Design", value: "design" },
@@ -72,81 +173,37 @@ export default config({
         }),
         colour: fields.object(
           {
-            top: hex("Folder top"),
-            bottom: hex("Folder bottom", "Also tints the glass and the shadows."),
-            label: hex("Label text"),
+            top: hex("Folder top", "Not shown at the moment: folders are white."),
+            bottom: hex("Folder bottom", "Tints the project page while its media loads."),
+            label: hex("Label text", "Not shown at the moment: folder labels are grey."),
           },
           { label: "Colours", layout: [4, 4, 4] },
         ),
 
-        media: fields.array(
-          fields.conditional(
-            fields.select({
-              label: "Type",
-              options: [
-                { label: "Image", value: "image" },
-                { label: "Video", value: "video" },
-              ],
-              defaultValue: "image",
-            }),
-            {
-              image: fields.object({
-                image: blobImage({ label: "Image", ...MEDIA, isRequired: true }),
-                alt: fields.text({ label: "Alt text" }),
-              }),
-              video: fields.object({
-                video: blobFile({ label: "Video (mp4)", accept: "video/mp4,video/webm", ...MEDIA, isRequired: true }),
-                poster: blobImage({
-                  label: "Still",
-                  description: "A frame of the video at full size. Shown in the folder and while the video loads.",
-                  ...MEDIA,
-                  isRequired: true,
-                }),
-                alt: fields.text({ label: "Alt text" }),
-              }),
-            },
-          ),
-          {
-            label: "Gallery",
-            description: "Left to right on the project page. Uploads keep their full resolution and aspect ratio.",
-            itemLabel: (p) => {
-              const v = p.value as unknown as { fields: Record<string, { value: unknown }> };
-              const file = v.fields[p.discriminant === "video" ? "video" : "image"]?.value as
-                | string
-                | { src?: string }
-                | null
-                | undefined;
-              const url = typeof file === "string" ? file : file?.src;
-              const name = url ? decodeURIComponent(url.split("/").pop() ?? "") : "";
-              return `${p.discriminant === "video" ? "Video" : "Image"}${name ? ` · ${name}` : ""}`;
-            },
-          },
-        ),
+        media: mediaField("projects"),
+        folder: folderField(),
+      },
+    }),
 
-        folder: fields.array(
-          fields.object(
-            {
-              item: fields.integer({
-                label: "Gallery item",
-                description: "1 = first item in the gallery",
-                defaultValue: 1,
-                validation: { isRequired: true, min: 1 },
-              }),
-              x: fields.integer({ label: "X", defaultValue: 30, validation: { isRequired: true } }),
-              y: fields.integer({ label: "Y", defaultValue: 40, validation: { isRequired: true } }),
-              w: fields.integer({ label: "Width", defaultValue: 240, validation: { isRequired: true, min: 1 } }),
-              h: fields.integer({ label: "Height", defaultValue: 180, validation: { isRequired: true, min: 1 } }),
-              rotation: fields.number({ label: "Rotation°", defaultValue: 0, step: 0.1 }),
-            },
-            { layout: [4, 2, 2, 2, 2, 4] },
-          ),
+    people: collection({
+      label: "People",
+      path: "content/people/*",
+      format: { data: "yaml" },
+      slugField: "name",
+      columns: ["name", "role"],
+      schema: {
+        name: fields.slug({ name: { label: "Name" }, slug: { label: "URL", description: "studiosubtract.com/studio/…" } }),
+        role: fields.text({ label: "Role", description: "Listed at the top of the folder, e.g. “Designer”." }),
+        bio: fields.text({ label: "Bio", multiline: true }),
+        link: fields.object(
           {
-            label: "Folder papers",
-            description:
-              "Which gallery items peek out of the folder on the home page, top paper first. Positions are in a 320 × 285 folder. Leave empty for an automatic layout of the first three.",
-            itemLabel: (p) => `Item ${p.fields.item.value ?? "?"} at ${p.fields.x.value}, ${p.fields.y.value}`,
+            url: fields.url({ label: "Link", description: "Shown under the bio. Opens in a new tab." }),
+            label: fields.text({ label: "Link text", description: "Leave empty to show the web address." }),
           },
+          { label: "Link", layout: [8, 4] },
         ),
+        media: mediaField("people"),
+        folder: folderField(),
       },
     }),
   },

@@ -4,7 +4,7 @@ import { useEffect, useImperativeHandle, useLayoutEffect, useRef, type CSSProper
 import Image from "next/image";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
-import type { Project } from "@/lib/projects";
+import type { Project, Section } from "@/lib/projects";
 import { SiteNav } from "./SiteNav";
 import styles from "./ProjectView.module.css";
 
@@ -33,6 +33,7 @@ type Props = {
   /** the folder that was clicked; null when the page was opened by URL */
   source: HTMLElement | null;
   onClose: () => void;
+  section: Section;
   /** the project after this one: phones show a Next link at the end */
   nextSlug: string;
   onNext: () => void;
@@ -134,7 +135,7 @@ const offCentre = (el: HTMLElement) => {
  * flying the clicked folder's papers out into the gallery frames while the
  * other folders rush past the camera, and closes by reversing that.
  */
-export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }: Props) {
+export function ProjectView({ project, source, onClose, section, nextSlug, onNext, ref }: Props) {
   const { media, papers: folderPapers } = project;
   // each gallery item flies from its topmost paper in the folder, if it has one
   const paperOf = media.map((_, i) => folderPapers.findLastIndex((p) => p.media === i));
@@ -570,23 +571,29 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
       }),
   }));
 
+  // the project's link, then each PDF in the gallery
+  const links = [
+    ...(project.link ? [project.link] : []),
+    ...project.media.flatMap((m) => (m.pdf ? [m.pdf] : [])),
+  ];
+
   return (
     <div
       ref={root}
       className={styles.view}
       role="dialog"
       aria-modal="true"
-      aria-label={`${project.title}, ${project.year}`}
+      aria-label={[project.title, project.year].filter(Boolean).join(", ")}
       style={{ "--tint": project.fill[1] } as CSSProperties}
     >
       <div ref={scrim} className={styles.scrim} aria-hidden />
 
-      <SiteNav inner onWork={() => s.current.live && onClose()} />
+      <SiteNav section={section} inner onHome={() => s.current.live && onClose()} />
 
       <a
         ref={back}
         className={styles.back}
-        href="/"
+        href={section.home}
         onClick={(e) => {
           e.preventDefault();
           if (s.current.live) onClose();
@@ -612,7 +619,7 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
             <p ref={body} className={styles.body} hidden={!project.description}>
               {project.description}
             </p>
-            {(project.credits.length > 0 || project.link) && (
+            {(project.credits.length > 0 || links.length > 0) && (
               <div className={styles.meta}>
                 {project.credits.length > 0 && (
                   <ul className={styles.credits}>
@@ -625,13 +632,13 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
                     ))}
                   </ul>
                 )}
-                {project.link && (
-                  <p className={styles.row}>
-                    <a className={styles.link} href={project.link.url} target="_blank" rel="noreferrer">
-                      {project.link.label} ↗
+                {links.map((l, i) => (
+                  <p key={i} className={styles.row}>
+                    <a className={styles.link} href={l.url} target="_blank" rel="noreferrer">
+                      {l.label} ↗
                     </a>
                   </p>
-                )}
+                ))}
               </div>
             )}
           </header>
@@ -665,9 +672,9 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
             </figure>
           ))}
 
-          <nav ref={pager} className={styles.pager} aria-label="Projects">
+          <nav ref={pager} className={styles.pager} aria-label={section.label}>
             <a
-              href="/"
+              href={section.home}
               aria-label="Back"
               onClick={(e) => {
                 e.preventDefault();
@@ -677,8 +684,8 @@ export function ProjectView({ project, source, onClose, nextSlug, onNext, ref }:
               <Arrow />
             </a>
             <a
-              href={`/work/${nextSlug}`}
-              aria-label="Next project"
+              href={`${section.base}/${nextSlug}`}
+              aria-label="Next"
               onClick={(e) => {
                 e.preventDefault();
                 if (s.current.live) onNext();

@@ -1,0 +1,17 @@
+name: James
+role: Creative Director
+media:
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/james/portrait.png
+        width: 1080
+        height: 1080
+      alt: Portrait of James
+folder:
+  - item: 1
+    x: 48
+    'y': 17
+    w: 211
+    h: 211
+    rotation: -1
