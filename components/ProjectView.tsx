@@ -81,6 +81,13 @@ function flight(panel: HTMLElement, p: Pose) {
 
 const CLIP_OPEN = "inset(0px 0px 0px 0px round 0px)";
 
+/** A folder paper's image, or a video paper's still (both already loaded). */
+const stillOf = (paper: HTMLElement) =>
+  paper instanceof HTMLVideoElement ? paper.poster : (paper as HTMLImageElement).currentSrc || (paper as HTMLImageElement).src;
+
+/** Folder papers bottom → top: images, and videos (see PaperVideo). */
+const papersIn = (folder: HTMLElement) => Array.from(folder.querySelectorAll<HTMLElement>("[data-paper]"));
+
 /**
  * How far a paper must rise for its bottom edge to clear the folder's glass
  * front (the `i`th paper from the top rises a little less).
@@ -139,6 +146,11 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
   const { media, papers: folderPapers } = project;
   // each gallery item flies from its topmost paper in the folder, if it has one
   const paperOf = media.map((_, i) => folderPapers.findLastIndex((p) => p.media === i));
+  // how far down the folder's stack that paper lies (0 = top): frames rise,
+  // stack and fly in this order, not the gallery's, so none swap places
+  const depthOf = paperOf.map((k) => folderPapers.length - 1 - k);
+  // frames from higher papers fly over those from lower ones; the rest under all
+  const zOf = (i: number) => paperOf[i] + 1;
   const root = useRef<HTMLDivElement>(null);
   const scrim = useRef<HTMLDivElement>(null);
   const viewport = useRef<HTMLDivElement>(null);
@@ -368,7 +380,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
 
     if (source) {
       gsap.set(scrim.current, { opacity: 0 });
-      const papers = Array.from(source.querySelectorAll("img"));
+      const papers = papersIn(source);
       const front = source.querySelector<HTMLElement>("[data-front]");
       const [sx, sy] = centre(source);
       source.setAttribute("data-open", "");
@@ -386,8 +398,8 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
           tl.from(panel, { y: 60, opacity: 0, duration: 1.2, ease: "expo.out" }, LIFT + 0.3 + i * 0.07);
           return;
         }
-        const up = i * 0.06;
-        const lift = liftOf(paper, front, i);
+        const up = depthOf[i] * 0.06;
+        const lift = liftOf(paper, front, depthOf[i]);
         const pose = paperPose(paper, source);
         tl.to(paper, { y: `-=${lift}`, duration: LIFT, ease: "power3.inOut" }, up);
 
@@ -396,10 +408,13 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         const at = up + LIFT * (phone ? 0.85 : 1);
         handoff = Math.max(handoff, at);
         const f = flight(panel, { ...pose, cy: pose.cy - lift });
-        gsap.set(panel, { ...f.panel, zIndex: panels.length - i, opacity: 0 });
+        gsap.set(panel, { ...f.panel, zIndex: zOf(i), opacity: 0 });
         // the paper's image (already loaded) shows until the frame's own
         // larger one arrives, so a frame never flies in empty
-        gsap.set(frames[i], { clipPath: f.clip, backgroundImage: `url("${paper.currentSrc || paper.src}")` });
+        gsap.set(frames[i], { clipPath: f.clip, backgroundImage: `url("${stillOf(paper)}")` });
+        // a video carries on from where it was playing in the folder
+        const video = frames[i].querySelector("video");
+        if (video && paper instanceof HTMLVideoElement) video.currentTime = paper.currentTime;
         // its big soft shadow fades in late: scaled down, it breaks up in WebKit
         gsap.set(shadows[i], { opacity: 0 });
         tl.set(panel, { opacity: 1 }, at);
@@ -500,7 +515,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
 
         const done = () => {
           if (home) {
-            gsap.set(home.querySelectorAll("img"), { clearProps: "visibility,transform,transition" });
+            gsap.set(papersIn(home), { clearProps: "visibility,transform,transition" });
             home.removeAttribute("data-open"); // closes with its own CSS transition
           }
           // phones: the stack re-opens whichever folder is mid-screen
@@ -522,7 +537,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         // rest), where its paper then takes over and sinks back in.
         let poses: (Pose | null)[] = panels.map(() => null);
         const lifts: number[] = [];
-        const homePapers = home ? Array.from(home.querySelectorAll<HTMLElement>("img")) : [];
+        const homePapers = home ? papersIn(home) : [];
         if (home) {
           const front = home.querySelector<HTMLElement>("[data-front]");
           gsap.set([...homePapers, front], { transition: "none" });
@@ -531,7 +546,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
             const paper = homePapers[k];
             if (!paper) return null;
             const pose = paperPose(paper, home);
-            lifts[i] = liftOf(paper, front, i);
+            lifts[i] = liftOf(paper, front, depthOf[i]);
             return { ...pose, cy: pose.cy - lifts[i] };
           });
           gsap.set(front, { clearProps: "transition" });
@@ -554,10 +569,11 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         // Frames fly to just above the folder (bottom one first, so the top
         // paper goes in last), then become papers and sink back in.
         let order = 0;
-        for (let i = panels.length - 1; i >= 0; i--) {
+        const bottomUp = panels.map((_, i) => i).sort((a, b) => paperOf[a] - paperOf[b]);
+        for (const i of bottomUp) {
           const panel = panels[i];
           const pose = poses[i];
-          gsap.set(panel, { zIndex: panels.length - i });
+          gsap.set(panel, { zIndex: zOf(i) });
           if (!pose) {
             tl.to(panel, { y: 60, opacity: 0, duration: 0.6, ease: "power2.in" }, 0.15 + i * 0.05);
             continue;

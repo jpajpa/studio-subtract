@@ -80,6 +80,15 @@ export function SiteNav({ section = WORK, inner, onHome }: Props = {}) {
       data-hidden={hidden || undefined}
       aria-label="Main"
     >
+      {/* phones: progressive blur the page scrolls under, strongest at the top
+          (Sketch "Mobile/Header Pop-up Blur"). Layers, not one element: a
+          single backdrop-filter can't vary its radius. */}
+      <span className={styles.blur} aria-hidden>
+        <span />
+        <span />
+        <span />
+        <span />
+      </span>
       {[WORK, STUDIO].map((link) => {
         const here = link.id === section.id;
         return (

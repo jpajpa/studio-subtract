@@ -16,9 +16,12 @@
   --folder-gap: 90px;
   --glass-blur: 12px;
 
-  /* Sketch "Mobile/Home": nav row 34px below the status bar, 64px sides */
+  /* desktop nav: where it starts and how tall its three links stand */
+  --nav-top: clamp(40px, 17.5vh, 186px);
+  --nav-h: 78px;
+
+  /* phones: the nav starts 34px below the status bar */
   --mobile-nav-top: 34px;
-  --mobile-nav-side: 64px;
   /* room either side of a folder on phones */
   --mobile-folder-side: 48px;
 }

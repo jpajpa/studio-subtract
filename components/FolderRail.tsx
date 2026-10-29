@@ -101,19 +101,22 @@ export function FolderRail({
     return () => ro.disconnect();
   }, [projects.length, copies, render]);
 
-  // Wheel + trackpad: vertical and horizontal deltas both move the row.
+  // Wheel + trackpad: vertical and horizontal deltas both move the row,
+  // wherever the pointer is on the page, so it never scrolls vertically.
   useEffect(() => {
     const rail = railRef.current;
     if (!rail) return;
     const onWheel = (e: WheelEvent) => {
+      // hidden (phones), under an open project, or a pinch-zoom
+      if (!rail.offsetParent || rail.closest("[inert]") || e.ctrlKey) return;
       e.preventDefault();
       const scale = e.deltaMode === 1 ? WHEEL_LINE : e.deltaMode === 2 ? rail.clientWidth : 1;
       const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
       s.current.target += d * scale;
       kick();
     };
-    rail.addEventListener("wheel", onWheel, { passive: false });
-    return () => rail.removeEventListener("wheel", onWheel);
+    window.addEventListener("wheel", onWheel, { passive: false });
+    return () => window.removeEventListener("wheel", onWheel);
   }, [kick]);
 
   useEffect(() => () => cancelAnimationFrame(s.current.raf), []);

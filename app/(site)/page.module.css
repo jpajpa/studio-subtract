@@ -14,6 +14,19 @@
      as the screen, because Safari can clip GPU-composited children (the
      papers lifted out of a folder) on both axes, not just this one. */
   overflow-x: clip;
+  flex-direction: column;
+}
+
+/* Equal spacers centre the folders. The top one never gets shorter than the
+   nav, so on short screens (iPad landscape) the folders sit at least 64px
+   under it: the rail's own 64px top padding comes after this. */
+.work::before,
+.work::after {
+  content: "";
+  flex: 1 1 0;
+}
+.work::before {
+  min-height: calc(var(--nav-top) + var(--nav-h));
 }
 
 .rail {
@@ -41,6 +54,11 @@
     min-height: 0;
   }
 
+  .work::before,
+  .work::after {
+    display: none;
+  }
+
   .rail,
   .row {
     display: none;
@@ -52,8 +70,9 @@
     align-items: center;
     gap: 128px;
     /* bottom room lets the last folder reach the middle and open */
-    /* fixed nav row + 128px, as in Sketch "Mobile/Home" */
-    padding: calc(var(--mobile-nav-top) + env(safe-area-inset-top) + 18px + 128px) 0
+    /* first folder 64px under the stacked nav's links (18px down, three
+       18px lines 21px apart), as the project page's heading sits */
+    padding: calc(var(--mobile-nav-top) + env(safe-area-inset-top) + 18px + 96px + 64px) 0
       calc(50svh - 100px);
   }
 }
