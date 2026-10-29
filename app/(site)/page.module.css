@@ -22,6 +22,7 @@
 
 /* Studio: a few folders, centred on the page */
 .row {
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;

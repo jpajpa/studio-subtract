@@ -98,6 +98,7 @@ export function Work({
         ) : (
           <div
             className={styles.row}
+            data-rail
             onClick={(e) => {
               const folder = (e.target as HTMLElement).closest<HTMLElement>("[data-slug]");
               if (folder?.dataset.slug) open(folder.dataset.slug, folder);
