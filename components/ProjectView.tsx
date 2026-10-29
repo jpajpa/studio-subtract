@@ -343,6 +343,8 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
 
     // folders and nav were animated in by CSS; that would override GSAP
     for (const f of [...folders, ...chrome]) f.style.animation = "none";
+    // the phone nav's scroll-hide transitions would trail every GSAP tick
+    gsap.set(chrome, { transition: "none" });
 
     const tl = gsap.timeline({
       paused: true,
@@ -476,6 +478,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         const frames = q("[data-media]");
         const shadows = q("[data-shadow]");
         const chrome = chromeEls();
+        gsap.set(chrome, { transition: "none" });
         const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         // phones: the same quicker flights as on opening
         const fly = isPhone() ? { duration: 1, ease: "power2.inOut" } : { duration: 1.15, ease: "expo.inOut" };
@@ -502,7 +505,8 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
           }
           // phones: the stack re-opens whichever folder is mid-screen
           window.dispatchEvent(new Event("folderstack:sync"));
-          gsap.set([...folders, ...chrome], { clearProps: "transform,opacity" });
+          gsap.set(folders, { clearProps: "transform,opacity" });
+          gsap.set(chrome, { clearProps: "transform,opacity,transition" });
           resolve();
         };
 
