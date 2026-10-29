@@ -10,6 +10,13 @@ const BACK_PATH =
   "C101.3 26.7 108.8 34.2 118.1 34.2H302.6C311.9 34.2 319.4 41.7 319.4 50.9" +
   "V240.6C319.4 251.7 310.4 260.7 299.3 260.7H20.7C9.6 260.7 0.6 251.7 0.6 240.6Z";
 
+// Room around the back panel for its shadows, in folder units. Safari clips
+// shadows that spill past an element's box (in tile-sized rectangles once the
+// rail is composited), so the SVG is drawn this much larger and the shadows
+// are painted inside it.
+const PAD = { x: 80, top: 50, bottom: 120 };
+const VIEW = `${-PAD.x} ${-PAD.top} ${320 + 2 * PAD.x} ${261 + PAD.top + PAD.bottom}`;
+
 /** Paper geometry in folder units, scaled by --u (see Folder.module.css). */
 const u = (n: number) => `calc(${n} * var(--u))`;
 
@@ -28,6 +35,7 @@ type Props = {
 export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
   const { slug, title, year, category, fill, text, papers } = project;
   const gradientId = `folder-fill-${slug}`;
+  const shadowId = `folder-shadow-${slug}`;
 
   return (
     <article
@@ -40,14 +48,28 @@ export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
       aria-label={clone ? undefined : [title, year].filter(Boolean).join(", ")}
       style={{ "--tint": fill[1], "--text": text, "--enter": enter } as CSSProperties}
     >
-      <svg className={styles.back} viewBox="0 0 320 261" aria-hidden>
+      <svg className={styles.back} viewBox={VIEW} aria-hidden>
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor={fill[0]} />
             <stop offset="1" stopColor={fill[1]} />
           </linearGradient>
+          {/* contact shadow + a soft, wide one: the folder sits above the page */}
+          <filter
+            id={shadowId}
+            filterUnits="userSpaceOnUse"
+            x={-PAD.x}
+            y={-PAD.top}
+            width={320 + 2 * PAD.x}
+            height={261 + PAD.top + PAD.bottom}
+          >
+            <feDropShadow dx="0" dy="1" stdDeviation="0.75" floodOpacity="0.22" />
+            <feDropShadow dx="0" dy="12" stdDeviation="8" floodOpacity="0.16" />
+            <feDropShadow dx="0" dy="30" stdDeviation="20" floodOpacity="0.14" />
+          </filter>
         </defs>
         <path
+          filter={`url(#${shadowId})`}
           d={BACK_PATH}
           fill={`url(#${gradientId})`}
           stroke="rgba(0, 0, 0, 0.06)"
