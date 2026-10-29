@@ -23,8 +23,6 @@
 @media (max-width: 767px) {
   .nav {
     position: fixed;
-    /* above the project page, which keeps the nav (Sketch "Mobile/Inner Page") */
-    z-index: 30;
     top: 0;
     left: 0;
     right: 0;
@@ -51,6 +49,30 @@
     transform: translateY(-100%);
     opacity: 0;
     pointer-events: none;
+  }
+}
+
+/* Project pages: only on phones (desktop has its own Back) */
+.inner {
+  display: none;
+}
+
+/* Sketch "Mobile/Inner Page 1 & 2": stacked, 52px below the status bar,
+   36px in, over a fade the page scrolls under */
+@media (max-width: 767px) {
+  .nav.inner {
+    right: auto;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 21px;
+    width: 100%;
+    padding: calc(var(--mobile-nav-top) + 18px + env(safe-area-inset-top)) 36px 48px;
+    background: linear-gradient(var(--bg) calc(100% - 48px), color-mix(in srgb, var(--bg) 0%, transparent));
+  }
+
+  .nav.inner a {
+    justify-self: auto;
   }
 }
 
