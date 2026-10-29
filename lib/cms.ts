@@ -19,9 +19,9 @@ function address(url: string) {
 // Fan used when a project has no folder papers set: up to three items, top
 // first, each fitted to its own aspect ratio.
 const AUTO = [
-  { x: 64, y: 30, r: 1.2 },
-  { x: 22, y: 52, r: -1.5 },
-  { x: 40, y: 78, r: 0 },
+  { x: 64, y: 0, r: 1.2 },
+  { x: 22, y: 22, r: -1.5 },
+  { x: 40, y: 48, r: 0 },
 ];
 const AUTO_BOX = { w: 240, h: 175 };
 
