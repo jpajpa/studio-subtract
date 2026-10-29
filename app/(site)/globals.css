@@ -20,9 +20,8 @@
   --nav-top: clamp(40px, 17.5vh, 186px);
   --nav-h: 78px;
 
-  /* Sketch "Mobile/Home": nav row 34px below the status bar, 64px sides */
+  /* phones: the nav starts 34px below the status bar */
   --mobile-nav-top: 34px;
-  --mobile-nav-side: 64px;
   /* room either side of a folder on phones */
   --mobile-folder-side: 48px;
 }
