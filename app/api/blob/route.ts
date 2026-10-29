@@ -21,6 +21,12 @@ async function canEdit() {
 
 const ALLOWED = ["image/*", "video/mp4", "video/webm", "video/quicktime", "application/pdf"];
 
+/** Lets the editor check its sign-in before uploading (401: renew it). */
+export async function GET() {
+  if (live && !(await canEdit())) return new Response("Sign in to the editor first", { status: 401 });
+  return new Response(null, { status: 204 });
+}
+
 export async function POST(request: Request) {
   if (live && !(await canEdit())) return new Response("Sign in to the editor first", { status: 401 });
   const body = (await request.json()) as HandleUploadBody;

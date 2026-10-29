@@ -17,16 +17,17 @@ const put = (file: File, folder: string) =>
     multipart: file.size > 20 * 1024 * 1024,
   });
 
+/** Live site: the GitHub sign-in expires after 8 hours. Renew it the way the
+ *  editor does, but only once /api/blob says it has run out. */
+async function signedIn() {
+  if ((await fetch("/api/blob")).status !== 401) return;
+  const renewed = await fetch("/api/keystatic/github/refresh-token", { method: "POST" });
+  if (!renewed.ok) throw new Error("Your sign-in has expired: reload the editor and sign in again");
+}
+
 async function send(file: File, folder: string) {
-  try {
-    return (await put(file, folder)).url;
-  } catch (err) {
-    // live site: the GitHub sign-in expires after 8 hours; renew it the way
-    // the editor does, then try once more
-    const renewed = await fetch("/api/keystatic/github/refresh-token", { method: "POST" });
-    if (!renewed.ok) throw err;
-    return (await put(file, folder)).url;
-  }
+  await signedIn();
+  return (await put(file, folder)).url;
 }
 
 function size(url: string) {
