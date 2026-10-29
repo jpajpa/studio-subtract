@@ -10,13 +10,23 @@ import { Text } from "@keystar/ui/typography";
 
 export type BlobImage = { src: string; width: number; height: number };
 
-async function send(file: File, folder: string) {
-  const { url } = await upload(`${folder}/${file.name}`, file, {
+const put = (file: File, folder: string) =>
+  upload(`${folder}/${file.name}`, file, {
     access: "public",
     handleUploadUrl: "/api/blob",
     multipart: file.size > 20 * 1024 * 1024,
   });
-  return url;
+
+async function send(file: File, folder: string) {
+  try {
+    return (await put(file, folder)).url;
+  } catch (err) {
+    // live site: the GitHub sign-in expires after 8 hours; renew it the way
+    // the editor does, then try once more
+    const renewed = await fetch("/api/keystatic/github/refresh-token", { method: "POST" });
+    if (!renewed.ok) throw err;
+    return (await put(file, folder)).url;
+  }
 }
 
 function size(url: string) {
