@@ -3,12 +3,14 @@
   --dur: 650ms;
   /* one folder-space unit: geometry is drawn on a 320-wide folder */
   --u: calc(var(--folder-w) / 320);
+  /* the folder's own color, darkened, tints every shadow it casts */
+  --shade: color-mix(in srgb, var(--tint) 45%, #1c1c1c);
 
   position: relative;
   flex: none;
   width: var(--folder-w);
   height: calc(261 * var(--u));
-  color: #3b3b3b;
+  color: var(--text);
   user-select: none;
   -webkit-user-select: none;
   animation: folder-in 1000ms cubic-bezier(0.3, 1.35, 0.5, 1) both;
@@ -64,8 +66,10 @@
   width: 100%;
   height: 100%;
   overflow: visible;
-  /* Sketch: shadow 0 8 24 #54545426 */
-  filter: drop-shadow(0 8px 12px rgba(84, 84, 84, 0.15));
+  /* contact shadow + a soft, wide one: the folder sits above the page */
+  filter: drop-shadow(0 1px 1.5px color-mix(in srgb, var(--shade) 22%, transparent))
+    drop-shadow(0 12px 16px color-mix(in srgb, var(--shade) 16%, transparent))
+    drop-shadow(0 30px 40px color-mix(in srgb, var(--shade) 14%, transparent));
 }
 
 /* ── Papers ─────────────────────────────────────────────── */
@@ -99,10 +103,11 @@
   top: calc(59.3 * var(--u));
   height: calc(201.4 * var(--u));
   border-radius: calc(20 * var(--u));
-  /* a faint lift off the papers behind it */
+  /* casts up onto the papers behind it, and lifts off the back panel */
   box-shadow:
-    0 -1px 3px -1px rgba(0, 0, 0, 0.08),
-    0 -8px 18px -8px rgba(0, 0, 0, 0.1);
+    0 -1px 3px -1px color-mix(in srgb, var(--shade) 30%, transparent),
+    0 -8px 18px -6px color-mix(in srgb, var(--shade) 48%, transparent),
+    0 14px 26px -14px color-mix(in srgb, var(--shade) 40%, transparent);
   transform-origin: 50% 100%;
   transform: perspective(900px) rotateX(0deg);
   transition: transform var(--dur) var(--ease);
@@ -112,21 +117,23 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  /* Sketch: glass blur 10. Fallback frost: Safari / Firefox */
-  backdrop-filter: blur(var(--glass-blur)) saturate(1.2) brightness(1.04);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.2) brightness(1.04);
-  /* white frost, a little denser towards the bottom */
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.42) 0%,
-    rgba(255, 255, 255, 0.32) 45%,
-    rgba(255, 255, 255, 0.46) 100%
-  );
+  /* Fallback frost: Safari / Firefox */
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.5) brightness(1.03);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5) brightness(1.03);
+  /* white sheen over a wash of the folder's color */
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.24) 0%,
+      rgba(255, 255, 255, 0.08) 45%,
+      rgba(255, 255, 255, 0.12) 100%
+    ),
+    color-mix(in srgb, var(--tint) 34%, transparent);
   box-shadow:
-    inset 0 1px 0.5px rgba(255, 255, 255, 0.9),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.4),
-    inset 0 -1px 1px rgba(255, 255, 255, 0.5),
-    inset 0 -14px 24px -18px rgba(255, 255, 255, 0.6);
+    inset 0 1px 0.5px rgba(255, 255, 255, 0.85),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.22),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.35),
+    inset 0 -14px 24px -18px rgba(255, 255, 255, 0.5);
 }
 
 /* Specular sheen along the top edge */
@@ -144,7 +151,7 @@
 
 /* Chromium: real refraction via SVG displacement on the backdrop */
 :global(.liquid) .glass {
-  backdrop-filter: blur(var(--glass-blur)) url(#liquid-glass) saturate(1.2) brightness(1.04);
+  backdrop-filter: blur(var(--glass-blur)) url(#liquid-glass) saturate(1.5) brightness(1.03);
 }
 
 /* ── Labels: category on top, name at the bottom ─────── */

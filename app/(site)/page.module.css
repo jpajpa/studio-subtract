@@ -20,10 +20,11 @@
   width: 100%;
 }
 
-/* Studio: a few folders, left-aligned with the nav (Sketch "Studio, Desktop") */
+/* Studio: a few folders, centred on the page */
 .row {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 128px var(--folder-gap);
   padding: 0 var(--page-margin);
 }

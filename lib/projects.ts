@@ -57,9 +57,11 @@ export type Project = {
   description: string;
   link?: { url: string; label: string };
   credits: { role: string; name: string }[];
-  /** the project's own color as a [top, bottom] gradient; tints the
-   *  project page's media placeholders */
+  /** the project's own color as a [top, bottom] gradient; tints the back
+   *  panel, the glass, the shadows and the project page's media placeholders */
   fill: [string, string];
+  /** label color */
+  text: string;
   media: Media[];
   /** bottom → top */
   papers: Paper[];

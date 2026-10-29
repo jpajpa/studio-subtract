@@ -26,7 +26,8 @@ type Props = {
 };
 
 export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
-  const { slug, title, year, category, papers } = project;
+  const { slug, title, year, category, fill, text, papers } = project;
+  const gradientId = `folder-fill-${slug}`;
 
   return (
     <article
@@ -37,10 +38,22 @@ export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
       suppressHydrationWarning={reveal}
       aria-hidden={clone || undefined}
       aria-label={clone ? undefined : [title, year].filter(Boolean).join(", ")}
-      style={{ "--enter": enter } as CSSProperties}
+      style={{ "--tint": fill[1], "--text": text, "--enter": enter } as CSSProperties}
     >
       <svg className={styles.back} viewBox="0 0 320 261" aria-hidden>
-        <path d={BACK_PATH} fill="#fff" stroke="#dedede" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor={fill[0]} />
+            <stop offset="1" stopColor={fill[1]} />
+          </linearGradient>
+        </defs>
+        <path
+          d={BACK_PATH}
+          fill={`url(#${gradientId})`}
+          stroke="rgba(0, 0, 0, 0.06)"
+          strokeWidth="1"
+          vectorEffect="non-scaling-stroke"
+        />
       </svg>
 
       <div className={styles.papers}>

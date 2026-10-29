@@ -173,9 +173,9 @@ export default config({
         }),
         colour: fields.object(
           {
-            top: hex("Folder top", "Not shown at the moment: folders are white."),
-            bottom: hex("Folder bottom", "Tints the project page while its media loads."),
-            label: hex("Label text", "Not shown at the moment: folder labels are grey."),
+            top: hex("Folder top", "Top of the folder's gradient."),
+            bottom: hex("Folder bottom", "Bottom of the folder's gradient; tints the glass, shadows and the project page while its media loads."),
+            label: hex("Label text", "Colour of the folder's labels."),
           },
           { label: "Colours", layout: [4, 4, 4] },
         ),

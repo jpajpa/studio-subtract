@@ -111,6 +111,7 @@ export const getProjects = cache(async (): Promise<Project[]> => {
       link: linkOf(entry.link),
       credits: entry.credits.filter((c) => c.role || c.name),
       fill: [entry.colour.top, entry.colour.bottom],
+      text: entry.colour.label,
       media,
       papers: papersOf(entry.folder, media),
     };
@@ -119,8 +120,9 @@ export const getProjects = cache(async (): Promise<Project[]> => {
   return ordered(projects, home?.projects);
 });
 
-// people have no colour of their own: a neutral grey under their media
-const PERSON_FILL: [string, string] = ["#f2f2f2", "#e2e2e2"];
+// people have no colour of their own: white folders, grey labels
+const PERSON_FILL: [string, string] = ["#ffffff", "#f2f2f2"];
+const PERSON_TEXT = "#3b3b3b";
 
 /** The Studio page's folders, one per person. */
 export const getPeople = cache(async (): Promise<Project[]> => {
@@ -140,6 +142,7 @@ export const getPeople = cache(async (): Promise<Project[]> => {
       link: linkOf(entry.link),
       credits: [],
       fill: PERSON_FILL,
+      text: PERSON_TEXT,
       media,
       papers: papersOf(entry.folder, media),
     };
