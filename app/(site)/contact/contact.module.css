@@ -1,0 +1,48 @@
+/* The address alone, centred on the page like the folders */
+.page {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--page-margin);
+}
+
+.email {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition:
+    color 240ms ease,
+    text-decoration-color 240ms ease;
+  animation: arrive 900ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both;
+}
+
+/* hover: a shade darker and underlined */
+.email:hover,
+.email:focus-visible {
+  color: #1a1a1a;
+  text-decoration-color: currentColor;
+}
+
+/* rises a little out of a soft blur as the page opens */
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .email {
+    animation: fade 300ms ease both;
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
+}
