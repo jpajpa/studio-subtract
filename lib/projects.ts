@@ -23,8 +23,8 @@ export type Media = {
   kind: "image" | "video" | "pdf";
   src: string;
   video?: string;
-  /** the PDF itself and its link text */
-  pdf?: { url: string; label: string };
+  /** the PDF itself, opened from its cover in the gallery */
+  pdf?: string;
   w: number;
   h: number;
   alt: string;

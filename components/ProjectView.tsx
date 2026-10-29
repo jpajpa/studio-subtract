@@ -157,7 +157,9 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
     raf: 0,
     last: 0,
     live: false, // accepts input (off while animating in/out)
-    drag: null as null | { id: number; x: number; target: number; vx: number; t: number },
+    drag: null as null | { id: number; x: number; target: number; vx: number; t: number; moved: boolean },
+    // the last drag moved the gallery: the click that ends it opens nothing
+    dragged: false,
     split: [] as SplitText[],
   });
 
@@ -249,10 +251,11 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
 
   const onPointerDown = (e: React.PointerEvent) => {
     const st = s.current;
-    if (e.button !== 0 || !st.live || isPhone() || (e.target as HTMLElement).closest("a")) return;
-    st.drag = { id: e.pointerId, x: e.clientX, target: st.target, vx: 0, t: performance.now() };
-    viewport.current?.setPointerCapture(e.pointerId);
-    viewport.current?.classList.add(styles.dragging);
+    // PDF covers are links you can also drag the gallery by
+    const link = (e.target as HTMLElement).closest("a");
+    if (e.button !== 0 || !st.live || isPhone() || (link && !link.hasAttribute("data-pdf"))) return;
+    st.drag = { id: e.pointerId, x: e.clientX, target: st.target, vx: 0, t: performance.now(), moved: false };
+    st.dragged = false;
     kick();
   };
 
@@ -260,6 +263,13 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
     const st = s.current;
     const drag = st.drag;
     if (!drag || drag.id !== e.pointerId) return;
+    // capture only once it's a real drag, so a plain click still reaches a PDF link
+    if (!drag.moved) {
+      if (Math.abs(e.clientX - drag.x) < 4) return;
+      drag.moved = st.dragged = true;
+      viewport.current?.setPointerCapture(e.pointerId);
+      viewport.current?.classList.add(styles.dragging);
+    }
     const now = performance.now();
     const next = gsap.utils.clamp(0, st.max, drag.target - (e.clientX - drag.x));
     const frames = Math.max((now - drag.t) / (1000 / 60), 0.5);
@@ -571,11 +581,8 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
       }),
   }));
 
-  // the project's link, then each PDF in the gallery
-  const links = [
-    ...(project.link ? [project.link] : []),
-    ...project.media.flatMap((m) => (m.pdf ? [m.pdf] : [])),
-  ];
+  // PDFs open from their covers in the gallery, so only the project's own link is listed
+  const links = project.link ? [project.link] : [];
 
   return (
     <div
@@ -652,7 +659,31 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
             >
               <div className={styles.shadow} data-shadow />
               <div className={styles.media} data-media>
-                {m.kind === "video" ? (
+                {m.pdf ? (
+                  <a
+                    className={styles.pdf}
+                    href={m.pdf}
+                    target="_blank"
+                    rel="noreferrer"
+                    data-pdf
+                    draggable={false}
+                    onClick={(e) => {
+                      if (s.current.dragged) e.preventDefault();
+                    }}
+                  >
+                    <Image
+                      src={m.src}
+                      alt={m.alt}
+                      width={m.w}
+                      height={m.h}
+                      sizes={`(max-width: 767px) calc(100vw - 52px), calc(${(FRAME_H * 100).toFixed(2)}svh * ${(m.w / m.h).toFixed(4)})`}
+                      quality={90}
+                      loading={i < 3 ? "eager" : "lazy"}
+                      draggable={false}
+                    />
+                    <span className={styles.pdfTag}>View PDF ↗</span>
+                  </a>
+                ) : m.kind === "video" ? (
                   <video src={m.video} poster={m.src} width={m.w} height={m.h} muted loop playsInline autoPlay aria-label={m.alt || undefined} />
                 ) : (
                   <Image

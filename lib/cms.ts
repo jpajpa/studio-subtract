@@ -46,9 +46,9 @@ function mediaOf(items: readonly MediaEntry[]): Media[] {
   return items
     .map((item): Media | null => {
       if (item.discriminant === "pdf") {
-        const { file, cover, label, alt } = item.value;
+        const { file, cover, alt } = item.value;
         if (!file || !cover) return null;
-        return { kind: "pdf", src: cover.src, pdf: { url: file, label: label || "PDF" }, w: cover.width, h: cover.height, alt };
+        return { kind: "pdf", src: cover.src, pdf: file, w: cover.width, h: cover.height, alt };
       }
       const still = item.discriminant === "video" ? item.value.poster : item.value.image;
       if (!still) return null;

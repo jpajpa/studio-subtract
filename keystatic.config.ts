@@ -57,10 +57,6 @@ const mediaField = (folder: string) =>
             folder,
             isRequired: true,
           }),
-          label: fields.text({
-            label: "Link text",
-            description: "Listed under the description, opens the PDF. Leave empty for “PDF”.",
-          }),
           alt: fields.text({ label: "Alt text" }),
         }),
       },
