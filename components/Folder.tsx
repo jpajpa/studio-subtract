@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import type { Project } from "@/lib/projects";
+import { PaperVideo } from "./PaperVideo";
 import styles from "./Folder.module.css";
 
 // Back panel outline in folder space (320 × 261), from Sketch "Home, Folder v2":
@@ -79,32 +80,43 @@ export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
       </svg>
 
       <div className={styles.papers}>
-        {papers.map((p, i) => (
-          <Image
-            key={i}
-            className={styles.paper}
-            src={p.src}
-            alt=""
-            width={p.w}
-            height={p.h}
-            // papers are drawn at folder units ≈ CSS px on desktop
-            sizes={`${Math.ceil(p.w)}px`}
-            quality={85}
-            loading={eager ? "eager" : "lazy"}
-            draggable={false}
-            style={
-              {
-                left: u(p.x),
-                top: u(p.y),
-                width: u(p.w),
-                height: u(p.h),
-                "--r": `${p.r ?? 0}deg`,
-                "--i": i,
-                "--n": papers.length,
-              } as CSSProperties
-            }
-          />
-        ))}
+        {papers.map((p, i) => {
+          const style = {
+            left: u(p.x),
+            top: u(p.y),
+            width: u(p.w),
+            height: u(p.h),
+            "--r": `${p.r ?? 0}deg`,
+            "--i": i,
+            "--n": papers.length,
+          } as CSSProperties;
+          return p.video ? (
+            <PaperVideo
+              key={i}
+              className={styles.paper}
+              src={p.video}
+              // the still at 2× the paper's size, not the full upload
+              poster={getImageProps({ src: p.src, alt: "", width: p.w, height: p.h, quality: 85 }).props.src}
+              style={style}
+            />
+          ) : (
+            <Image
+              key={i}
+              className={styles.paper}
+              src={p.src}
+              alt=""
+              width={p.w}
+              height={p.h}
+              // papers are drawn at folder units ≈ CSS px on desktop
+              sizes={`${Math.ceil(p.w)}px`}
+              quality={85}
+              loading={eager ? "eager" : "lazy"}
+              draggable={false}
+              style={style}
+              data-paper
+            />
+          );
+        })}
       </div>
 
       <div className={styles.front} data-front>

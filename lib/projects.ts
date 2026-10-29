@@ -34,7 +34,10 @@ export type Media = {
 export type Paper = {
   /** index into the project's media */
   media: number;
+  /** the image, or a video's still */
   src: string;
+  /** plays in the folder while it is on screen */
+  video?: string;
   x: number;
   y: number;
   w: number;
