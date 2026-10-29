@@ -1,7 +1,7 @@
 .nav {
   position: absolute;
   z-index: 10;
-  top: clamp(40px, 17.5vh, 186px);
+  top: var(--nav-top);
   left: var(--page-margin);
   display: flex;
   flex-direction: column;
