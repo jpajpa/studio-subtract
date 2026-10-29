@@ -33,7 +33,7 @@ function autoPapers(media: Media[]): Paper[] {
       const w = Math.round(m.w * k);
       const h = Math.round(m.h * k);
       const { x, y, r } = AUTO[i];
-      return { media: i, src: m.src, video: m.video, x: Math.min(x, 310 - w), y, w, h, r };
+      return { media: i, src: m.src, x: Math.min(x, 310 - w), y, w, h, r };
     })
     .reverse();
 }
@@ -56,6 +56,7 @@ function mediaOf(items: readonly MediaEntry[]): Media[] {
         kind: item.discriminant,
         src: still.src,
         video: item.discriminant === "video" ? (item.value.video ?? undefined) : undefined,
+        small: item.discriminant === "video" ? (item.value.small ?? undefined) : undefined,
         w: still.width,
         h: still.height,
         alt: item.value.alt,
@@ -71,7 +72,6 @@ function papersOf(folder: readonly FolderEntry[], media: Media[]): Paper[] {
     .map((p) => ({
       media: p.item! - 1,
       src: media[p.item! - 1].src,
-      video: media[p.item! - 1].video,
       x: p.x ?? 0,
       y: p.y ?? 0,
       w: p.w ?? 1,

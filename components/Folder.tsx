@@ -1,7 +1,6 @@
 import type { CSSProperties } from "react";
-import Image, { getImageProps } from "next/image";
+import Image from "next/image";
 import type { Project } from "@/lib/projects";
-import { PaperVideo } from "./PaperVideo";
 import styles from "./Folder.module.css";
 
 // Back panel outline in folder space (320 × 261), from Sketch "Home, Folder v2":
@@ -13,8 +12,9 @@ const BACK_PATH =
 
 // Room around the back panel for its shadows, in folder units. Safari clips
 // shadows that spill past an element's box (in tile-sized rectangles once the
-// rail is composited), so the SVG is drawn this much larger and the shadows
-// are painted inside it.
+// rail is composited), so the shadow and the SVG are drawn this much larger.
+// The shadows are an image (public/folder-shadow.png, made by
+// scripts/folder-shadow.mjs): blur filters on every folder made phones stutter.
 const PAD = { x: 80, top: 50, bottom: 120 };
 const VIEW = `${-PAD.x} ${-PAD.top} ${320 + 2 * PAD.x} ${261 + PAD.top + PAD.bottom}`;
 
@@ -36,7 +36,6 @@ type Props = {
 export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
   const { slug, title, year, category, fill, text, papers } = project;
   const gradientId = `folder-fill-${slug}`;
-  const shadowId = `folder-shadow-${slug}`;
 
   return (
     <article
@@ -49,28 +48,15 @@ export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
       aria-label={clone ? undefined : [title, year].filter(Boolean).join(", ")}
       style={{ "--tint": fill[1], "--text": text, "--enter": enter } as CSSProperties}
     >
+      <div className={styles.shadow} aria-hidden />
       <svg className={styles.back} viewBox={VIEW} aria-hidden>
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor={fill[0]} />
             <stop offset="1" stopColor={fill[1]} />
           </linearGradient>
-          {/* contact shadow + a soft, wide one: the folder sits above the page */}
-          <filter
-            id={shadowId}
-            filterUnits="userSpaceOnUse"
-            x={-PAD.x}
-            y={-PAD.top}
-            width={320 + 2 * PAD.x}
-            height={261 + PAD.top + PAD.bottom}
-          >
-            <feDropShadow dx="0" dy="1" stdDeviation="0.75" floodOpacity="0.22" />
-            <feDropShadow dx="0" dy="12" stdDeviation="8" floodOpacity="0.16" />
-            <feDropShadow dx="0" dy="30" stdDeviation="20" floodOpacity="0.14" />
-          </filter>
         </defs>
         <path
-          filter={`url(#${shadowId})`}
           d={BACK_PATH}
           fill={`url(#${gradientId})`}
           stroke="rgba(0, 0, 0, 0.06)"
@@ -90,16 +76,7 @@ export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
             "--i": i,
             "--n": papers.length,
           } as CSSProperties;
-          return p.video ? (
-            <PaperVideo
-              key={i}
-              className={styles.paper}
-              src={p.video}
-              // the still at 2× the paper's size, not the full upload
-              poster={getImageProps({ src: p.src, alt: "", width: p.w, height: p.h, quality: 85 }).props.src}
-              style={style}
-            />
-          ) : (
+          return (
             <Image
               key={i}
               className={styles.paper}

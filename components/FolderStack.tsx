@@ -67,12 +67,9 @@ function stackScript(cfg: typeof config) {
           img.addEventListener("load", done, { once: true });
           img.addEventListener("error", done, { once: true });
         });
-  // a video paper shows its still until it plays: load that (the video shares it)
-  const stillOf = (paper: HTMLElement) =>
-    paper instanceof HTMLVideoElement ? Object.assign(new Image(), { src: paper.poster }) : (paper as HTMLImageElement);
   const imagesReady = (el: HTMLElement) =>
     Promise.race([
-      Promise.all(Array.from(el.querySelectorAll<HTMLElement>("[data-paper]"), (p) => loaded(stillOf(p)))),
+      Promise.all(Array.from(el.querySelectorAll<HTMLImageElement>("[data-paper]"), loaded)),
       new Promise((done) => setTimeout(done, cfg.imageWait)),
     ]);
 

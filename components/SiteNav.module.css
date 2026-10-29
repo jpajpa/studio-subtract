@@ -51,42 +51,25 @@
     opacity: 0;
   }
 
+  /* One blur layer, masked to fade out. Sketch's progressive blur was four
+     stacked layers, but every backdrop-filter re-renders everything under it
+     (the folders' own glass included) on each scroll frame: on iPhones that
+     stuttered, and one layer looks nearly the same. */
   .blur {
     position: absolute;
     z-index: -1;
     inset: 0;
     display: block;
     pointer-events: none;
+    -webkit-backdrop-filter: blur(7px);
+    backdrop-filter: blur(7px);
+    -webkit-mask-image: linear-gradient(#000 20%, rgb(0 0 0 / 0.55) 55%, transparent 95%);
+    mask-image: linear-gradient(#000 20%, rgb(0 0 0 / 0.55) 55%, transparent 95%);
   }
-
-  .blur > span {
-    position: absolute;
-    inset: 0;
-    -webkit-backdrop-filter: blur(var(--b));
-    backdrop-filter: blur(var(--b));
-    -webkit-mask-image: linear-gradient(#000 var(--from), transparent var(--to));
-    mask-image: linear-gradient(#000 var(--from), transparent var(--to));
-  }
-  /* each layer reaches less far down and blurs more: 10px at the top, 0 at the foot */
-  .blur > span:nth-child(1) {
-    --b: 1px;
-    --from: 70%;
-    --to: 100%;
-  }
-  .blur > span:nth-child(2) {
-    --b: 2px;
-    --from: 50%;
-    --to: 90%;
-  }
-  .blur > span:nth-child(3) {
-    --b: 4px;
-    --from: 25%;
-    --to: 75%;
-  }
-  .blur > span:nth-child(4) {
-    --b: 6px;
-    --from: 0%;
-    --to: 50%;
+  /* slid away: drop the layer once it's out of sight, so it isn't rendered */
+  .nav[data-hidden] .blur {
+    visibility: hidden;
+    transition: visibility 0s 420ms;
   }
 }
 

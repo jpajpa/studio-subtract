@@ -81,12 +81,8 @@ function flight(panel: HTMLElement, p: Pose) {
 
 const CLIP_OPEN = "inset(0px 0px 0px 0px round 0px)";
 
-/** A folder paper's image, or a video paper's still (both already loaded). */
-const stillOf = (paper: HTMLElement) =>
-  paper instanceof HTMLVideoElement ? paper.poster : (paper as HTMLImageElement).currentSrc || (paper as HTMLImageElement).src;
-
-/** Folder papers bottom → top: images, and videos (see PaperVideo). */
-const papersIn = (folder: HTMLElement) => Array.from(folder.querySelectorAll<HTMLElement>("[data-paper]"));
+/** Folder papers bottom → top: images, or a video's still (videos only play in the gallery). */
+const papersIn = (folder: HTMLElement) => Array.from(folder.querySelectorAll<HTMLImageElement>("[data-paper]"));
 
 /**
  * How far a paper must rise for its bottom edge to clear the folder's glass
@@ -407,15 +403,15 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         // a pixel short of it), so it doesn't sit there before flying
         const at = up + LIFT * (phone ? 0.85 : 1);
         handoff = Math.max(handoff, at);
+        // its shadow eases away as it rises, gone by the handover so none blinks out
+        tl.to(paper, { "--paper-shadow": 0, duration: at - up, ease: "power1.inOut" }, up);
         const f = flight(panel, { ...pose, cy: pose.cy - lift });
         gsap.set(panel, { ...f.panel, zIndex: zOf(i), opacity: 0 });
         // the paper's image (already loaded) shows until the frame's own
         // larger one arrives, so a frame never flies in empty
-        gsap.set(frames[i], { clipPath: f.clip, backgroundImage: `url("${stillOf(paper)}")` });
-        // a video carries on from where it was playing in the folder
-        const video = frames[i].querySelector("video");
-        if (video && paper instanceof HTMLVideoElement) video.currentTime = paper.currentTime;
-        // its big soft shadow fades in late: scaled down, it breaks up in WebKit
+        gsap.set(frames[i], { clipPath: f.clip, backgroundImage: `url("${paper.currentSrc || paper.src}")` });
+        // its big soft shadow eases in over the second half of the flight:
+        // scaled down, it breaks up in WebKit
         gsap.set(shadows[i], { opacity: 0 });
         tl.set(panel, { opacity: 1 }, at);
         tl.set(paper, { visibility: "hidden" }, at);
@@ -425,7 +421,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         const unclip = phone ? { duration: 0.9, ease: "power2.inOut" } : { duration: 1.15, ease: "expo.inOut" };
         tl.to(panel, { x: 0, y: 0, scale: 1, rotation: 0, ...fly }, at);
         tl.to(frames[i], { clipPath: CLIP_OPEN, ...unclip }, at + 0.08);
-        tl.to(shadows[i], { opacity: 1, duration: 0.6, ease: "power1.in" }, at + 0.75);
+        tl.to(shadows[i], { opacity: 1, duration: fly.duration * 0.7, ease: "sine.inOut" }, at + fly.duration * 0.5);
       });
 
       // The camera dives into the folder: the rest rush outward past it
@@ -515,7 +511,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
 
         const done = () => {
           if (home) {
-            gsap.set(papersIn(home), { clearProps: "visibility,transform,transition" });
+            gsap.set(papersIn(home), { clearProps: "visibility,transform,transition,--paper-shadow" });
             home.removeAttribute("data-open"); // closes with its own CSS transition
           }
           // phones: the stack re-opens whichever folder is mid-screen
@@ -582,12 +578,14 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
           const f = flight(panel, pose);
           tl.to(panel, { ...f.panel, ...fly }, at);
           tl.to(frames[i], { clipPath: f.clip, ...clip }, at);
-          tl.to(shadows[i], { opacity: 0, duration: 0.4, ease: "power1.out" }, at);
+          tl.to(shadows[i], { opacity: 0, duration: fly.duration * 0.5, ease: "sine.inOut" }, at);
 
           const paper = homePapers[paperOf[i]];
           const above = at + fly.duration;
           const sink = above + 0.04;
-          tl.set(paper, { visibility: "visible" }, above);
+          // takes over shadowless, and its shadow returns as it sinks back in
+          tl.set(paper, { visibility: "visible", "--paper-shadow": 0 }, above);
+          tl.to(paper, { "--paper-shadow": 1, duration: LIFT, ease: "power1.inOut" }, sink);
           tl.set(panel, { opacity: 0 }, above);
           tl.to(paper, { y: `+=${lifts[i]}`, duration: LIFT, ease: "power3.inOut" }, sink);
         }
@@ -704,7 +702,11 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
                     <span className={styles.pdfTag}>View PDF ↗</span>
                   </a>
                 ) : m.kind === "video" ? (
-                  <video src={m.video} poster={m.src} width={m.w} height={m.h} muted loop playsInline autoPlay aria-label={m.alt || undefined} />
+                  <video poster={m.src} width={m.w} height={m.h} muted loop playsInline autoPlay aria-label={m.alt || undefined}>
+                    {/* phones play the lighter copy: a full 4K upload stutters there */}
+                    {m.small && <source src={m.small} media="(max-width: 767px)" />}
+                    <source src={m.video} />
+                  </video>
                 ) : (
                   <Image
                     src={m.src}
