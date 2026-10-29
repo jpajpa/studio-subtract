@@ -60,20 +60,27 @@
 
 /* ── Back panel ─────────────────────────────────────────── */
 
+/* both drawn larger than the folder so its shadows stay inside them (Folder.tsx) */
+.shadow,
 .back {
-  /* drawn larger than the folder so its shadows stay inside it (Folder.tsx) */
   position: absolute;
   left: calc(-80 * var(--u));
   top: calc(-50 * var(--u));
   width: calc(480 * var(--u));
   height: calc(431 * var(--u));
-  overflow: visible;
   pointer-events: none;
 }
 
-/* shadows take the folder's own color, darkened */
-.back feDropShadow {
-  flood-color: var(--shade);
+/* contact shadow + a soft, wide one, pre-rendered (scripts/folder-shadow.mjs)
+   and tinted with the folder's own color, darkened */
+.shadow {
+  background: var(--shade);
+  -webkit-mask: url(/folder-shadow.png) 0 0 / 100% 100% no-repeat;
+  mask: url(/folder-shadow.png) 0 0 / 100% 100% no-repeat;
+}
+
+.back {
+  overflow: visible;
 }
 
 /* ── Papers ─────────────────────────────────────────────── */
@@ -87,9 +94,11 @@
   position: absolute;
   object-fit: cover;
   border-radius: 2px;
+  /* 0–1: the project page fades it as a paper lifts out (ProjectView) */
+  --paper-shadow: 1;
   box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.12),
-    0 6px 16px -4px rgba(0, 0, 0, 0.16);
+    0 1px 2px rgb(0 0 0 / calc(0.12 * var(--paper-shadow))),
+    0 6px 16px -4px rgb(0 0 0 / calc(0.16 * var(--paper-shadow)));
   /* lower papers sit deeper in the folder, so a little darker */
   filter: brightness(calc(1 - (var(--n) - 1 - var(--i)) * 0.06));
   transform: rotate(var(--r));
@@ -153,6 +162,15 @@
   pointer-events: none;
 }
 
+/* Phones: a plain sheen. Blending it inside the glass costs every folder an
+   extra offscreen pass each frame, which iPhones feel while scrolling. */
+@media (max-width: 767px) {
+  .glass::after {
+    mix-blend-mode: normal;
+    opacity: 0.5;
+  }
+}
+
 /* Chromium: real refraction via SVG displacement on the backdrop */
 :global(.liquid) .glass {
   backdrop-filter: blur(var(--glass-blur)) url(#liquid-glass) saturate(1.5) brightness(1.03);
@@ -213,6 +231,79 @@
   }
   :global(.is-dragging) .folder:hover .front {
     transform: perspective(900px) rotateX(0deg);
+  }
+}
+
+/* Phones (the stack's folders have data-reveal): how far a folder is open
+   follows where it sits on screen, scrubbed by the scroll itself. It opens
+   as it nears the middle and closes as it leaves, moving with the finger, so
+   it never fires on its own or snaps. The FolderStack script's data-open is
+   the fallback where this isn't supported. A tapped folder hands its papers
+   to the project page's flight (data-flight, see ProjectView). */
+@supports (animation-timeline: view()) {
+  @media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+    .folder[data-reveal] {
+      view-timeline: --folder block;
+    }
+    .folder[data-reveal] .paper,
+    .folder[data-reveal] .front {
+      animation: paper-open ease-in-out both;
+      animation-duration: auto;
+      animation-timeline: --folder;
+      /* 0% the folder's top meets the screen's foot, 50% it's centred,
+         100% its foot leaves the top */
+      animation-range: cover 0% cover 100%;
+    }
+    .folder[data-reveal] .paper:nth-child(even) {
+      animation-name: paper-open-even;
+    }
+    .folder[data-reveal] .front {
+      animation-name: front-open;
+    }
+    .folder[data-flight] .paper,
+    .folder[data-flight] .paper:nth-child(even),
+    .folder[data-flight] .front {
+      animation: none;
+    }
+  }
+}
+
+/* closed until 30%, fully open from 44% to 56%, closed again by 70%: a
+   neighbour a folder's pitch away is closed while one is centred */
+@keyframes paper-open {
+  0%,
+  30%,
+  70%,
+  100% {
+    transform: rotate(var(--r));
+  }
+  44%,
+  56% {
+    transform: translateY(calc(-22px - var(--i) * 6px)) rotate(calc(var(--r) - 3deg));
+  }
+}
+@keyframes paper-open-even {
+  0%,
+  30%,
+  70%,
+  100% {
+    transform: rotate(var(--r));
+  }
+  44%,
+  56% {
+    transform: translateY(calc(-28px - var(--i) * 6px)) rotate(calc(var(--r) + 3.5deg));
+  }
+}
+@keyframes front-open {
+  0%,
+  30%,
+  70%,
+  100% {
+    transform: perspective(900px) rotateX(0deg);
+  }
+  44%,
+  56% {
+    transform: perspective(900px) rotateX(-24deg);
   }
 }
 

@@ -24,6 +24,10 @@ function stackScript(cfg: typeof config) {
   const folders = Array.from(list.children) as HTMLElement[];
 
   // Open the folder nearest the middle of the screen (there is no hover).
+  // Where CSS can scrub the opening with the scroll (Folder.module.css),
+  // it does that instead and this stays off.
+  const scrubbed =
+    CSS.supports("animation-timeline: view()") && matchMedia("(prefers-reduced-motion: no-preference)").matches;
   let open: HTMLElement | null = null;
   let raf = 0;
   const update = () => {
@@ -48,15 +52,17 @@ function stackScript(cfg: typeof config) {
   const schedule = () => {
     if (!raf) raf = requestAnimationFrame(update);
   };
-  update();
-  addEventListener("scroll", schedule, { passive: true });
-  // after a project page closes over the stack: start again from the scroll
-  addEventListener("folderstack:sync", () => {
-    for (const el of folders) el.removeAttribute("data-open");
-    open = null;
+  if (!scrubbed) {
     update();
-  });
-  addEventListener("resize", schedule);
+    addEventListener("scroll", schedule, { passive: true });
+    // after a project page closes over the stack: start again from the scroll
+    addEventListener("folderstack:sync", () => {
+      for (const el of folders) el.removeAttribute("data-open");
+      open = null;
+      update();
+    });
+    addEventListener("resize", schedule);
+  }
 
   // Each folder rises the first time it scrolls into view, once its images
   // are in (or after imageWait), so it never rises empty.
@@ -67,12 +73,9 @@ function stackScript(cfg: typeof config) {
           img.addEventListener("load", done, { once: true });
           img.addEventListener("error", done, { once: true });
         });
-  // a video paper shows its still until it plays: load that (the video shares it)
-  const stillOf = (paper: HTMLElement) =>
-    paper instanceof HTMLVideoElement ? Object.assign(new Image(), { src: paper.poster }) : (paper as HTMLImageElement);
   const imagesReady = (el: HTMLElement) =>
     Promise.race([
-      Promise.all(Array.from(el.querySelectorAll<HTMLElement>("[data-paper]"), (p) => loaded(stillOf(p)))),
+      Promise.all(Array.from(el.querySelectorAll<HTMLImageElement>("[data-paper]"), loaded)),
       new Promise((done) => setTimeout(done, cfg.imageWait)),
     ]);
 

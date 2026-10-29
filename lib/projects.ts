@@ -23,6 +23,9 @@ export type Media = {
   kind: "image" | "video" | "pdf";
   src: string;
   video?: string;
+  /** a lighter copy of the video (≤1280px, scripts/video-sizes.mjs) that
+   *  phones play; desktop plays the full one */
+  small?: string;
   /** the PDF itself, opened from its cover in the gallery */
   pdf?: string;
   w: number;
@@ -36,8 +39,6 @@ export type Paper = {
   media: number;
   /** the image, or a video's still */
   src: string;
-  /** plays in the folder while it is on screen */
-  video?: string;
   x: number;
   y: number;
   w: number;

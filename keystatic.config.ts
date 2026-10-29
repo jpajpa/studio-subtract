@@ -45,6 +45,13 @@ const mediaField = (folder: string) =>
         }),
         video: fields.object({
           video: blobFile({ label: "Video (mp4)", accept: "video/mp4,video/webm", folder, isRequired: true }),
+          small: blobFile({
+            label: "Small video",
+            description:
+              "A lighter copy that phones play. Leave empty: `node --env-file=.env.local scripts/video-sizes.mjs` makes it. Until then the full video plays everywhere.",
+            accept: "video/mp4",
+            folder,
+          }),
           poster: blobImage({
             label: "Still",
             description: "A frame of the video at full size. Shown in the folder and while the video loads.",
