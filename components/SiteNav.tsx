@@ -15,6 +15,8 @@ type Props = {
   /** phones' project page: stacked top-left over a fade, the section's own
    *  link ("Work" or "Studio") closes it */
   inner?: boolean;
+  /** on the contact page: neither section is current */
+  contact?: boolean;
   onHome?: () => void;
 };
 
@@ -23,7 +25,7 @@ type Props = {
  * slides away while scrolling down and returns on a small scroll up (stacked
  * on project pages, Sketch "Mobile/Inner Page").
  */
-export function SiteNav({ section = WORK, inner, onHome }: Props = {}) {
+export function SiteNav({ section = WORK, inner, contact, onHome }: Props = {}) {
   const [hidden, setHidden] = useState(false);
   const s = useRef({ lastY: 0, travel: 0, scroller: null as EventTarget | null });
   const pathname = usePathname();
@@ -90,7 +92,7 @@ export function SiteNav({ section = WORK, inner, onHome }: Props = {}) {
         <span />
       </span>
       {[WORK, STUDIO].map((link) => {
-        const here = link.id === section.id;
+        const here = !contact && link.id === section.id;
         return (
           <a
             key={link.label}
@@ -109,7 +111,9 @@ export function SiteNav({ section = WORK, inner, onHome }: Props = {}) {
           </a>
         );
       })}
-      <a href="#contact">Contact</a>
+      <a href="/contact" aria-current={contact ? "page" : undefined}>
+        Contact
+      </a>
     </nav>
   );
 }
