@@ -104,7 +104,7 @@ export function Work({
   const project = index >= 0 ? projects[index] : undefined;
 
   return (
-    <main className={styles.page}>
+    <main className={styles.page} data-section={id}>
       <SiteNav section={section} />
 
       <section className={styles.work} aria-label={section.label} inert={!!project || undefined}>

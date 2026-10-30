@@ -4,6 +4,13 @@
   min-height: 100svh;
 }
 
+/* The Studio folders sit on a near-white ground with no colour of their own,
+   so the front panel's shadow reads heavier there than on a project folder.
+   15% off all three of its layers. */
+.page[data-section="studio"] {
+  --front-shadow: 0.85;
+}
+
 /* Desktop: folders centred vertically, like the Sketch comp */
 .work {
   min-height: 100vh;
