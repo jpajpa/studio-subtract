@@ -1,35 +1,39 @@
 title: Chess
-year: '2025'
-description: A chess set weighing nearly 40kg, every piece hand-cast from moulds made by hand. Colour is removed, and the squares are communicated through negative space. Built as a deep exploration of subtraction.
+year: '2023'
+description: >-
+  A chess set weighing nearly 40kg, every piece hand-cast from moulds made by
+  hand. Colour is removed, and the squares are communicated through negative
+  space. Built as a deep exploration of subtraction.
+link: {}
+credits: []
 roles:
   - design
 colour:
   top: '#3a3735'
   bottom: '#1a1816'
   label: '#e6e3df'
-credits: []
 media:
   - discriminant: image
     value:
       image:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/1.jpg
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/1.jpg
         width: 4000
         height: 3200
-      alt: ''
   - discriminant: image
     value:
       image:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/2.jpg
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/2.jpg
         width: 4000
         height: 3200
-      alt: ''
   - discriminant: image
     value:
       image:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/3.jpg
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/3.jpg
         width: 4000
         height: 3200
-      alt: ''
 folder:
   - item: 1
     x: 61
