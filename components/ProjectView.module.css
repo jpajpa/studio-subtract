@@ -30,13 +30,8 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  cursor: grab;
   touch-action: pan-y;
   outline: none;
-}
-
-.dragging {
-  cursor: grabbing;
 }
 
 .track {
@@ -240,28 +235,18 @@
   z-index: 3;
   top: 0;
   left: 0;
-  margin: 18px 0 0 14px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 13px;
-  line-height: 18px;
+  margin: 20px 0 0 14px;
+  font-size: 12px;
+  line-height: 16px;
   letter-spacing: 0.3px;
-  color: #3b3b3b;
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  white-space: nowrap;
   pointer-events: none;
   opacity: 0;
-  scale: 0.9;
-  transition:
-    opacity 180ms ease,
-    scale 180ms ease;
+  transition: opacity 180ms ease;
 }
 
 .cursor[data-on] {
   opacity: 1;
-  scale: 1;
 }
 
 /* Back / Next at the end of the page: phones only */

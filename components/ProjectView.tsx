@@ -276,7 +276,6 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
       if (Math.abs(e.clientX - drag.x) < 4) return;
       drag.moved = st.dragged = true;
       viewport.current?.setPointerCapture(e.pointerId);
-      viewport.current?.classList.add(styles.dragging);
     }
     const now = performance.now();
     const next = gsap.utils.clamp(0, st.max, drag.target - (e.clientX - drag.x));
@@ -316,7 +315,6 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
     const idle = performance.now() - st.drag.t > 80;
     const vx = st.drag.vx;
     st.drag = null;
-    viewport.current?.classList.remove(styles.dragging);
     moveTo(st.target + (idle ? 0 : vx * FLING));
   };
 
@@ -521,15 +519,15 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         const chrome = chromeEls();
         gsap.set(chrome, { transition: "none" });
         const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        // Desktop: each frame eases out to a stop just above the folder, waits
-        // a beat, then drops in sharply, as two moves rather than one long
-        // glide. Phones: the same quicker flights as on opening, sunk as before.
+        // Desktop: each frame eases out to rest just above the folder, then
+        // its paper settles in gently, with no sharp step anywhere. Phones:
+        // the same quicker flights as on opening, sunk as before.
         const phone = isPhone();
         const fly = phone ? { duration: 1, ease: "power2.inOut" } : { duration: 1.1, ease: "power3.out" };
         const clip = phone ? { duration: 0.9, ease: "power2.inOut" } : { duration: 0.95, ease: "power3.out" };
         const sinkIn = phone
           ? { hold: 0.04, duration: LIFT, ease: "power3.inOut" }
-          : { hold: 0.12, duration: 0.3, ease: "power3.in" };
+          : { hold: 0, duration: 0.7, ease: "sine.inOut" };
 
         // Folders back at rest for measuring (still invisible: same frame).
         const folders = allFolders();
