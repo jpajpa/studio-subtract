@@ -5,13 +5,13 @@
 /** What the studio did on a project; listed on the folder's front. */
 export type Role = "cd" | "design";
 
-// in the order they're listed, as in Sketch "Home, Folder v2"
+// in the order they're listed: creative direction leads, then design
 export const ROLES: { id: Role; label: string }[] = [
-  { id: "design", label: "Design" },
   { id: "cd", label: "Creative Direction" },
+  { id: "design", label: "Design" },
 ];
 
-/** A project's category line, e.g. "Design, Creative Direction". */
+/** A project's category line, e.g. "Creative Direction, Design". */
 export const categoryOf = (roles: Role[]) =>
   ROLES.filter((r) => roles.includes(r.id))
     .map((r) => r.label)

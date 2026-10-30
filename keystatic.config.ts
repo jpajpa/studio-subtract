@@ -172,7 +172,7 @@ export default config({
         ),
         roles: fields.multiselect({
           label: "Roles",
-          description: "Listed at the top of the folder, e.g. “Design, Creative Direction”.",
+          description: "Listed at the top of the folder, e.g. “Creative Direction, Design”.",
           options: [
             { label: "Creative Direction", value: "cd" },
             { label: "Design", value: "design" },
