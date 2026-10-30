@@ -18,7 +18,9 @@ GitHub → Settings → Developer settings → GitHub Apps → **New GitHub App*
 - **Webhook**: untick **Active**
 - **Repository permissions**: Contents *Read and write*, Metadata *Read-only*,
   Pull requests *Read and write*
-- **Where can this GitHub App be installed?**: Only on this account
+- **Where can this GitHub App be installed?**: Any account (a private app 404s
+  at sign-in for everyone but its owner; it still only reaches repos it's
+  installed on)
 
 Then on the app's page:
 
@@ -41,5 +43,18 @@ Project `studio-subtract` → Settings → Environment Variables, for Production
 ## 3. Use it
 
 Open `https://studio-subtract.vercel.app/keystatic` and sign in with GitHub.
-Anyone who can push to the repo can edit; uploads are refused for everyone
-else. Saves go to `main` by default, so each one triggers a production deploy.
+Anyone with write access to the repo can edit; uploads are refused for
+everyone else.
+
+Editors work on a branch, not `main`:
+
+1. In Keystatic, open the branch picker (top left) → **New branch**. It's
+   named `cms/<name>`.
+2. Edit and save; each save is a commit on that branch. Vercel skips
+   `cms/**` branches (`vercel.json`), so nothing deploys yet.
+3. Click **Create pull request**. The repo owner reviews and merges it, which
+   deploys to production.
+
+Keystatic still lets anyone pick `main`, and a save there deploys straight
+away (or fails on Vercel for someone outside the team). Only a GitHub ruleset
+requiring pull requests on `main` blocks that.

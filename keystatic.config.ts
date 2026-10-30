@@ -3,7 +3,8 @@ import { blobFile, blobImage } from "./lib/blob-field";
 
 // Content editor at /keystatic. Text is saved as files in content/: straight
 // to disk on the dev server, as commits to GitHub on the live site (sign in
-// with GitHub; see docs/keystatic-github.md). Media uploads go to Vercel Blob
+// with GitHub; see docs/keystatic-github.md). Editors save to cms/ branches
+// and open a PR; merging it deploys. Media uploads go to Vercel Blob
 // and the YAML keeps their URLs.
 
 export const REPO = { owner: "jpajpa", name: "studio-subtract" } as const;
@@ -110,7 +111,7 @@ const folderField = () =>
   );
 
 export default config({
-  storage: process.env.NODE_ENV === "production" ? { kind: "github", repo: REPO } : { kind: "local" },
+  storage: process.env.NODE_ENV === "production" ? { kind: "github", repo: REPO, branchPrefix: "cms/" } : { kind: "local" },
   ui: {
     brand: { name: "Studio Subtract" },
     navigation: { Site: ["home", "studio"], Work: ["projects"], Studio: ["people"] },
