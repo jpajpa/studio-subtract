@@ -7,11 +7,10 @@ link:
   url: https://www.instagram.com/ihategum
 credits: []
 roles:
-  - cd
   - design
 colour:
-  top: '#f4c3c9'
-  bottom: '#f3bec8'
+  top: '#eca4b0'
+  bottom: '#e199a7'
   label: '#ffffff'
 media: []
 folder: []
