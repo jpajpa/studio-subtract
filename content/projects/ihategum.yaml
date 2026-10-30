@@ -10,8 +10,8 @@ roles:
   - cd
   - design
 colour:
-  top: '#ffc5d3'
-  bottom: '#c6c6c6'
+  top: '#f4c3c9'
+  bottom: '#da96a3'
   label: '#454545'
 media: []
 folder: []
