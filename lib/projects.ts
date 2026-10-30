@@ -11,6 +11,10 @@ export const ROLES: { id: Role; label: string }[] = [
   { id: "design", label: "Design" },
 ];
 
+/** Folder colours a person starts with. The CMS can override any of the three
+ *  per person; these are what the folders were before it could. */
+export const PERSON_COLOUR = { top: "#ffffff", bottom: "#f2f2f2", label: "#3b3b3b" } as const;
+
 /** A project's category line, e.g. "Creative Direction, Design". */
 export const categoryOf = (roles: Role[]) =>
   ROLES.filter((r) => roles.includes(r.id))

@@ -1,20 +1,22 @@
 name: Jan
 role: Designer
+colour:
+  top: '#ffffff'
+  bottom: '#f2f2f2'
+  label: '#3b3b3b'
 link: {}
 media:
   - discriminant: image
     value:
       image:
-        src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/jan/portrait.png
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/jan/portrait.png
         width: 1787
         height: 2673
       alt: Portrait of Jan
   - discriminant: image
     value:
       image:
-        src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/jan/note.png
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/jan/note.png
         width: 2480
         height: 3507
 folder:

@@ -3,7 +3,7 @@
 import { cache } from "react";
 import { createReader } from "@keystatic/core/reader";
 import config from "@/keystatic.config";
-import { categoryOf, type Media, type Paper, type Project, type Role } from "./projects";
+import { categoryOf, PERSON_COLOUR, type Media, type Paper, type Project, type Role } from "./projects";
 
 const reader = createReader(process.cwd(), config);
 
@@ -121,9 +121,8 @@ export const getProjects = cache(async (): Promise<Project[]> => {
   return ordered(projects, home?.projects);
 });
 
-// people have no colour of their own: white folders, grey labels
-const PERSON_FILL: [string, string] = ["#ffffff", "#f2f2f2"];
-const PERSON_TEXT = "#3b3b3b";
+// a person's folder colours come from the CMS; PERSON_COLOUR is what a new
+// entry starts with, and what an entry saved before the field existed uses
 
 /** The Studio page's folders, one per person. */
 export const getPeople = cache(async (): Promise<Project[]> => {
@@ -142,8 +141,8 @@ export const getPeople = cache(async (): Promise<Project[]> => {
       description: entry.bio,
       link: linkOf(entry.link),
       credits: [],
-      fill: PERSON_FILL,
-      text: PERSON_TEXT,
+      fill: [entry.colour?.top || PERSON_COLOUR.top, entry.colour?.bottom || PERSON_COLOUR.bottom],
+      text: entry.colour?.label || PERSON_COLOUR.label,
       media,
       papers: papersOf(entry.folder, media),
     };

@@ -1,5 +1,6 @@
 import { collection, config, fields, singleton } from "@keystatic/core";
 import { blobFile, blobImage } from "./lib/blob-field";
+import { PERSON_COLOUR } from "./lib/projects";
 
 // Content editor at /keystatic. Text is saved as files in content/: straight
 // to disk on the dev server, as commits to GitHub on the live site (sign in
@@ -9,10 +10,11 @@ import { blobFile, blobImage } from "./lib/blob-field";
 
 export const REPO = { owner: "jpajpa", name: "studio-subtract" } as const;
 
-const hex = (label: string, description?: string) =>
+const hex = (label: string, description?: string, defaultValue?: string) =>
   fields.text({
     label,
     description,
+    defaultValue,
     validation: { isRequired: true, pattern: { regex: /^#[0-9a-fA-F]{6}$/, message: "A hex colour, e.g. #f98a4c" } },
   });
 
@@ -203,6 +205,14 @@ export default config({
         name: fields.slug({ name: { label: "Name" }, slug: { label: "URL", description: "studiosubtract.com/studio/…" } }),
         role: fields.text({ label: "Role", description: "Listed at the top of the folder, e.g. “Designer”." }),
         bio: fields.text({ label: "Bio", multiline: true }),
+        colour: fields.object(
+          {
+            top: hex("Folder top", "Top of the folder's gradient.", PERSON_COLOUR.top),
+            bottom: hex("Folder bottom", "Bottom of the folder's gradient; tints the glass and shadows.", PERSON_COLOUR.bottom),
+            label: hex("Label text", "Colour of the folder's labels.", PERSON_COLOUR.label),
+          },
+          { label: "Colours", layout: [4, 4, 4] },
+        ),
         link: fields.object(
           {
             url: fields.url({ label: "Link", description: "Shown under the bio. Opens in a new tab." }),
