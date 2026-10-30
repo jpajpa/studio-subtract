@@ -46,15 +46,13 @@ Open `https://studio-subtract.vercel.app/keystatic` and sign in with GitHub.
 Anyone with write access to the repo can edit; uploads are refused for
 everyone else.
 
-Editors work on a branch, not `main`:
+Saves go to `main`, so each one deploys straight away. Everyone who can push
+to the repo is authorised on Vercel, so their commits build.
 
-1. In Keystatic, open the branch picker (top left) → **New branch**. It's
-   named `cms/<name>`.
-2. Edit and save; each save is a commit on that branch. Vercel skips
-   `cms/**` branches (`vercel.json`), so nothing deploys yet.
-3. Click **Create pull request**. The repo owner reviews and merges it, which
-   deploys to production.
+To work up a set of changes before they go live, use the branch picker (top
+left) → **New branch**, name it `cms/<name>`, and save there instead: Vercel
+skips `cms/**` branches (`vercel.json`), so nothing deploys until you click
+**Create pull request** and merge it.
 
-Keystatic still lets anyone pick `main`, and a save there deploys straight
-away (or fails on Vercel for someone outside the team). Only a GitHub ruleset
-requiring pull requests on `main` blocks that.
+To make that the only route, add a GitHub ruleset requiring pull requests on
+`main`.

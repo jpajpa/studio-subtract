@@ -113,7 +113,7 @@ const folderField = () =>
   );
 
 export default config({
-  storage: process.env.NODE_ENV === "production" ? { kind: "github", repo: REPO, branchPrefix: "cms/" } : { kind: "local" },
+  storage: process.env.NODE_ENV === "production" ? { kind: "github", repo: REPO } : { kind: "local" },
   ui: {
     brand: { name: "Studio Subtract" },
     navigation: { Site: ["home", "studio"], Work: ["projects"], Studio: ["people"] },
