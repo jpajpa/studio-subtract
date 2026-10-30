@@ -160,8 +160,9 @@
   inset: 0;
   border-radius: inherit;
   /* Fallback frost: Safari / Firefox */
-  backdrop-filter: blur(var(--glass-blur)) saturate(1.5) brightness(1.03);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5) brightness(1.03);
+  --frost: blur(var(--glass-blur)) saturate(1.5) brightness(1.03);
+  backdrop-filter: var(--frost);
+  -webkit-backdrop-filter: var(--frost);
   /* white sheen over a wash of the folder's color */
   background:
     linear-gradient(
@@ -202,7 +203,17 @@
 
 /* Chromium: real refraction via SVG displacement on the backdrop */
 :global(.liquid) .glass {
-  backdrop-filter: blur(var(--glass-blur)) url(#liquid-glass) saturate(1.5) brightness(1.03);
+  --frost: blur(var(--glass-blur)) url(#liquid-glass) saturate(1.5) brightness(1.03);
+}
+
+/* The frost samples the page behind it. While a folder is still coming in it
+   is composited (opacity first, then a transform in flight), so the blur has
+   no stable backdrop: the glass's white inset edges render hard and the whole
+   panel jitters, then snaps right once the folder lands. Hold the frost until
+   then. Without JS nothing sets data-settled, so the folders keep it from the
+   start, as they did before. */
+:global(.js) .folder:not([data-settled]) .glass {
+  --frost: none;
 }
 
 /* ── Labels: name on top, category at the bottom ─────── */
