@@ -12,5 +12,48 @@ colour:
   top: '#eca4b0'
   bottom: '#e199a7'
   label: '#ffffff'
-media: []
+media:
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/ihategum/1-VbZRznnWrmNUe1HBL8NaDIJs9Enp7i.jpg
+        width: 2000
+        height: 1600
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/ihategum/2-uszLrchx3HnH2s2gShihoDhn2oSboL.jpg
+        width: 2000
+        height: 1600
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/ihategum/3-YdT76tjgBbgVDPkMVPsb062nLrboPk.jpg
+        width: 2000
+        height: 1600
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/ihategum/4-9bME7qWtVmynPkM3ksDLYrwUNFADjB.jpg
+        width: 2000
+        height: 1600
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/ihategum/5-1fl7CoMCxXnB3e11fhdo16xlsgoIEK.jpg
+        width: 2000
+        height: 1600
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/ihategum/6-KWhVM2hVlBT0SYz58DtUNpY9sir49Y.jpg
+        width: 2000
+        height: 1600
+  - discriminant: video
+    value:
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/ihategum/7-2NH78OGqjqlMXHTOUp4sVLBwzkT3NO.mp4
+      poster:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/ihategum/7-still-dgoCdN4fNawZi9155goYiMB8vcbv4N.jpg
+        width: 608
+        height: 480
 folder: []

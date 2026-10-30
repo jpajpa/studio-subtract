@@ -16,24 +16,39 @@ media:
   - discriminant: image
     value:
       image:
-        src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/1.jpg
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/1.jpg
         width: 4000
         height: 3200
   - discriminant: image
     value:
       image:
-        src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/2.jpg
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/2.jpg
         width: 4000
         height: 3200
   - discriminant: image
     value:
       image:
-        src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/3.jpg
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/3.jpg
         width: 4000
         height: 3200
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/4-H5j8eDnsMeQzeIcyrF78hDeQeSzvgP.jpg
+        width: 4000
+        height: 3200
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/5-zKvQa5918lQy36b5r80qBSni5Oaxv2.jpg
+        width: 4000
+        height: 3200
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/6-Yp7tejgCm7C0o3dZo9CucHo6We6uKB.jpg
+        width: 2160
+        height: 2880
 folder:
   - item: 1
     x: 61

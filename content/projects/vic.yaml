@@ -1,6 +1,8 @@
 title: The Vic Mensa Show
 year: '2026'
-description: We designed the space for Vic Mensa’s new show, directed and created the intro video, and designed him a custom pair of glasses.
+description: >-
+  We designed the space for Vic Mensa’s new show, directed and created the intro
+  video, and designed him a custom pair of glasses.
 roles:
   - cd
   - design
@@ -12,14 +14,14 @@ link:
   url: https://www.youtube.com/watch?v=s8Baf3hr2yY
   label: ''
 credits:
+  - role: Lead
+    name: Edgar Esteves
   - role: Creative production
     name: OF TMRW
   - role: Set design
     name: Aaliyah Shae
   - role: Photography
     name: Onda
-  - role: Lead
-    name: Edgar Esteves
   - role: Management
     name: Blank Square
 media:
@@ -42,6 +44,25 @@ media:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/3.png
         width: 1200
         height: 900
+  - discriminant: video
+    value:
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/4-DjgXiAB9F8HhL580KKxRJkoCOaATZk.mp4
+      poster:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/4-still-Ry06bifXo0ZQQGGEjcdwMJnbrxT72L.jpg
+        width: 1920
+        height: 1080
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/5-BwFCNLFaOfjeFqHFCPrxLmfOt1klKG.jpg
+        width: 2400
+        height: 1800
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/6-M9WHBQyd8JSSZWrIkwsBrtSWx1ZTep.jpg
+        width: 2400
+        height: 1800
 folder:
   - item: 1
     x: 121

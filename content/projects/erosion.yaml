@@ -15,27 +15,30 @@ colour:
 media:
   - discriminant: video
     value:
-      video: >-
-        https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/1.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/1.mp4
       poster:
-        src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/1-still.jpg
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/1-still.jpg
         width: 2000
         height: 1500
   - discriminant: image
     value:
       image:
-        src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/2.jpg
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/2.jpg
         width: 1500
         height: 1500
   - discriminant: image
     value:
       image:
-        src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/3.jpg
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/3.jpg
         width: 3024
         height: 4032
+  - discriminant: video
+    value:
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/4-3EmbRxrN8nvoRH2L8TLgWvwzE2fWBL.mp4
+      poster:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/4-still-dXnmkL72Uvut3IKZbPEk4OR3cuFcqD.jpg
+        width: 1280
+        height: 720
 folder:
   - item: 1
     x: 110

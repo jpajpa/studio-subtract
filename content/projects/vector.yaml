@@ -1,6 +1,9 @@
 title: Vector Studio
 year: '2026'
-description: 'Our previous studio identity: name, mark, system and voice, end-to-end. Built and closed on the lesson that a studio works best with internal alignment, which is the reason we are now Studio Subtract.'
+description: >-
+  Our previous studio identity: name, mark, system and voice, end-to-end. Built
+  and closed on the lesson that a studio works best with internal alignment,
+  which is the reason we are now Studio Subtract.
 roles:
   - cd
   - design
@@ -24,6 +27,12 @@ media:
         width: 3507
         height: 2480
       alt: ''
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vector/3-w1nd3Ol8MCzeMATzVrKTKtk44oaSoR.jpg
+        width: 3248
+        height: 2122
 folder:
   - item: 1
     x: 23
