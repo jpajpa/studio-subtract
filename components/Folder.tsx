@@ -1,6 +1,4 @@
-"use client";
-
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import type { Project } from "@/lib/projects";
 import styles from "./Folder.module.css";
@@ -38,23 +36,9 @@ type Props = {
 export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
   const { slug, title, year, category, fill, text, papers } = project;
   const gradientId = `folder-fill-${slug}`;
-  const ref = useRef<HTMLElement>(null);
-  // the glass frost waits for the load-in to finish (see Folder.module.css)
-  const [settled, setSettled] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    // nothing to wait for: no load-in to run, or the stack already revealed it
-    if (el && el.dataset.reveal !== "wait" && !el.getAnimations().length) setSettled(true);
-  }, []);
 
   return (
     <article
-      ref={ref}
-      onAnimationEnd={(e) => {
-        if (e.target === e.currentTarget) setSettled(true);
-      }}
-      data-settled={settled || undefined}
       className={styles.folder}
       data-slug={slug}
       data-reveal={reveal ? "wait" : undefined}
