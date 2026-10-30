@@ -30,13 +30,8 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  cursor: grab;
   touch-action: pan-y;
   outline: none;
-}
-
-.dragging {
-  cursor: grabbing;
 }
 
 .track {
@@ -233,6 +228,27 @@
   transform-origin: 0 50%;
 }
 
+/* Desktop: a click on empty page closes it. This label trails the cursor
+   there, just below and right of its tip (see ProjectView). */
+.cursor {
+  position: fixed;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  margin: 20px 0 0 14px;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.cursor[data-on] {
+  opacity: 1;
+}
+
 /* Back / Next at the end of the page: phones only */
 .pager {
   display: none;
@@ -293,7 +309,8 @@
   }
 
   .back,
-  .progress {
+  .progress,
+  .cursor {
     display: none;
   }
 

@@ -276,7 +276,6 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
       if (Math.abs(e.clientX - drag.x) < 4) return;
       drag.moved = st.dragged = true;
       viewport.current?.setPointerCapture(e.pointerId);
-      viewport.current?.classList.add(styles.dragging);
     }
     const now = performance.now();
     const next = gsap.utils.clamp(0, st.max, drag.target - (e.clientX - drag.x));
@@ -287,13 +286,35 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
     kick();
   };
 
+  /* ── Click outside to close (desktop) ─────────────────── */
+
+  /** Empty page: not a frame, the text column or a link. */
+  const isEmpty = (t: EventTarget | null) =>
+    !(t as HTMLElement | null)?.closest?.(`[data-media], .${styles.intro}, a, nav`);
+
+  // a small "Close" label trails the cursor over empty page
+  const cursor = useRef<HTMLSpanElement>(null);
+  const moveCursor = (e: React.PointerEvent) => {
+    const c = cursor.current;
+    if (!c) return;
+    const show = e.pointerType === "mouse" && !isPhone() && s.current.live && !s.current.drag?.moved && isEmpty(e.target);
+    c.toggleAttribute("data-on", show);
+    if (show) c.style.translate = `${e.clientX}px ${e.clientY}px`;
+  };
+
+  const onViewportClick = (e: React.MouseEvent) => {
+    // the click that ends a drag closes nothing
+    if (isPhone() || !s.current.live || s.current.dragged || !isEmpty(e.target)) return;
+    cursor.current?.removeAttribute("data-on");
+    onClose();
+  };
+
   const endDrag = (e: React.PointerEvent) => {
     const st = s.current;
     if (!st.drag || st.drag.id !== e.pointerId) return;
     const idle = performance.now() - st.drag.t > 80;
     const vx = st.drag.vx;
     st.drag = null;
-    viewport.current?.classList.remove(styles.dragging);
     moveTo(st.target + (idle ? 0 : vx * FLING));
   };
 
@@ -488,6 +509,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         const el = root.current!;
         st.live = false;
         st.drag = null;
+        cursor.current?.removeAttribute("data-on");
         cancelAnimationFrame(st.raf);
         st.raf = 0;
 
@@ -497,9 +519,15 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         const chrome = chromeEls();
         gsap.set(chrome, { transition: "none" });
         const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        // phones: the same quicker flights as on opening
-        const fly = isPhone() ? { duration: 1, ease: "power2.inOut" } : { duration: 1.15, ease: "expo.inOut" };
-        const clip = isPhone() ? { duration: 0.9, ease: "power2.inOut" } : { duration: 1, ease: "expo.inOut" };
+        // Desktop: each frame eases out to rest just above the folder, then
+        // its paper settles in gently, with no sharp step anywhere. Phones:
+        // the same quicker flights as on opening, sunk as before.
+        const phone = isPhone();
+        const fly = phone ? { duration: 1, ease: "power2.inOut" } : { duration: 1.1, ease: "power3.out" };
+        const clip = phone ? { duration: 0.9, ease: "power2.inOut" } : { duration: 0.95, ease: "power3.out" };
+        const sinkIn = phone
+          ? { hold: 0.04, duration: LIFT, ease: "power3.inOut" }
+          : { hold: 0, duration: 0.7, ease: "sine.inOut" };
 
         // Folders back at rest for measuring (still invisible: same frame).
         const folders = allFolders();
@@ -604,12 +632,12 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
 
           const paper = homePapers[paperOf[i]];
           const above = at + fly.duration;
-          const sink = above + 0.04;
+          const sink = above + sinkIn.hold;
           // takes over shadowless, and its shadow returns as it sinks back in
           tl.set(paper, { visibility: "visible", "--paper-shadow": 0 }, above);
-          tl.to(paper, { "--paper-shadow": 1, duration: LIFT, ease: "power1.inOut" }, sink);
+          tl.to(paper, { "--paper-shadow": 1, duration: sinkIn.duration, ease: "power1.inOut" }, sink);
           tl.set(panel, { opacity: 0 }, above);
-          tl.to(paper, { y: `+=${lifts[i]}`, duration: LIFT, ease: "power3.inOut" }, sink);
+          tl.to(paper, { y: `+=${lifts[i]}`, duration: sinkIn.duration, ease: sinkIn.ease }, sink);
         }
 
         // The camera pulls back out of the folder.
@@ -654,9 +682,14 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         className={styles.viewport}
         tabIndex={-1}
         onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
+        onPointerMove={(e) => {
+          onPointerMove(e);
+          moveCursor(e);
+        }}
+        onPointerLeave={() => cursor.current?.removeAttribute("data-on")}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
+        onClick={onViewportClick}
       >
         <div ref={track} className={styles.track}>
           <header ref={intro} className={styles.intro}>
@@ -775,6 +808,10 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
       <div className={styles.progress} aria-hidden>
         <span ref={bar} />
       </div>
+
+      <span ref={cursor} className={styles.cursor} aria-hidden>
+        Close
+      </span>
     </div>
   );
 }
