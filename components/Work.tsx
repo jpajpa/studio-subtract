@@ -40,6 +40,7 @@ export function Work({
   // whether "/" is the history entry behind the project page
   const pushed = useRef(false);
   const closing = useRef(false);
+  const row = useRef<HTMLDivElement>(null);
 
   // The URL drives what is open, so Back/Forward animate too.
   useEffect(() => {
@@ -59,6 +60,22 @@ export function Work({
     const list = id === "work" ? TITLE : `${section.label} — ${TITLE}`;
     document.title = slug ? `${projects.find((p) => p.slug === slug)?.title} — ${TITLE}` : list;
   }, [slug, projects, section]);
+
+  // Studio has no rail to absorb the wheel, so a trackpad would scroll the
+  // document and rubber-band the folders and the header with it. Neutral state
+  // is locked: swallow the wheel as FolderRail does, unless the row is hidden
+  // (phones scroll the stack normally), a project is open, or it's a pinch.
+  useEffect(() => {
+    if (id === "work") return;
+    const el = row.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      if (!el.offsetParent || el.closest("[inert]") || e.ctrlKey) return;
+      e.preventDefault();
+    };
+    window.addEventListener("wheel", onWheel, { passive: false });
+    return () => window.removeEventListener("wheel", onWheel);
+  }, [id]);
 
   const open = useCallback((next: string, folder: HTMLElement) => {
     if (slug) return;
@@ -97,6 +114,7 @@ export function Work({
           </div>
         ) : (
           <div
+            ref={row}
             className={styles.row}
             data-rail
             onClick={(e) => {
