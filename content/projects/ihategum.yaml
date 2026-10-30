@@ -1,16 +1,17 @@
 title: iHategum Collab
 year: '2025'
-description: A collaborative phone cast in pink stone with iHategum, Subtracted of function. An identity you can hold but not use.
+description: >-
+  A collaborative phone cast in pink stone with iHategum, Subtracted of
+  function. An identity you can hold but not use.
+link:
+  url: https://www.instagram.com/ihategum
+credits: []
 roles:
   - cd
   - design
 colour:
-  top: '#e3e3e3'
+  top: '#ffc5d3'
   bottom: '#c6c6c6'
   label: '#454545'
-link:
-  url: https://www.instagram.com/ihategum
-  label: ''
-credits: []
 media: []
 folder: []
