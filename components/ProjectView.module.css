@@ -53,14 +53,16 @@
   margin-right: 56px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  /* spacing is set per block below, counted in 19px lines */
+  gap: 0;
   will-change: transform;
 }
 
-/* Sketch "SJJ, New type": body size in Medium; the body still starts
-   66px below the heading's top, as before */
+/* Sketch "SJJ, New type": body size in Medium. One blank line under the
+   heading, two above the credits and link: the title leads the body, the
+   body is done before the metadata starts. */
 .title {
-  margin: 0 0 35px;
+  margin: 0 0 19px;
   font-size: 14px;
   line-height: 19px;
   font-weight: 500;
@@ -73,8 +75,9 @@
   letter-spacing: 0.1px;
 }
 
-/* Credits and link under the body */
+/* Credits and link under the body, two lines clear of it */
 .meta {
+  margin-top: 38px;
   display: flex;
   flex-direction: column;
   gap: 12px;
