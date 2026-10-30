@@ -171,11 +171,43 @@
       rgba(255, 255, 255, 0.12) 100%
     ),
     color-mix(in srgb, var(--tint) 34%, transparent);
+}
+
+/* The white edges that catch the light, on their own layer so they can arrive
+   with the folder. While it is still fading in it is a backdrop root, so the
+   frost above has nothing to sample and these render hard: a bright rim that
+   reads as an inner shadow until the folder lands. Opacity here cannot touch
+   the frost, and full strength is the default, so a folder that never runs a
+   load-in looks exactly as it always has. */
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
   box-shadow:
     inset 0 1px 0.5px rgba(255, 255, 255, 0.85),
     inset 0 0 0 1px rgba(255, 255, 255, 0.22),
     inset 0 -1px 1px rgba(255, 255, 255, 0.35),
     inset 0 -14px 24px -18px rgba(255, 255, 255, 0.5);
+  animation: glass-edge 420ms linear both;
+  animation-delay: calc(150ms + var(--enter, 0) * 80ms);
+}
+
+/* phones: the folder rises in on scroll, on its own timing (FolderStack) */
+.folder[data-reveal="wait"] .glass::before {
+  animation: none;
+  opacity: 0;
+}
+.folder[data-reveal="in"] .glass::before {
+  animation-duration: 1000ms;
+  animation-delay: calc(80ms + var(--enter, 0) * 160ms);
+}
+
+@keyframes glass-edge {
+  from {
+    opacity: 0;
+  }
 }
 
 /* Specular sheen along the top edge */
