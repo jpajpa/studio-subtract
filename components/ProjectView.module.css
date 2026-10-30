@@ -75,20 +75,33 @@
   letter-spacing: 0.1px;
 }
 
-/* Credits and link under the body, two lines clear of it */
+/* Credits and link under the body, on the same 19px line grid as the title
+   and body: one blank line before the credits, two before the link. The
+   spacing sits on the children, so a project with no credits still gets its
+   two lines between the body and the link. */
 .meta {
-  margin-top: 38px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
   line-height: 19px;
   letter-spacing: 0.1px;
 }
 
+/* one blank line under the body, as the body gets under the title */
 .credits {
-  margin: 0;
+  margin: 19px 0 0;
   padding: 0;
   list-style: none;
+}
+
+/* two blank lines before the link, under the credits or under the body */
+.meta > .row {
+  margin-top: 38px;
+}
+
+/* a second link would sit on the next line, as credit rows do */
+.meta > .row + .row {
+  margin-top: 0;
 }
 
 /* one masked line, like the body's SplitText lines */
