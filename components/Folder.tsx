@@ -98,8 +98,8 @@ export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
 
       <div className={styles.front} data-front>
         <div className={styles.glass} />
-        <p className={`${styles.label} ${styles.top}`}>{category}</p>
-        <p className={`${styles.label} ${styles.bottom}`}>{title}</p>
+        <p className={`${styles.label} ${styles.top}`}>{title}</p>
+        <p className={`${styles.label} ${styles.bottom}`}>{category}</p>
       </div>
     </article>
   );

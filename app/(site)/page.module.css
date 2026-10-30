@@ -43,6 +43,10 @@
   padding: 0 var(--page-margin);
 }
 
+.row :global(article) {
+  cursor: pointer;
+}
+
 .stack {
   display: none;
 }

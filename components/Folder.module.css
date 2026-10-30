@@ -85,22 +85,49 @@
 
 /* ── Papers ─────────────────────────────────────────────── */
 
+/* Papers never show past the folder's sides or rounded foot (a paper set
+   flush to its edge would poke out at the corner); above the glass front
+   they rise freely. Folder units, as drawn in BACK_PATH (Folder.tsx). */
 .papers {
   position: absolute;
   inset: 0;
+  clip-path: polygon(
+    calc(-1000 * var(--u)) calc(-1000 * var(--u)),
+    calc(1320 * var(--u)) calc(-1000 * var(--u)),
+    calc(1320 * var(--u)) calc(59.3 * var(--u)),
+    calc(319.4 * var(--u)) calc(59.3 * var(--u)),
+    calc(319.4 * var(--u)) calc(240.6 * var(--u)),
+    calc(318.7 * var(--u)) calc(245.8 * var(--u)),
+    calc(316.7 * var(--u)) calc(250.7 * var(--u)),
+    calc(313.5 * var(--u)) calc(254.8 * var(--u)),
+    calc(309.4 * var(--u)) calc(258 * var(--u)),
+    calc(304.5 * var(--u)) calc(260 * var(--u)),
+    calc(299.3 * var(--u)) calc(260.7 * var(--u)),
+    calc(20.7 * var(--u)) calc(260.7 * var(--u)),
+    calc(15.5 * var(--u)) calc(260 * var(--u)),
+    calc(10.7 * var(--u)) calc(258 * var(--u)),
+    calc(6.5 * var(--u)) calc(254.8 * var(--u)),
+    calc(3.3 * var(--u)) calc(250.7 * var(--u)),
+    calc(1.3 * var(--u)) calc(245.8 * var(--u)),
+    calc(0.6 * var(--u)) calc(240.6 * var(--u)),
+    calc(0.6 * var(--u)) calc(59.3 * var(--u)),
+    calc(-1000 * var(--u)) calc(59.3 * var(--u))
+  );
 }
 
 .paper {
   position: absolute;
   object-fit: cover;
   border-radius: 2px;
-  /* 0–1: the project page fades it as a paper lifts out (ProjectView) */
+  /* 0–1: how settled in the folder it is. The project page eases it to 0 as
+     a paper lifts out (ProjectView), taking its shadow and depth shading with
+     it, so the gallery frame it hands over to matches it exactly */
   --paper-shadow: 1;
   box-shadow:
     0 1px 2px rgb(0 0 0 / calc(0.12 * var(--paper-shadow))),
     0 6px 16px -4px rgb(0 0 0 / calc(0.16 * var(--paper-shadow)));
   /* lower papers sit deeper in the folder, so a little darker */
-  filter: brightness(calc(1 - (var(--n) - 1 - var(--i)) * 0.06));
+  filter: brightness(calc(1 - (var(--n) - 1 - var(--i)) * 0.06 * var(--paper-shadow)));
   transform: rotate(var(--r));
   transform-origin: 50% 100%;
   transition: transform var(--dur) var(--ease);
@@ -176,7 +203,7 @@
   backdrop-filter: blur(var(--glass-blur)) url(#liquid-glass) saturate(1.5) brightness(1.03);
 }
 
-/* ── Labels: category on top, name at the bottom ─────── */
+/* ── Labels: name on top, category at the bottom ─────── */
 
 .label {
   position: absolute;
