@@ -1,38 +1,44 @@
 title: Loho Kur Campaign
-year: '2025'
-description: A single commercial, directed and built entirely in 3D for the release of Loho Kur’s own line.
+year: '2026'
+description: >-
+  A single commercial, directed and built entirely in 3D for the release of Loho
+  Kur’s own line.
+link: {}
+credits: []
 roles:
   - cd
 colour:
   top: '#f0edf1'
   bottom: '#d6d2d8'
   label: '#454545'
-credits: []
 media:
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/loho/1.mp4
+      video: >-
+        https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/loho/1.mp4
       poster:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/loho/1-still.jpg
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/loho/1-still.jpg
         width: 3840
         height: 2160
-      alt: ''
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/loho/2.mp4
+      video: >-
+        https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/loho/2.mp4
       poster:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/loho/2-still.jpg
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/loho/2-still.jpg
         width: 3840
         height: 2160
-      alt: ''
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/loho/3.mp4
+      video: >-
+        https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/loho/3.mp4
       poster:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/loho/3-still.jpg
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/loho/3-still.jpg
         width: 3840
         height: 2160
-      alt: ''
 folder:
   - item: 1
     x: 30
