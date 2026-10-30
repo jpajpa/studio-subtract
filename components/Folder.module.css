@@ -22,14 +22,14 @@
 @keyframes folder-in {
   from {
     opacity: 0;
-    transform: translateY(56px) scale(0.92);
+    transform: translate3d(0, 56px, 0) scale(0.92);
   }
   40% {
     opacity: 1;
   }
   to {
     opacity: 1;
-    transform: none;
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
@@ -54,7 +54,10 @@
 
 @keyframes folder-rise {
   from {
-    transform: translateY(48px) scale(0.97);
+    transform: translate3d(0, 48px, 0) scale(0.97);
+  }
+  to {
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
@@ -221,6 +224,19 @@
     radial-gradient(80% 40% at 100% 100%, rgba(255, 255, 255, 0.12), transparent 60%);
   mix-blend-mode: soft-light;
   pointer-events: none;
+  /* soft-light resolves against the frost, so it has the same trouble as the
+     edges while the folder is still fading: it arrives with them */
+  animation: glass-edge 420ms linear both;
+  animation-delay: calc(150ms + var(--enter, 0) * 80ms);
+}
+
+.folder[data-reveal="wait"] .glass::after {
+  animation: none;
+  opacity: 0;
+}
+.folder[data-reveal="in"] .glass::after {
+  animation-duration: 1000ms;
+  animation-delay: calc(80ms + var(--enter, 0) * 160ms);
 }
 
 /* Phones: a plain sheen. Blending it inside the glass costs every folder an
