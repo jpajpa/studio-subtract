@@ -1,6 +1,11 @@
 title: Spaciom
-year: '2026'
-description: Branding for a spatial experience company. The mark is a single cell caught mid-division, the moment potential splits to reach the next level. Ten of them create a ring, forming an ecosystem.
+year: '2025'
+description: >-
+  Branding for a spatial experience company. The mark is a single cell caught
+  mid-division, the moment potential splits to reach the next level. Ten of them
+  create a ring, forming an ecosystem.
+link: {}
+credits: []
 roles:
   - cd
   - design
@@ -8,29 +13,28 @@ colour:
   top: '#e5e4e7'
   bottom: '#cac9ce'
   label: '#3b3b3b'
-credits: []
 media:
   - discriminant: image
     value:
       image:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/spaciom/1.png
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/spaciom/1.png
         width: 3507
         height: 2480
-      alt: ''
   - discriminant: image
     value:
       image:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/spaciom/2.png
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/spaciom/2.png
         width: 3507
         height: 2480
-      alt: ''
   - discriminant: image
     value:
       image:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/spaciom/3.png
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/spaciom/3.png
         width: 3507
         height: 2480
-      alt: ''
 folder:
   - item: 1
     x: 0
