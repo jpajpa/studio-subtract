@@ -430,7 +430,8 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         // a pixel short of it), so it doesn't sit there before flying
         const at = up + LIFT * (phone ? 0.85 : 1);
         handoff = Math.max(handoff, at);
-        // its shadow eases away as it rises, gone by the handover so none blinks out
+        // its shadow and depth shading ease away as it rises, gone by the
+        // handover, so the frame takes over without a blink or a jump in tone
         tl.to(paper, { "--paper-shadow": 0, duration: at - up, ease: "power1.inOut" }, up);
         const f = flight(panel, { ...pose, cy: pose.cy - lift });
         gsap.set(panel, { ...f.panel, zIndex: zOf(i), opacity: 0 });
@@ -633,7 +634,8 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
           const paper = homePapers[paperOf[i]];
           const above = at + fly.duration;
           const sink = above + sinkIn.hold;
-          // takes over shadowless, and its shadow returns as it sinks back in
+          // takes over shadowless and unshaded, as the frame was; both return
+          // as it sinks back in
           tl.set(paper, { visibility: "visible", "--paper-shadow": 0 }, above);
           tl.to(paper, { "--paper-shadow": 1, duration: sinkIn.duration, ease: "power1.inOut" }, sink);
           tl.set(panel, { opacity: 0 }, above);
