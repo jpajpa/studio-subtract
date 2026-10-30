@@ -1,35 +1,38 @@
 title: Setting Sun Campaign
-year: '2025'
-description: A subtractive set of posters for Hikari no Yami - Chapter 8, The Setting Sun. Focused on the unique garment details.
+year: '2024'
+description: >-
+  A subtractive set of posters for Hikari no Yami - Chapter 8, The Setting Sun.
+  Focused on the unique garment details.
+link: {}
+credits: []
 roles:
   - cd
 colour:
   top: '#353535'
   bottom: '#141414'
   label: '#d6d6d6'
-credits: []
 media:
   - discriminant: image
     value:
       image:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/hikarinoyami/1.jpg
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/hikarinoyami/1.jpg
         width: 2480
         height: 3507
-      alt: ''
   - discriminant: image
     value:
       image:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/hikarinoyami/2.png
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/hikarinoyami/2.png
         width: 2480
         height: 3507
-      alt: ''
   - discriminant: image
     value:
       image:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/hikarinoyami/3.png
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/hikarinoyami/3.png
         width: 2480
         height: 3507
-      alt: ''
 folder:
   - item: 1
     x: 85
