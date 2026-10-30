@@ -70,9 +70,9 @@
     align-items: center;
     gap: 128px;
     /* bottom room lets the last folder reach the middle and open */
-    /* first folder 64px under the stacked nav's links (18px down, three
-       18px lines 21px apart), as the project page's heading sits */
-    padding: calc(var(--mobile-nav-top) + env(safe-area-inset-top) + 18px + 96px + 64px) 0
+    /* first folder 96px under the stacked nav's links (18px down, three
+       18px lines 21px apart) */
+    padding: calc(var(--mobile-nav-top) + env(safe-area-inset-top) + 18px + 96px + 96px) 0
       calc(50svh - 100px);
   }
 }

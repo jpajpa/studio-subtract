@@ -23,7 +23,7 @@
   /* phones: the nav starts 34px below the status bar */
   --mobile-nav-top: 34px;
   /* room either side of a folder on phones */
-  --mobile-folder-side: 48px;
+  --mobile-folder-side: 60px;
 }
 
 @media (max-width: 1100px) {
@@ -34,7 +34,7 @@
 
 @media (max-width: 767px) {
   :root {
-    --folder-w: min(320px, 100vw - 2 * var(--mobile-folder-side));
+    --folder-w: min(290px, 100vw - 2 * var(--mobile-folder-side));
   }
 }
 
