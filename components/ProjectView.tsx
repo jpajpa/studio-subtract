@@ -55,10 +55,13 @@ type Pose = { cx: number; cy: number; w: number; h: number; angle: number };
 /** Where a paper sits on screen right now, including its hover lift and tilt. */
 function paperPose(img: HTMLElement, folder: HTMLElement): Pose {
   const fr = folder.getBoundingClientRect();
-  const t = getComputedStyle(img).transform;
+  const cs = getComputedStyle(img);
+  const t = cs.transform;
   const m = t && t !== "none" ? new DOMMatrix(t) : new DOMMatrix();
-  const w = img.offsetWidth;
-  const h = img.offsetHeight;
+  // exact, not offsetWidth/Height's whole pixels: rounded, a paper's shape is
+  // off its frame's by up to a pixel, which the flight's clip then shows
+  const w = parseFloat(cs.width);
+  const h = parseFloat(cs.height);
   // papers rotate about their bottom centre (transform-origin: 50% 100%)
   const ox = fr.left + img.offsetLeft + w / 2;
   const oy = fr.top + img.offsetTop + h;
@@ -87,6 +90,9 @@ function flight(panel: HTMLElement, p: Pose) {
   };
 }
 
+// Clip tweens give their start value too: read back from the computed style,
+// WebKit shortens it (`inset(1px 0px round 15px)`), and GSAP, pairing its
+// numbers with the end value's, turns the corner radius into a bottom inset
 const CLIP_OPEN = "inset(0px 0px 0px 0px round 0px)";
 
 /** Folder papers bottom → top: images, or a video's still (videos only play in the gallery). */
@@ -483,7 +489,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         const fly = phone ? { duration: 1.05, ease: "power2.inOut" } : { duration: 1.35, ease: "expo.inOut" };
         const unclip = phone ? { duration: 0.9, ease: "power2.inOut" } : { duration: 1.15, ease: "expo.inOut" };
         tl.to(panel, { x: 0, y: 0, scale: 1, rotation: 0, ...fly }, at);
-        tl.to(frames[i], { clipPath: CLIP_OPEN, ...unclip }, at + 0.08);
+        tl.fromTo(frames[i], { clipPath: f.clip }, { clipPath: CLIP_OPEN, ...unclip }, at + 0.08);
         tl.to(shadows[i], { opacity: 1, duration: fly.duration * 0.7, ease: "sine.inOut" }, at + fly.duration * 0.5);
         tl.call(play, [videoIn(panel)], at + fly.duration);
       });
@@ -695,7 +701,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
           const early = (drop * k) / (1 - k);
           const f = flight(panel, { ...pose, cy: pose.cy - early });
           tl.to(panel, { ...f.panel, ...fly }, at);
-          tl.to(frames[i], { clipPath: f.clip, ...clip }, at);
+          tl.fromTo(frames[i], { clipPath: CLIP_OPEN }, { clipPath: f.clip, ...clip }, at);
           // inside the frame, so the descent stays straight down whatever its
           // tilt and scale (both settled by now)
           const rad = (f.panel.rotation * Math.PI) / 180;

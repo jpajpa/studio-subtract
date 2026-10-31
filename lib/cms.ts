@@ -69,15 +69,25 @@ function papersOf(folder: readonly FolderEntry[], media: Media[]): Paper[] {
   // the CMS lists papers top first; the folder draws bottom → top
   const papers: Paper[] = folder
     .filter((p) => p.item !== null && media[p.item - 1])
-    .map((p) => ({
-      media: p.item! - 1,
-      src: media[p.item! - 1].src,
-      x: p.x ?? 0,
-      y: p.y ?? 0,
-      w: p.w ?? 1,
-      h: p.h ?? 1,
-      r: p.rotation ?? 0,
-    }))
+    .map((p) => {
+      const m = media[p.item! - 1];
+      // The media fits inside the box the CMS sets (same top edge, centred
+      // across), so the paper has its gallery frame's shape: a paper cropped
+      // to another shape changes shape as it flies out to its frame.
+      const boxW = p.w ?? 1;
+      const boxH = p.h ?? 1;
+      const k = Math.min(boxW / m.w, boxH / m.h);
+      const w = m.w * k;
+      return {
+        media: p.item! - 1,
+        src: m.src,
+        x: (p.x ?? 0) + (boxW - w) / 2,
+        y: p.y ?? 0,
+        w,
+        h: m.h * k,
+        r: p.rotation ?? 0,
+      };
+    })
     .reverse();
   return papers.length ? papers : autoPapers(media);
 }
