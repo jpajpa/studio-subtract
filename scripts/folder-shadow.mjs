@@ -18,14 +18,26 @@ const W = 320 + 2 * PAD.x;
 const H = 261 + PAD.top + PAD.bottom;
 const SCALE = 2; // the shadows are soft, so 2× folder units is plenty
 
-// contact shadow + a soft, wide one, in black
+// A contact shadow, then two soft ones that fall below the folder, in black.
+// The soft ones are cast from a narrower folder (eroded sideways), so they
+// pool underneath, as under a folder lying on a desk, instead of hazing out
+// past its sides.
+const soft = (narrow, blur, dy, opacity) => `
+      <feMorphology in="SourceAlpha" operator="erode" radius="${narrow} 0"/>
+      <feGaussianBlur stdDeviation="${blur}"/>
+      <feOffset dy="${dy}"/>
+      <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 ${opacity} 0"/>`;
 const svg = `
 <svg xmlns="http://www.w3.org/2000/svg" width="${W * SCALE}" height="${H * SCALE}" viewBox="${-PAD.x} ${-PAD.top} ${W} ${H}">
   <defs>
     <filter id="s" filterUnits="userSpaceOnUse" x="${-PAD.x}" y="${-PAD.top}" width="${W}" height="${H}">
-      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-opacity="0.18"/>
-      <feDropShadow dx="0" dy="12" stdDeviation="8" flood-opacity="0.16"/>
-      <feDropShadow dx="0" dy="30" stdDeviation="20" flood-opacity="0.14"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.5"/>
+      <feOffset dy="1.5"/>
+      <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.18 0" result="contact"/>
+      ${soft(16, 8, 12, 0.06)}
+      <feComposite in2="contact" result="near"/>
+      ${soft(40, 20, 30, 0.1)}
+      <feComposite in2="near"/>
     </filter>
   </defs>
   <path d="${BACK_PATH}" filter="url(#s)"/>
