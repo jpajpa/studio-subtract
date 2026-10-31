@@ -74,12 +74,9 @@
    short last word strands itself ("ecosystem." on Spaciom). Balancing evens
    the lines out and takes the orphan with it. Every description here is five
    lines or fewer, which is inside the limit browsers still balance within. */
-/* A person's role, on the line directly under their name. The name keeps the
-   heading's Medium; the role reads as ordinary text, as it does on the folder. */
-.title[data-with-role] {
-  margin-bottom: 0;
-}
-
+/* A person's role, a blank line under their name, on the same 19px grid the
+   title and body keep. The name stays Medium; the role reads as ordinary
+   text, as it does on the folder front. */
 .subtitle {
   margin: 0 0 19px;
   font-weight: 400;

@@ -709,7 +709,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
       >
         <div ref={track} className={styles.track}>
           <header ref={intro} className={styles.intro}>
-            <h1 ref={title} className={styles.title} data-with-role={showRole || undefined}>
+            <h1 ref={title} className={styles.title}>
               {project.title}
             </h1>
             {showRole && (
