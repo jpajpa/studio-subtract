@@ -139,6 +139,9 @@ const offCentre = (el: HTMLElement) => {
  * other folders rush past the camera, and closes by reversing that.
  */
 export function ProjectView({ project, source, onClose, section, nextSlug, onNext, ref }: Props) {
+  // Studio pages name the person, then their role on the line below. Work
+  // pages keep the title alone: a project's category is already on its folder.
+  const showRole = section.id === "studio" && !!project.category;
   const { media, papers: folderPapers } = project;
   // each gallery item flies from its topmost paper in the folder, if it has one
   const paperOf = media.map((_, i) => folderPapers.findLastIndex((p) => p.media === i));
@@ -154,6 +157,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
   const intro = useRef<HTMLElement>(null);
   const title = useRef<HTMLHeadingElement>(null);
   const body = useRef<HTMLParagraphElement>(null);
+  const role = useRef<HTMLParagraphElement>(null);
   const back = useRef<HTMLAnchorElement>(null);
   const pager = useRef<HTMLElement>(null);
   const bar = useRef<HTMLSpanElement>(null);
@@ -327,11 +331,21 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
       SplitText.create(title.current!, { type: "lines,chars", mask: "lines", linesClass: styles.line }),
       SplitText.create(body.current!, { type: "lines", mask: "lines", linesClass: styles.line }),
     ];
-    return { chars: st.split[0].chars, lines: [...st.split[1].lines, ...metaLines()] };
+    // a person's role, when there is one, leads the body lines in
+    if (role.current) {
+      st.split.push(SplitText.create(role.current, { type: "lines", mask: "lines", linesClass: styles.line }));
+    }
+    return { chars: st.split[0].chars, lines: introLines() };
   };
 
   // link and credit rows animate like body lines; each row is its own mask
   const metaLines = () => q(`.${styles.intro} .${styles.row} > *`);
+
+  /** Every masked line under the title, top to bottom, so they stagger in order. */
+  const introLines = () => {
+    const st = s.current;
+    return [...(st.split[2]?.lines ?? []), ...(st.split[1]?.lines ?? []), ...metaLines()];
+  };
 
   useEffect(() => () => s.current.split.forEach((sp) => sp.revert()), []);
 
@@ -608,7 +622,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         const tl = gsap.timeline({ onComplete: done });
         tl.to(scrim.current, { opacity: 0, duration: 0.7, ease: "power1.out" }, 0.25);
         tl.to(st.split[0].chars, { yPercent: -115, duration: 0.55, ease: "power3.in", stagger: 0.015 }, 0);
-        const lines = [...st.split[1].lines, ...metaLines()];
+        const lines = introLines();
         if (lines.length) tl.to(lines, { yPercent: -115, duration: 0.5, ease: "power3.in", stagger: 0.04 }, 0.05);
         gsap.set(q("[data-inner-nav]"), { transition: "none" });
         tl.to([back.current, pager.current, bar.current!.parentElement, ...q("[data-inner-nav]")], { opacity: 0, duration: 0.35 }, 0);
@@ -695,9 +709,14 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
       >
         <div ref={track} className={styles.track}>
           <header ref={intro} className={styles.intro}>
-            <h1 ref={title} className={styles.title}>
+            <h1 ref={title} className={styles.title} data-with-role={showRole || undefined}>
               {project.title}
             </h1>
+            {showRole && (
+              <p ref={role} className={styles.subtitle}>
+                {project.category}
+              </p>
+            )}
             <p ref={body} className={styles.body} hidden={!project.description}>
               {project.description}
             </p>

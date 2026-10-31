@@ -5,7 +5,9 @@ description: >-
   hand. Colour is removed, and the squares are communicated through negative
   space. Built as a deep exploration of subtraction.
 link: {}
-credits: []
+credits:
+  - role: Photography
+    name: Jesse Crankson
 roles:
   - design
 colour:
