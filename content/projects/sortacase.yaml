@@ -20,6 +20,13 @@ media:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/1.png
         width: 1782
         height: 1261
+  - discriminant: video
+    value:
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/4-ackwOkTtxflMy6MGR0nvEQK4DrULiZ.mp4
+      poster:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/4-still-o3ZXY1JzyMZvN9PqZEejnWc3ULkqah.jpg
+        width: 1920
+        height: 1920
   - discriminant: image
     value:
       image:
@@ -32,13 +39,6 @@ media:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/3.jpg
         width: 3507
         height: 2480
-  - discriminant: video
-    value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/4-ackwOkTtxflMy6MGR0nvEQK4DrULiZ.mp4
-      poster:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/4-still-o3ZXY1JzyMZvN9PqZEejnWc3ULkqah.jpg
-        width: 1920
-        height: 1920
 folder:
   - item: 1
     x: 80

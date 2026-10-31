@@ -64,25 +64,25 @@ media:
         width: 2400
         height: 1800
 folder:
-  - item: 2
+  - item: 1
     x: 121
     'y': 45
     w: 173
     h: 130
     rotation: 1
-  - item: 3
+  - item: 2
     x: 16
     'y': 46
     w: 173
     h: 130
     rotation: 0
-  - item: 4
+  - item: 3
     x: 12
     'y': 80
     w: 228
     h: 171
     rotation: 0
-  - item: 3
+  - item: 2
     x: 112
     'y': 101
     w: 173

@@ -50,19 +50,19 @@ media:
         width: 2160
         height: 2880
 folder:
-  - item: 2
+  - item: 1
     x: 61
     'y': 55
     w: 246
     h: 197
     rotation: 0
-  - item: 3
+  - item: 2
     x: 56
     'y': 23
     w: 246
     h: 197
     rotation: 0.6
-  - item: 4
+  - item: 3
     x: 13
     'y': 40
     w: 264

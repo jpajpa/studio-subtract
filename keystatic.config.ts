@@ -85,7 +85,14 @@ const mediaField = (folder: string) =>
     },
   );
 
-/** Which gallery items peek out of the folder, and where. */
+/** Which gallery items peek out of the folder, and where.
+ *
+ *  Keep the top paper on item 1. Opening a project flies each gallery frame
+ *  out of the paper pointing at it (paperOf in ProjectView), so if the top
+ *  paper is not item 1 the first frame has nothing to fly from: it pops in
+ *  while the folder's front picture sails to the second frame instead.
+ *  Reordering the gallery therefore needs no change here, because the papers
+ *  point at positions, not at pictures. */
 const folderField = () =>
   fields.array(
     fields.object(
@@ -107,7 +114,7 @@ const folderField = () =>
     {
       label: "Folder papers",
       description:
-        "Which gallery items peek out of the folder, top paper first. Positions are in a 320 × 261 folder. Leave empty for an automatic layout of the first three.",
+        "Which gallery items peek out of the folder, top paper first. Keep the top one on item 1, so the folder's front picture is the one the project page opens with. Positions are in a 320 × 261 folder. Leave empty for an automatic layout of the first three.",
       itemLabel: (p) => `Item ${p.fields.item.value ?? "?"} at ${p.fields.x.value}, ${p.fields.y.value}`,
     },
   );
