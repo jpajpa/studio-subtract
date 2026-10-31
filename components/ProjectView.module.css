@@ -253,6 +253,11 @@
   pointer-events: none;
 }
 
+/* no scroll range, no bar (see measure() in ProjectView) */
+.progress[data-idle] {
+  display: none;
+}
+
 .progress span {
   position: absolute;
   inset: 0;
