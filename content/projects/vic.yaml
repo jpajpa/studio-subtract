@@ -32,6 +32,14 @@ media:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/4-still-Ry06bifXo0ZQQGGEjcdwMJnbrxT72L.jpg
         width: 1920
         height: 1080
+  - discriminant: video
+    value:
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/preview-bM9vsvHxtpKPw3rWn3mnTT3xz5bJWU.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/preview-small-3lxusJj7cF5oTXlbgiHooSm3w4Z4NZ.mp4
+      poster:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/preview-still-eTTIrUWmSzT5Ll3xJNmKrnmqf4fGTu.jpg
+        width: 1920
+        height: 1080
   - discriminant: image
     value:
       image:
