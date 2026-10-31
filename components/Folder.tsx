@@ -18,6 +18,20 @@ const BACK_PATH =
 const PAD = { x: 80, top: 50, bottom: 120 };
 const VIEW = `${-PAD.x} ${-PAD.top} ${320 + 2 * PAD.x} ${261 + PAD.top + PAD.bottom}`;
 
+/** How heavy the folder's shadows are, 0–1: pale folders sit on a pale page,
+ *  where the full shadow reads as a heavy grey halo, so they get a lighter
+ *  one. Coloured and dark folders keep theirs (1). */
+function shadowWeight(hex: string) {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  // full weight up to mid grey, easing down to 0.5 for near-white
+  const t = Math.min(Math.max((l - 0.45) / 0.4, 0), 1);
+  return Math.round((1 - 0.5 * t * t * (3 - 2 * t)) * 100) / 100;
+}
+
 /** Paper geometry in folder units, scaled by --u (see Folder.module.css). */
 const u = (n: number) => `calc(${n} * var(--u))`;
 
@@ -46,7 +60,14 @@ export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
       suppressHydrationWarning={reveal}
       aria-hidden={clone || undefined}
       aria-label={clone ? undefined : [title, year].filter(Boolean).join(", ")}
-      style={{ "--tint": fill[1], "--text": text, "--enter": enter } as CSSProperties}
+      style={
+        {
+          "--tint": fill[1],
+          "--text": text,
+          "--enter": enter,
+          "--shadow-weight": shadowWeight(fill[1]),
+        } as CSSProperties
+      }
     >
       <div className={styles.shadow} aria-hidden />
       <svg className={styles.back} viewBox={VIEW} aria-hidden>
