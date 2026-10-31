@@ -18,13 +18,12 @@ const W = 320 + 2 * PAD.x;
 const H = 261 + PAD.top + PAD.bottom;
 const SCALE = 2; // the shadows are soft, so 2× folder units is plenty
 
-// contact shadow + a soft, wide one, in black; the panel itself is in the
-// image too, but the folder's own back panel covers it
+// contact shadow + a soft, wide one, in black
 const svg = `
 <svg xmlns="http://www.w3.org/2000/svg" width="${W * SCALE}" height="${H * SCALE}" viewBox="${-PAD.x} ${-PAD.top} ${W} ${H}">
   <defs>
     <filter id="s" filterUnits="userSpaceOnUse" x="${-PAD.x}" y="${-PAD.top}" width="${W}" height="${H}">
-      <feDropShadow dx="0" dy="1" stdDeviation="0.75" flood-opacity="0.22"/>
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-opacity="0.18"/>
       <feDropShadow dx="0" dy="12" stdDeviation="8" flood-opacity="0.16"/>
       <feDropShadow dx="0" dy="30" stdDeviation="20" flood-opacity="0.14"/>
     </filter>
@@ -32,8 +31,17 @@ const svg = `
   <path d="${BACK_PATH}" filter="url(#s)"/>
 </svg>`;
 
+// The panel's own silhouette, cut out of the shadows. Left in, it peeked out
+// past the folder's back panel as a dark hairline: the image is softer than
+// the vector panel drawn over it, more so when the page is zoomed in.
+const panel = `
+<svg xmlns="http://www.w3.org/2000/svg" width="${W * SCALE}" height="${H * SCALE}" viewBox="${-PAD.x} ${-PAD.top} ${W} ${H}">
+  <path d="${BACK_PATH}"/>
+</svg>`;
+
 const out = path.join(process.cwd(), "public/folder-shadow.png");
 await sharp(Buffer.from(svg))
+  .composite([{ input: Buffer.from(panel), blend: "dest-out" }])
   // grey + alpha: only the alpha matters, the mask is tinted in CSS
   .toColourspace("b-w")
   .png({ compressionLevel: 9 })
