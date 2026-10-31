@@ -11,8 +11,8 @@
   width: var(--folder-w);
   height: calc(261 * var(--u));
   color: var(--text);
-  user-select: none;
   -webkit-user-select: none;
+  user-select: none;
   animation: folder-in 1000ms cubic-bezier(0.3, 1.35, 0.5, 1) both;
   animation-delay: calc(150ms + var(--enter, 0) * 80ms);
 }
@@ -148,10 +148,12 @@
   border-radius: calc(20 * var(--u));
   /* casts up onto the papers behind it, and lifts off the back panel.
      --front-shadow scales all three together, so a section can lighten the
-     front without flattening the relationship between the layers. */
+     front without flattening the relationship between the layers. The
+     spreads pull each one in as far as it blurs, so none hazes out past the
+     folder's sides. */
   box-shadow:
     0 -1px 3px -1px color-mix(in srgb, var(--shade) calc(30% * var(--front-shadow, 1)), transparent),
-    0 -8px 18px -6px color-mix(in srgb, var(--shade) calc(48% * var(--front-shadow, 1)), transparent),
+    0 -8px 18px -9px color-mix(in srgb, var(--shade) calc(48% * var(--front-shadow, 1)), transparent),
     0 14px 26px -14px color-mix(in srgb, var(--shade) calc(40% * var(--front-shadow, 1)), transparent);
   transform-origin: 50% 100%;
   transform: perspective(900px) rotateX(0deg);
@@ -162,9 +164,11 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  /* Fallback frost: Safari / Firefox */
-  backdrop-filter: blur(var(--glass-blur)) saturate(1.5) brightness(1.03);
+  /* Fallback frost: Safari / Firefox. The prefixed line comes first: the
+     CSS build keeps only the last of a prefixed/unprefixed pair, and with
+     -webkit- last, Chromium and Firefox got no blur at all. */
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5) brightness(1.03);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.5) brightness(1.03);
   /* white sheen over a wash of the folder's color */
   background:
     linear-gradient(
@@ -180,8 +184,9 @@
    with the folder. While it is still fading in it is a backdrop root, so the
    frost above has nothing to sample and these render hard: a bright rim that
    reads as an inner shadow until the folder lands. Opacity here cannot touch
-   the frost, and full strength is the default, so a folder that never runs a
-   load-in looks exactly as it always has. */
+   the frost. Kept faint, at 30%, so the edge reads as glass rather than as
+   an outline; the load-in eases up to that, and a folder that never runs one
+   simply rests there. */
 .glass::before {
   content: "";
   position: absolute;
@@ -193,6 +198,7 @@
     inset 0 0 0 1px rgba(255, 255, 255, 0.22),
     inset 0 -1px 1px rgba(255, 255, 255, 0.35),
     inset 0 -14px 24px -18px rgba(255, 255, 255, 0.5);
+  opacity: 0.3;
   animation: glass-edge 420ms linear both;
   animation-delay: calc(150ms + var(--enter, 0) * 80ms);
 }

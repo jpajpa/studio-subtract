@@ -185,6 +185,16 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
 
   const q = (sel: string) => Array.from(root.current?.querySelectorAll<HTMLElement>(sel) ?? []);
 
+  /* ── Video ────────────────────────────────────────────── */
+
+  // Gallery videos wait on their still until their frame has landed: one
+  // starting mid-flight (whenever it happened to load) decodes while it is
+  // scaled and clipped every frame, which stutters, worst in Safari
+  const play = (v: HTMLVideoElement | null | undefined) => {
+    if (v?.paused) v.play().catch(() => {});
+  };
+  const videoIn = (panel: HTMLElement | undefined) => panel?.querySelector("video");
+
   /* ── Gallery scroll ───────────────────────────────────── */
 
   const render = () => {
@@ -407,6 +417,8 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
       paused: true,
       onComplete: () => {
         s.current.live = true;
+        // any not started on landing (opened by URL, reduced motion)
+        q("video").forEach((v) => play(v as HTMLVideoElement));
         gsap.set(panels, { clearProps: "zIndex" });
         // out of sight under the scrim: stop compositing their glass
         gsap.set(folders, { opacity: 0 });
@@ -447,6 +459,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         if (!paper) {
           // not in the folder: drift in once the others are under way
           tl.from(panel, { y: 60, opacity: 0, duration: 1.2, ease: "expo.out" }, LIFT + 0.3 + i * 0.07);
+          tl.call(play, [videoIn(panel)], LIFT + 0.3 + i * 0.07 + 0.8);
           return;
         }
         const up = depthOf[i] * 0.06;
@@ -478,6 +491,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         tl.to(panel, { x: 0, y: 0, scale: 1, rotation: 0, ...fly }, at);
         tl.to(frames[i], { clipPath: CLIP_OPEN, ...unclip }, at + 0.08);
         tl.to(shadows[i], { opacity: 1, duration: fly.duration * 0.7, ease: "sine.inOut" }, at + fly.duration * 0.5);
+        tl.call(play, [videoIn(panel)], at + fly.duration);
       });
 
       // The camera dives into the folder: the rest rush outward past it
@@ -541,6 +555,8 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         cursor.current?.removeAttribute("data-on");
         cancelAnimationFrame(st.raf);
         st.raf = 0;
+        // frames fly back holding their current picture: no decoding mid-flight
+        q("video").forEach((v) => (v as HTMLVideoElement).pause());
 
         const panels = q("[data-panel]");
         const frames = q("[data-media]");
@@ -842,7 +858,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
                     <span className={styles.pdfTag}>View PDF ↗</span>
                   </a>
                 ) : m.kind === "video" ? (
-                  <video poster={m.src} width={m.w} height={m.h} muted loop playsInline autoPlay aria-label={m.alt || undefined}>
+                  <video poster={m.src} width={m.w} height={m.h} muted loop playsInline preload="auto" aria-label={m.alt || undefined}>
                     {/* phones play the lighter copy: a full 4K upload stutters there */}
                     {m.small && <source src={m.small} media="(max-width: 767px)" />}
                     <source src={m.video} />

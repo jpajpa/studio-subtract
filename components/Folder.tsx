@@ -59,9 +59,6 @@ export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
         <path
           d={BACK_PATH}
           fill={`url(#${gradientId})`}
-          stroke="rgba(0, 0, 0, 0.06)"
-          strokeWidth="1"
-          vectorEffect="non-scaling-stroke"
         />
       </svg>
 
