@@ -51,6 +51,12 @@ media:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/6-Yp7tejgCm7C0o3dZo9CucHo6We6uKB.jpg
         width: 2160
         height: 2880
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/7-dX7RRjuKovLxcexZoStSjEZe4IjycT.jpg
+        width: 1920
+        height: 2400
 folder:
   - item: 1
     x: 61
