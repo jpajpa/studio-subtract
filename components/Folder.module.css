@@ -78,6 +78,8 @@
    and tinted with the folder's own color, darkened */
 .shadow {
   background: var(--shade);
+  /* lighter under pale folders (shadowWeight, Folder.tsx) */
+  opacity: var(--shadow-weight, 1);
   -webkit-mask: url(/folder-shadow.png) 0 0 / 100% 100% no-repeat;
   mask: url(/folder-shadow.png) 0 0 / 100% 100% no-repeat;
 }
@@ -148,13 +150,14 @@
   border-radius: calc(20 * var(--u));
   /* casts up onto the papers behind it, and lifts off the back panel.
      --front-shadow scales all three together, so a section can lighten the
-     front without flattening the relationship between the layers. The
+     front without flattening the relationship between the layers, and so
+     does --shadow-weight, for pale folders. The
      spreads pull each one in as far as it blurs, so none hazes out past the
      folder's sides. */
   box-shadow:
-    0 -1px 3px -1px color-mix(in srgb, var(--shade) calc(30% * var(--front-shadow, 1)), transparent),
-    0 -8px 18px -9px color-mix(in srgb, var(--shade) calc(48% * var(--front-shadow, 1)), transparent),
-    0 14px 26px -14px color-mix(in srgb, var(--shade) calc(40% * var(--front-shadow, 1)), transparent);
+    0 -1px 3px -1px color-mix(in srgb, var(--shade) calc(30% * var(--front-shadow, 1) * var(--shadow-weight, 1)), transparent),
+    0 -8px 18px -9px color-mix(in srgb, var(--shade) calc(48% * var(--front-shadow, 1) * var(--shadow-weight, 1)), transparent),
+    0 14px 26px -14px color-mix(in srgb, var(--shade) calc(40% * var(--front-shadow, 1) * var(--shadow-weight, 1)), transparent);
   transform-origin: 50% 100%;
   transform: perspective(900px) rotateX(0deg);
   transition: transform var(--dur) var(--ease);
