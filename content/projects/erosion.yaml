@@ -15,10 +15,10 @@ colour:
 media:
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/shoe-form-Esar1v3M8YhGIECoaRp6vVEg6PFLdu.mp4
-      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/shoe-form-small-qmiW7hED6eeBtVoJmddtsTfuS1ZJVy.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/shoe-form-v2-Y8xIIsAg77RlW3vvtGILVdyhddYpNa.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/shoe-form-v2-small-7bj153OWkcdTvsVlF8cygEeLagLK5N.mp4
       poster:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/shoe-form-still-HBvHTwHeyBxKZ9CVTUPL3Nys6WNzli.jpg
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/shoe-form-v2-still-rUo7Bs0HltN7lPNCr0DrVIE8YkPVPp.jpg
         width: 1920
         height: 1080
   - discriminant: image
