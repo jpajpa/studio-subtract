@@ -20,20 +20,33 @@ const SCALE = 2; // the shadows are soft, so 2× folder units is plenty
 
 // contact shadow + a soft, wide one, in black; the panel itself is in the
 // image too, but the folder's own back panel covers it
-const svg = `
+const svg = (filter) => `
 <svg xmlns="http://www.w3.org/2000/svg" width="${W * SCALE}" height="${H * SCALE}" viewBox="${-PAD.x} ${-PAD.top} ${W} ${H}">
   <defs>
     <filter id="s" filterUnits="userSpaceOnUse" x="${-PAD.x}" y="${-PAD.top}" width="${W}" height="${H}">
-      <feDropShadow dx="0" dy="1" stdDeviation="0.75" flood-opacity="0.22"/>
-      <feDropShadow dx="0" dy="12" stdDeviation="8" flood-opacity="0.16"/>
-      <feDropShadow dx="0" dy="30" stdDeviation="20" flood-opacity="0.14"/>
+      ${filter}
     </filter>
   </defs>
   <path d="${BACK_PATH}" filter="url(#s)"/>
 </svg>`;
 
+const shadows = svg(`
+      <feDropShadow dx="0" dy="1" stdDeviation="0.75" flood-opacity="0.22"/>
+      <feDropShadow dx="0" dy="12" stdDeviation="8" flood-opacity="0.16"/>
+      <feDropShadow dx="0" dy="30" stdDeviation="20" flood-opacity="0.14"/>`);
+
+// A soft rim all the way round, under the shadows. The contact shadow falls
+// downwards, so on its own it leaves a pale folder's top edges (the tab)
+// melting into the pale page; this stands in for an outline stroke, which
+// WebKit redraws badly while a folder scales.
+const rim = svg(`
+      <feMorphology in="SourceAlpha" operator="dilate" radius="0.5"/>
+      <feGaussianBlur stdDeviation="0.5"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.25"/></feComponentTransfer>`);
+
 const out = path.join(process.cwd(), "public/folder-shadow.png");
-await sharp(Buffer.from(svg))
+await sharp(Buffer.from(shadows))
+  .composite([{ input: Buffer.from(rim), blend: "dest-over" }])
   // grey + alpha: only the alpha matters, the mask is tinted in CSS
   .toColourspace("b-w")
   .png({ compressionLevel: 9 })
