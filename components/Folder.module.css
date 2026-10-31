@@ -11,8 +11,8 @@
   width: var(--folder-w);
   height: calc(261 * var(--u));
   color: var(--text);
-  user-select: none;
   -webkit-user-select: none;
+  user-select: none;
   animation: folder-in 1000ms cubic-bezier(0.3, 1.35, 0.5, 1) both;
   animation-delay: calc(150ms + var(--enter, 0) * 80ms);
 }
@@ -162,9 +162,11 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  /* Fallback frost: Safari / Firefox */
-  backdrop-filter: blur(var(--glass-blur)) saturate(1.5) brightness(1.03);
+  /* Fallback frost: Safari / Firefox. The prefixed line comes first: the
+     CSS build keeps only the last of a prefixed/unprefixed pair, and with
+     -webkit- last, Chromium and Firefox got no blur at all. */
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5) brightness(1.03);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.5) brightness(1.03);
   /* white sheen over a wash of the folder's color */
   background:
     linear-gradient(
