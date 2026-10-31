@@ -20,8 +20,10 @@ const DOLLY = 1.9; // how far the folders scale as the camera moves into one
 const LIFT = 0.55; // s for a paper to rise out of (or sink into) its folder
 const LIFT_CLEAR = 14; // px a lifted paper clears the folder's glass front by
 const LIFT_STEP = 8; // px each lower paper rises less high, so they stay stacked
-const SINK = 1.15; // s for a closing frame's descent into its folder (desktop)
-const SINK_LEAD = 0.25; // s of it the frame rides before its paper takes over
+// s for a closing frame's descent into its folder, and how much of it the
+// frame rides before its paper takes over; phones' drops are shorter
+const SINK = { total: 1.15, lead: 0.25 };
+const SINK_PHONE = { total: 0.85, lead: 0.18 };
 // gathers speed while the frame rides it, then a long ease-out as the paper
 // slides home
 const SINK_EASE = CustomEase.create("sink", "M0,0 C0.38,0 0.12,1 1,1");
@@ -540,14 +542,13 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         const chrome = chromeEls();
         gsap.set(chrome, { transition: "none" });
         const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        // Desktop: each frame eases out to just above the folder and is
-        // already sinking as it arrives; its paper takes over at the same
-        // speed and settles into the closed folder in one motion. Phones: the
-        // same quicker flights as on opening, sunk as before.
+        // Each frame eases out to just above the folder and is already
+        // sinking as it arrives; its paper takes over at the same speed and
+        // settles in, in one motion. Phones: the same quicker flights as on
+        // opening.
         const phone = isPhone();
         const fly = phone ? { duration: 1, ease: "power2.inOut" } : { duration: 1, ease: "power3.out" };
         const clip = phone ? { duration: 0.9, ease: "power2.inOut" } : { duration: 0.9, ease: "power3.out" };
-        const sinkIn = { hold: 0.04, duration: LIFT, ease: "power3.inOut" };
 
         // Folders back at rest for measuring (still invisible: same frame).
         const folders = allFolders();
@@ -593,23 +594,24 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         const homePapers = home ? papersIn(home) : [];
         if (home) {
           const front = home.querySelector<HTMLElement>("[data-front]");
+          // The opening flight left its papers lifted (inline): measure from
+          // the open folder itself, or the lift comes out as nothing and the
+          // papers hang above the folder until it closes.
+          const els = [...homePapers, front];
+          gsap.set(els, { transition: "none", clearProps: "transform" });
+          home.setAttribute("data-open", "");
           // phones: the pose the scroll holds this folder in (Folder.module.css).
           // The papers sink back to it, so the scroll takes over without a jump
-          // (it can't ease in like the CSS transition does elsewhere).
+          // (it can't ease in like the CSS transition does elsewhere). Read
+          // with the lift gone: WebKit hasn't restarted the scroll animation
+          // yet, so it reports the folder's own (open) pose.
           home.removeAttribute("data-flight");
-          const held = [...homePapers, front].map((el) =>
+          const held = els.map((el) =>
             el && getComputedStyle(el).animationName !== "none" ? getComputedStyle(el).transform : null,
           );
           home.setAttribute("data-flight", "");
-          gsap.set([...homePapers, front], { transition: "none" });
-          home.setAttribute("data-open", "");
-          // the opening flight left its papers lifted (inline): measure from
-          // the open folder itself, or the lift comes out as nothing and the
-          // papers hang above the folder until it closes
-          [...homePapers, front].forEach((el, k) => {
-            if (!el) return;
-            gsap.set(el, { clearProps: "transform" });
-            if (held[k]) gsap.set(el, { transform: held[k] });
+          els.forEach((el, k) => {
+            if (el && held[k]) gsap.set(el, { transform: held[k] });
           });
           poses = paperOf.map((k, i) => {
             const paper = homePapers[k];
@@ -664,23 +666,16 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
           tl.set(paper, { visibility: "visible", "--paper-shadow": 0 }, above);
           tl.set(panel, { opacity: 0 }, above);
 
-          if (phone) {
-            const f = flight(panel, pose);
-            tl.to(panel, { ...f.panel, ...fly }, at);
-            tl.to(frames[i], { clipPath: f.clip, ...clip }, at);
-            const sink = above + sinkIn.hold;
-            tl.to(paper, { "--paper-shadow": 1, duration: sinkIn.duration, ease: "power1.inOut" }, sink);
-            tl.to(paper, { y: `+=${lifts[i]}`, duration: sinkIn.duration, ease: sinkIn.ease }, sink);
-            continue;
-          }
-
-          // One descent, from SINK_LEAD before the frame lands to the paper at
-          // rest in the closed folder, on a single sine curve: the frame rides
-          // its first part and the paper the rest, so it never stops between.
-          // The frame lands `early` higher, and has sunk that far by the
-          // handover, which happens exactly where it always did.
-          const drop = -(gsap.getProperty(paper, "y") as number); // to the closed pose
-          const k = SINK_EASE(SINK_LEAD / SINK);
+          // One descent, from `lead` before the frame lands to the paper at
+          // rest, on a single curve: the frame rides its first part and the
+          // paper the rest, so it never stops between. The frame lands `early`
+          // higher, and has sunk that far by the handover, which happens
+          // exactly where it always did. Desktop papers settle into the closed
+          // folder; phones' back into the pose the scroll holds them in.
+          const { total, lead } = phone ? SINK_PHONE : SINK;
+          const settle = phone ? { y: `+=${lifts[i]}` } : { x: 0, y: 0, rotation: parseFloat(paper.style.getPropertyValue("--r")) || 0 };
+          const drop = phone ? lifts[i] : -(gsap.getProperty(paper, "y") as number);
+          const k = SINK_EASE(lead / total);
           const early = (drop * k) / (1 - k);
           const f = flight(panel, { ...pose, cy: pose.cy - early });
           tl.to(panel, { ...f.panel, ...fly }, at);
@@ -693,14 +688,13 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
             {
               x: (early * Math.sin(rad)) / f.panel.scale,
               y: (early * Math.cos(rad)) / f.panel.scale,
-              duration: SINK_LEAD,
-              ease: (u: number) => SINK_EASE((u * SINK_LEAD) / SINK) / k,
+              duration: lead,
+              ease: (u: number) => SINK_EASE((u * lead) / total) / k,
             },
-            above - SINK_LEAD,
+            above - lead,
           );
-          const rest = { duration: SINK - SINK_LEAD, ease: (u: number) => (SINK_EASE((SINK_LEAD + u * (SINK - SINK_LEAD)) / SINK) - k) / (1 - k) };
-          const r = parseFloat(paper.style.getPropertyValue("--r")) || 0;
-          tl.to(paper, { x: 0, y: 0, rotation: r, ...rest }, above);
+          const rest = { duration: total - lead, ease: (u: number) => (SINK_EASE((lead + u * (total - lead)) / total) - k) / (1 - k) };
+          tl.to(paper, { ...settle, ...rest }, above);
           tl.to(paper, { "--paper-shadow": 1, duration: rest.duration, ease: "power1.inOut" }, above);
         }
 
