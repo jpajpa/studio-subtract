@@ -16,6 +16,12 @@ media:
   - discriminant: image
     value:
       image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/4-H5j8eDnsMeQzeIcyrF78hDeQeSzvgP.jpg
+        width: 4000
+        height: 3200
+  - discriminant: image
+    value:
+      image:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/1.jpg
         width: 4000
         height: 3200
@@ -34,12 +40,6 @@ media:
   - discriminant: image
     value:
       image:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/4-H5j8eDnsMeQzeIcyrF78hDeQeSzvgP.jpg
-        width: 4000
-        height: 3200
-  - discriminant: image
-    value:
-      image:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/chess/5-zKvQa5918lQy36b5r80qBSni5Oaxv2.jpg
         width: 4000
         height: 3200
@@ -50,19 +50,19 @@ media:
         width: 2160
         height: 2880
 folder:
-  - item: 1
+  - item: 2
     x: 61
     'y': 55
     w: 246
     h: 197
     rotation: 0
-  - item: 2
+  - item: 3
     x: 56
     'y': 23
     w: 246
     h: 197
     rotation: 0.6
-  - item: 3
+  - item: 4
     x: 13
     'y': 40
     w: 264

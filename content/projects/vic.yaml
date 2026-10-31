@@ -25,6 +25,13 @@ credits:
   - role: Management
     name: Blank Square
 media:
+  - discriminant: video
+    value:
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/4-DjgXiAB9F8HhL580KKxRJkoCOaATZk.mp4
+      poster:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/4-still-Ry06bifXo0ZQQGGEjcdwMJnbrxT72L.jpg
+        width: 1920
+        height: 1080
   - discriminant: image
     value:
       image:
@@ -44,13 +51,6 @@ media:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/3.png
         width: 1200
         height: 900
-  - discriminant: video
-    value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/4-DjgXiAB9F8HhL580KKxRJkoCOaATZk.mp4
-      poster:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/4-still-Ry06bifXo0ZQQGGEjcdwMJnbrxT72L.jpg
-        width: 1920
-        height: 1080
   - discriminant: image
     value:
       image:
@@ -64,25 +64,25 @@ media:
         width: 2400
         height: 1800
 folder:
-  - item: 1
+  - item: 2
     x: 121
     'y': 45
     w: 173
     h: 130
     rotation: 1
-  - item: 2
+  - item: 3
     x: 16
     'y': 46
     w: 173
     h: 130
     rotation: 0
-  - item: 3
+  - item: 4
     x: 12
     'y': 80
     w: 228
     h: 171
     rotation: 0
-  - item: 2
+  - item: 3
     x: 112
     'y': 101
     w: 173
