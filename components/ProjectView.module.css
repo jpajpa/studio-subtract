@@ -253,6 +253,13 @@
   pointer-events: none;
 }
 
+/* The demo model floats, so it gets none of the frame furniture and none of
+   model-viewer's own chrome either: its loading bar would draw a grey rule
+   across the top of nothing. */
+.panel[data-model] model-viewer::part(default-progress-bar) {
+  display: none;
+}
+
 /* no scroll range, no bar (see measure() in ProjectView) */
 .progress[data-idle] {
   display: none;

@@ -7,6 +7,7 @@ import { SplitText } from "gsap/SplitText";
 import { CustomEase } from "gsap/CustomEase";
 import type { Project, Section } from "@/lib/projects";
 import { SiteNav } from "./SiteNav";
+import { ModelPanel } from "./ModelPanel";
 import styles from "./ProjectView.module.css";
 
 if (typeof window !== "undefined") gsap.registerPlugin(SplitText, CustomEase);
@@ -886,6 +887,9 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
               </div>
             </figure>
           ))}
+
+          {/* DEMO, local only: a spinnable character after Loho's last frame */}
+          {project.slug === "loho" && <ModelPanel />}
 
           <nav ref={pager} className={styles.pager} aria-label={section.label}>
             <a
