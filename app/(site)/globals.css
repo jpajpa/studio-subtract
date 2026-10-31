@@ -59,6 +59,8 @@ body {
   letter-spacing: 0.3px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* no single word left on a line of its own, anywhere on the site */
+  text-wrap: pretty;
 }
 
 a {

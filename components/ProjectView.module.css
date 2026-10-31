@@ -69,10 +69,16 @@
   letter-spacing: 0.1px;
 }
 
+/* Balanced rather than ragged: the column is only 300px, so one long word
+   ("communicated" on Chess) leaves a 96px hole at the end of a line, and a
+   short last word strands itself ("ecosystem." on Spaciom). Balancing evens
+   the lines out and takes the orphan with it. Every description here is five
+   lines or fewer, which is inside the limit browsers still balance within. */
 .body {
   margin: 0;
   line-height: 19px;
   letter-spacing: 0.1px;
+  text-wrap: balance;
 }
 
 /* Credits and link under the body, on the same 19px line grid as the title
