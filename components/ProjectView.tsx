@@ -19,6 +19,9 @@ const DOLLY = 1.9; // how far the folders scale as the camera moves into one
 const LIFT = 0.55; // s for a paper to rise out of (or sink into) its folder
 const LIFT_CLEAR = 14; // px a lifted paper clears the folder's glass front by
 const LIFT_STEP = 8; // px each lower paper rises less high, so they stay stacked
+const SINK = 0.9; // s for a closing frame's descent into its folder (desktop)
+const SINK_LEAD = 0.3; // s of it the frame rides before its paper takes over
+const SINK_EASE = gsap.parseEase("sine.inOut");
 
 /** Phones: the page scrolls vertically and natively (see ProjectView.module.css). */
 const isPhone = () => window.matchMedia("(max-width: 767px)").matches;
@@ -534,15 +537,14 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         const chrome = chromeEls();
         gsap.set(chrome, { transition: "none" });
         const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        // Desktop: each frame eases out to rest just above the folder, then
-        // its paper settles in gently, with no sharp step anywhere. Phones:
-        // the same quicker flights as on opening, sunk as before.
+        // Desktop: each frame eases out to just above the folder and is
+        // already sinking as it arrives; its paper takes over at the same
+        // speed and settles into the closed folder in one motion. Phones: the
+        // same quicker flights as on opening, sunk as before.
         const phone = isPhone();
-        const fly = phone ? { duration: 1, ease: "power2.inOut" } : { duration: 1.1, ease: "power3.out" };
-        const clip = phone ? { duration: 0.9, ease: "power2.inOut" } : { duration: 0.95, ease: "power3.out" };
-        const sinkIn = phone
-          ? { hold: 0.04, duration: LIFT, ease: "power3.inOut" }
-          : { hold: 0, duration: 0.7, ease: "sine.inOut" };
+        const fly = phone ? { duration: 1, ease: "power2.inOut" } : { duration: 1, ease: "power3.out" };
+        const clip = phone ? { duration: 0.9, ease: "power2.inOut" } : { duration: 0.9, ease: "power3.out" };
+        const sinkIn = { hold: 0.04, duration: LIFT, ease: "power3.inOut" };
 
         // Folders back at rest for measuring (still invisible: same frame).
         const folders = allFolders();
@@ -568,7 +570,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
           for (const f of folders) f.removeAttribute("data-flight");
           // phones: the stack re-opens whichever folder is mid-screen
           window.dispatchEvent(new Event("folderstack:sync"));
-          gsap.set(folders, { clearProps: "transform,opacity" });
+          gsap.set(folders, { clearProps: "transform,opacity,willChange" });
           gsap.set(chrome, { clearProps: "transform,opacity,transition" });
           resolve();
         };
@@ -598,10 +600,13 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
           home.setAttribute("data-flight", "");
           gsap.set([...homePapers, front], { transition: "none" });
           home.setAttribute("data-open", "");
+          // the opening flight left its papers lifted (inline): measure from
+          // the open folder itself, or the lift comes out as nothing and the
+          // papers hang above the folder until it closes
           [...homePapers, front].forEach((el, k) => {
-            if (!el || !held[k]) return;
+            if (!el) return;
             gsap.set(el, { clearProps: "transform" });
-            gsap.set(el, { transform: held[k] });
+            if (held[k]) gsap.set(el, { transform: held[k] });
           });
           poses = paperOf.map((k, i) => {
             const paper = homePapers[k];
@@ -617,9 +622,15 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
           });
         }
 
-        onScreen.forEach((f) => gsap.set(f, from.get(f)!));
+        // each folder keeps its layer while it shrinks back, instead of being
+        // redrawn (glass, papers and all) at every step of the scale
+        onScreen.forEach((f) => gsap.set(f, { ...from.get(f)!, willChange: "transform" }));
 
-        const tl = gsap.timeline({ onComplete: done });
+        // Showing the folders again is one heavy frame (every glass front
+        // drawn at the dolly's scale): the clock starts after it, so the
+        // flights don't open by skipping ahead
+        const tl = gsap.timeline({ paused: true, onComplete: done });
+        requestAnimationFrame(() => requestAnimationFrame(() => tl.play()));
         tl.to(scrim.current, { opacity: 0, duration: 0.7, ease: "power1.out" }, 0.25);
         tl.to(st.split[0].chars, { yPercent: -115, duration: 0.55, ease: "power3.in", stagger: 0.015 }, 0);
         const lines = introLines();
@@ -630,6 +641,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         // Frames fly to just above the folder (bottom one first, so the top
         // paper goes in last), then become papers and sink back in.
         let order = 0;
+        let lastAbove = 0;
         const bottomUp = panels.map((_, i) => i).sort((a, b) => paperOf[a] - paperOf[b]);
         for (const i of bottomUp) {
           const panel = panels[i];
@@ -640,20 +652,69 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
             continue;
           }
           const at = 0.15 + order++ * 0.06;
-          const f = flight(panel, pose);
-          tl.to(panel, { ...f.panel, ...fly }, at);
-          tl.to(frames[i], { clipPath: f.clip, ...clip }, at);
-          tl.to(shadows[i], { opacity: 0, duration: fly.duration * 0.5, ease: "sine.inOut" }, at);
-
           const paper = homePapers[paperOf[i]];
           const above = at + fly.duration;
-          const sink = above + sinkIn.hold;
+          lastAbove = Math.max(lastAbove, above);
+          tl.to(shadows[i], { opacity: 0, duration: fly.duration * 0.5, ease: "sine.inOut" }, at);
           // takes over shadowless and unshaded, as the frame was; both return
           // as it sinks back in
           tl.set(paper, { visibility: "visible", "--paper-shadow": 0 }, above);
-          tl.to(paper, { "--paper-shadow": 1, duration: sinkIn.duration, ease: "power1.inOut" }, sink);
           tl.set(panel, { opacity: 0 }, above);
-          tl.to(paper, { y: `+=${lifts[i]}`, duration: sinkIn.duration, ease: sinkIn.ease }, sink);
+
+          if (phone) {
+            const f = flight(panel, pose);
+            tl.to(panel, { ...f.panel, ...fly }, at);
+            tl.to(frames[i], { clipPath: f.clip, ...clip }, at);
+            const sink = above + sinkIn.hold;
+            tl.to(paper, { "--paper-shadow": 1, duration: sinkIn.duration, ease: "power1.inOut" }, sink);
+            tl.to(paper, { y: `+=${lifts[i]}`, duration: sinkIn.duration, ease: sinkIn.ease }, sink);
+            continue;
+          }
+
+          // One descent, from SINK_LEAD before the frame lands to the paper at
+          // rest in the closed folder, on a single sine curve: the frame rides
+          // its first part and the paper the rest, so it never stops between.
+          // The frame lands `early` higher, and has sunk that far by the
+          // handover, which happens exactly where it always did.
+          const drop = -(gsap.getProperty(paper, "y") as number); // to the closed pose
+          const k = SINK_EASE(SINK_LEAD / SINK);
+          const early = (drop * k) / (1 - k);
+          const f = flight(panel, { ...pose, cy: pose.cy - early });
+          tl.to(panel, { ...f.panel, ...fly }, at);
+          tl.to(frames[i], { clipPath: f.clip, ...clip }, at);
+          // inside the frame, so the descent stays straight down whatever its
+          // tilt and scale (both settled by now)
+          const rad = (f.panel.rotation * Math.PI) / 180;
+          tl.to(
+            frames[i],
+            {
+              x: (early * Math.sin(rad)) / f.panel.scale,
+              y: (early * Math.cos(rad)) / f.panel.scale,
+              duration: SINK_LEAD,
+              ease: (u: number) => SINK_EASE((u * SINK_LEAD) / SINK) / k,
+            },
+            above - SINK_LEAD,
+          );
+          const rest = { duration: SINK - SINK_LEAD, ease: (u: number) => (SINK_EASE((SINK_LEAD + u * (SINK - SINK_LEAD)) / SINK) - k) / (1 - k) };
+          const r = parseFloat(paper.style.getPropertyValue("--r")) || 0;
+          tl.to(paper, { x: 0, y: 0, rotation: r, ...rest }, above);
+          tl.to(paper, { "--paper-shadow": 1, duration: rest.duration, ease: "power1.inOut" }, above);
+        }
+
+        // Desktop: the front tips shut (its own CSS transition) as the top
+        // paper goes in; papers with no frame to come back from close with it
+        if (home && !phone && lastAbove) {
+          tl.call(
+            () => {
+              gsap.set(homePapers.filter((_, k) => !paperOf.includes(k)), { clearProps: "transition" });
+              home.removeAttribute("data-open");
+            },
+            undefined,
+            lastAbove,
+          );
+          // the page unmounts once that has settled too: taking it down
+          // mid-motion costs a visible hitch
+          tl.set({}, {}, lastAbove + 0.7);
         }
 
         // The camera pulls back out of the folder.
