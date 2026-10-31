@@ -4,11 +4,12 @@ import { useEffect, useImperativeHandle, useLayoutEffect, useRef, type CSSProper
 import Image from "next/image";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
+import { CustomEase } from "gsap/CustomEase";
 import type { Project, Section } from "@/lib/projects";
 import { SiteNav } from "./SiteNav";
 import styles from "./ProjectView.module.css";
 
-if (typeof window !== "undefined") gsap.registerPlugin(SplitText);
+if (typeof window !== "undefined") gsap.registerPlugin(SplitText, CustomEase);
 
 const EASE = 0.085; // per-frame approach of the gallery to its target at 60fps
 const FLING = 14;
@@ -19,9 +20,11 @@ const DOLLY = 1.9; // how far the folders scale as the camera moves into one
 const LIFT = 0.55; // s for a paper to rise out of (or sink into) its folder
 const LIFT_CLEAR = 14; // px a lifted paper clears the folder's glass front by
 const LIFT_STEP = 8; // px each lower paper rises less high, so they stay stacked
-const SINK = 0.9; // s for a closing frame's descent into its folder (desktop)
-const SINK_LEAD = 0.3; // s of it the frame rides before its paper takes over
-const SINK_EASE = gsap.parseEase("sine.inOut");
+const SINK = 1.15; // s for a closing frame's descent into its folder (desktop)
+const SINK_LEAD = 0.25; // s of it the frame rides before its paper takes over
+// gathers speed while the frame rides it, then a long ease-out as the paper
+// slides home
+const SINK_EASE = CustomEase.create("sink", "M0,0 C0.38,0 0.12,1 1,1");
 
 /** Phones: the page scrolls vertically and natively (see ProjectView.module.css). */
 const isPhone = () => window.matchMedia("(max-width: 767px)").matches;
