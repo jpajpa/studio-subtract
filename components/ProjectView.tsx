@@ -246,6 +246,12 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
     if (!t || !v) return;
     // phones scroll the page natively, so the strip stays put
     st.max = isPhone() ? 0 : Math.max(t.offsetWidth - v.clientWidth, 0);
+    // With no range there is nothing for the bar to report: a gallery that
+    // fits, or a person with no media at all. It would sit there as an empty
+    // rule promising a scroll that cannot happen, so it goes. Measured again
+    // on every resize, so it comes back the moment the strip outgrows the
+    // viewport.
+    bar.current?.parentElement?.toggleAttribute("data-idle", st.max === 0);
     st.target = gsap.utils.clamp(0, st.max, st.target);
     st.current = gsap.utils.clamp(0, st.max, st.current);
     render();

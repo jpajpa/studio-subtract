@@ -13,24 +13,18 @@ colour:
 media:
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/1-web.mp4
-      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/1-small.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/shoe-form-v2-Y8xIIsAg77RlW3vvtGILVdyhddYpNa.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/shoe-form-v2-small-7bj153OWkcdTvsVlF8cygEeLagLK5N.mp4
       poster:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/1-still.jpg
-        width: 2000
-        height: 1500
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/shoe-form-v2-still-rUo7Bs0HltN7lPNCr0DrVIE8YkPVPp.jpg
+        width: 1920
+        height: 1080
   - discriminant: image
     value:
       image:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/2.jpg
-        width: 1500
-        height: 1500
-  - discriminant: image
-    value:
-      image:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/3.jpg
-        width: 3024
-        height: 4032
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/shoe-on-rock-82fERUJucM6pSf9DUdxlPql8x7H8dP.jpg
+        width: 2400
+        height: 1350
   - discriminant: video
     value:
       video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/4-3EmbRxrN8nvoRH2L8TLgWvwzE2fWBL-web.mp4
