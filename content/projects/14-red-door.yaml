@@ -11,7 +11,7 @@ colour:
 media:
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/composition-3.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/composition-3-web.mp4
       small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/composition-3-small.mp4
       poster:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/composition-3-still.jpg

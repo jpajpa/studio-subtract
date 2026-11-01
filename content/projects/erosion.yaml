@@ -1,8 +1,6 @@
 title: Zellerfeld Erosion
 year: '2025'
-description: >-
-  A shoe designed from nothing to full production. Built on the idea of natural
-  erosion as language. Produced and sold by Zellerfeld. ++
+description: A shoe designed from nothing to full production. Built on the idea of natural erosion as language. Produced and sold by Zellerfeld. ++
 link:
   url: https://www.zellerfeld.com/products/erosion
 credits: []
@@ -15,7 +13,8 @@ colour:
 media:
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/1.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/1-web.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/1-small.mp4
       poster:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/1-still.jpg
         width: 2000
@@ -34,7 +33,8 @@ media:
         height: 4032
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/4-3EmbRxrN8nvoRH2L8TLgWvwzE2fWBL.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/4-3EmbRxrN8nvoRH2L8TLgWvwzE2fWBL-web.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/4-3EmbRxrN8nvoRH2L8TLgWvwzE2fWBL-small.mp4
       poster:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/erosion/4-still-dXnmkL72Uvut3IKZbPEk4OR3cuFcqD.jpg
         width: 1280

@@ -1,9 +1,6 @@
 title: Studio James Jefferys
 year: '2025'
-description: >-
-  A website built as one singular surface. Every button, label, and state built
-  to exist as material rather than on a screen. Inspired by the idea that ‘the
-  best interface is the human body’.
+description: A website built as one singular surface. Every button, label, and state built to exist as material rather than on a screen. Inspired by the idea that ‘the best interface is the human body’.
 roles:
   - cd
   - design
@@ -19,6 +16,7 @@ media:
   - discriminant: video
     value:
       video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/1.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/1-small.mp4
       poster:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/1-still.jpg
         width: 1280
@@ -27,6 +25,7 @@ media:
   - discriminant: video
     value:
       video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/2.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/2-small.mp4
       poster:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/2-still.jpg
         width: 1280
@@ -42,6 +41,7 @@ media:
   - discriminant: video
     value:
       video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/4-usWLxzUDN67O7ezq5JFp5N8PwL2VOb.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/4-usWLxzUDN67O7ezq5JFp5N8PwL2VOb-small.mp4
       poster:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/4-still-lwjfPMFtIvfMDitaGFViDnCUdzTrq1.jpg
         width: 400
@@ -60,7 +60,8 @@ media:
         height: 738
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/7-R7dIsQVXQj5DqMLnys0jpwzdamwtUi.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/7-R7dIsQVXQj5DqMLnys0jpwzdamwtUi-web.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/7-R7dIsQVXQj5DqMLnys0jpwzdamwtUi-small.mp4
       poster:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/7-still-5uiuAXSFg0dkphEYPMVlkkQI4WOQtr.jpg
         width: 1080
@@ -74,13 +75,15 @@ media:
   - discriminant: video
     value:
       video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/9-R79cwybX06bqYwEndhV7BkmYiT79tV.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/9-R79cwybX06bqYwEndhV7BkmYiT79tV-small.mp4
       poster:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/9-still-Zv5EDquENcnrxpUZbByUVRgHII6fqO.jpg
         width: 1920
         height: 1076
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-2peK4WeD82p0CMUXj917qjH6ddr9nI.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-2peK4WeD82p0CMUXj917qjH6ddr9nI-web.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-2peK4WeD82p0CMUXj917qjH6ddr9nI-small.mp4
       poster:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-still-Y6i6fAIV3yGeoD5BAf7Xv6vnn2Xi4b.jpg
         width: 960

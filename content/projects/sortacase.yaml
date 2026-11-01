@@ -1,8 +1,6 @@
 title: Sortacase
 year: '2026'
-description: >-
-  New identity, eCommerce site, product imagery, and physically printed product
-  catalog. Built using the same logic as the product grid system.
+description: New identity, eCommerce site, product imagery, and physically printed product catalog. Built using the same logic as the product grid system.
 link:
   url: https://www.sortacase.com
 credits: []
@@ -23,6 +21,7 @@ media:
   - discriminant: video
     value:
       video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/4-ackwOkTtxflMy6MGR0nvEQK4DrULiZ.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/4-ackwOkTtxflMy6MGR0nvEQK4DrULiZ-small.mp4
       poster:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/4-still-o3ZXY1JzyMZvN9PqZEejnWc3ULkqah.jpg
         width: 1920
