@@ -12,43 +12,40 @@ colour:
   bottom: '#141414'
   label: '#d6d6d6'
 media:
-  - discriminant: image
+  - discriminant: video
     value:
-      image:
+      video: >-
+        https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/01-7scKejak3c1kotcKTKT1eSpAFpheVF.mp4
+      poster:
         src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/hikarinoyami/1.jpg
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/01-0cwB9wfAns87CSEa761qdqsu2Ea9EL.png
         width: 2480
-        height: 3507
-  - discriminant: image
+        height: 3508
+  - discriminant: video
     value:
-      image:
+      video: >-
+        https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/02-CdGFrebdkocxAioXnh6eVE2IjzIMI5.mp4
+      poster:
         src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/hikarinoyami/2.png
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/02-w94yZqbStyuxvxmg4BxIMzgP0KEk1U.png
         width: 2480
-        height: 3507
-  - discriminant: image
+        height: 3508
+  - discriminant: video
     value:
-      image:
+      video: >-
+        https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/03-o7x808wY7EkAeZ27Vh6CsBrZogqIlm.mp4
+      poster:
         src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/hikarinoyami/3.png
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/03-rzSpxGvWOu22pVSizu0Y7C0Z5ODxLB.png
         width: 2480
-        height: 3507
-folder:
-  - item: 1
-    x: 85
-    'y': 40
-    w: 150
-    h: 212
-    rotation: 0
-  - item: 2
-    x: 140
-    'y': 10
-    w: 150
-    h: 212
-    rotation: 1.5
-  - item: 3
-    x: 30
-    'y': 18
-    w: 150
-    h: 212
-    rotation: -2
+        height: 3508
+  - discriminant: video
+    value:
+      video: >-
+        https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/04-NDgaCdsLmA25JpbzbcbxHUDY97JnJ8.mp4
+      poster:
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/04-KBmOK9xOsNGaFNIYPCQtyGmP4L7gXB.png
+        width: 2480
+        height: 3508
+folder: []
