@@ -60,12 +60,12 @@ media:
         height: 1076
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-2peK4WeD82p0CMUXj917qjH6ddr9nI-web.mp4
-      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-2peK4WeD82p0CMUXj917qjH6ddr9nI-small.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-crop-web-MW0jLJyrIKPEzpy0NXr4TSK1U68UuY.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-crop-small-F04RaTuOjwLXEl8RpjvDu0BIepaDGt.mp4
       poster:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-still-Y6i6fAIV3yGeoD5BAf7Xv6vnn2Xi4b.jpg
-        width: 960
-        height: 540
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-crop-still-DjBUo0cyU1SAw1xvgbPYvtgC9RrKGy.jpg
+        width: 900
+        height: 468
 folder:
   - item: 1
     x: 125
