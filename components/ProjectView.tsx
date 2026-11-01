@@ -183,6 +183,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
     raf: 0,
     last: 0,
     live: false, // accepts input (off while animating in/out)
+    near: new Set<HTMLVideoElement>(), // videos on screen or about to be
     drag: null as null | { id: number; x: number; target: number; vx: number; t: number; moved: boolean },
     // the last drag moved the gallery: the click that ends it opens nothing
     dragged: false,
@@ -195,9 +196,10 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
 
   // Gallery videos wait on their still until their frame has landed: one
   // starting mid-flight (whenever it happened to load) decodes while it is
-  // scaled and clipped every frame, which stutters, worst in Safari
+  // scaled and clipped every frame, which stutters, worst in Safari. Nor does
+  // one far off screen play: playing is what downloads it.
   const play = (v: HTMLVideoElement | null | undefined) => {
-    if (v?.paused) v.play().catch(() => {});
+    if (v?.paused && s.current.near.has(v)) v.play().catch(() => {});
   };
   const videoIn = (panel: HTMLElement | undefined) => panel?.querySelector("video");
 
@@ -378,6 +380,29 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
   };
 
   useEffect(() => () => s.current.split.forEach((sp) => sp.revert()), []);
+
+  useEffect(() => {
+    const st = s.current;
+    // half a screen ahead, so a video is running by the time it scrolls in
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          const v = e.target as HTMLVideoElement;
+          if (e.isIntersecting) {
+            st.near.add(v);
+            if (st.live) play(v);
+          } else {
+            st.near.delete(v);
+            v.pause();
+          }
+        }
+      },
+      { root: viewport.current, rootMargin: "50%" },
+    );
+    q("video").forEach((v) => io.observe(v));
+    return () => io.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /* ── Open ─────────────────────────────────────────────── */
 
@@ -864,7 +889,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
                     <span className={styles.pdfTag}>View PDF ↗</span>
                   </a>
                 ) : m.kind === "video" ? (
-                  <video poster={m.src} width={m.w} height={m.h} muted loop playsInline preload="auto" aria-label={m.alt || undefined}>
+                  <video poster={m.src} width={m.w} height={m.h} muted loop playsInline preload="none" aria-label={m.alt || undefined}>
                     {/* phones play the lighter copy: a full 4K upload stutters there */}
                     {m.small && <source src={m.small} media="(max-width: 767px)" />}
                     <source src={m.video} />

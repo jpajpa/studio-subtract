@@ -1,8 +1,6 @@
 title: The Vic Mensa Show
 year: '2026'
-description: >-
-  We designed the space for Vic Mensa’s new show, directed and created the intro
-  video, and designed him a custom pair of glasses.
+description: We designed the space for Vic Mensa’s new show, directed and created the intro video, and designed him a custom pair of glasses.
 roles:
   - cd
   - design
@@ -27,7 +25,8 @@ credits:
 media:
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/4-DjgXiAB9F8HhL580KKxRJkoCOaATZk.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/4-DjgXiAB9F8HhL580KKxRJkoCOaATZk-web.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/4-DjgXiAB9F8HhL580KKxRJkoCOaATZk-small.mp4
       poster:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/vic/4-still-Ry06bifXo0ZQQGGEjcdwMJnbrxT72L.jpg
         width: 1920

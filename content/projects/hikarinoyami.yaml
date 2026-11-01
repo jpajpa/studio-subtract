@@ -1,8 +1,6 @@
 title: Setting Sun Campaign
 year: '2024'
-description: >-
-  A subtractive set of posters for Hikari no Yami - Chapter 8, The Setting Sun.
-  Focused on the unique garment details.
+description: A subtractive set of posters for Hikari no Yami - Chapter 8, The Setting Sun. Focused on the unique garment details.
 link: {}
 credits: []
 roles:
@@ -14,38 +12,34 @@ colour:
 media:
   - discriminant: video
     value:
-      video: >-
-        https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/01-7scKejak3c1kotcKTKT1eSpAFpheVF.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/01-7scKejak3c1kotcKTKT1eSpAFpheVF-web.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/01-7scKejak3c1kotcKTKT1eSpAFpheVF-small.mp4
       poster:
-        src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/01-0cwB9wfAns87CSEa761qdqsu2Ea9EL.png
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/01-0cwB9wfAns87CSEa761qdqsu2Ea9EL.png
         width: 2480
         height: 3508
   - discriminant: video
     value:
-      video: >-
-        https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/02-CdGFrebdkocxAioXnh6eVE2IjzIMI5.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/02-CdGFrebdkocxAioXnh6eVE2IjzIMI5-web.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/02-CdGFrebdkocxAioXnh6eVE2IjzIMI5-small.mp4
       poster:
-        src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/02-w94yZqbStyuxvxmg4BxIMzgP0KEk1U.png
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/02-w94yZqbStyuxvxmg4BxIMzgP0KEk1U.png
         width: 2480
         height: 3508
   - discriminant: video
     value:
-      video: >-
-        https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/03-o7x808wY7EkAeZ27Vh6CsBrZogqIlm.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/03-o7x808wY7EkAeZ27Vh6CsBrZogqIlm-web.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/03-o7x808wY7EkAeZ27Vh6CsBrZogqIlm-small.mp4
       poster:
-        src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/03-rzSpxGvWOu22pVSizu0Y7C0Z5ODxLB.png
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/03-rzSpxGvWOu22pVSizu0Y7C0Z5ODxLB.png
         width: 2480
         height: 3508
   - discriminant: video
     value:
-      video: >-
-        https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/04-NDgaCdsLmA25JpbzbcbxHUDY97JnJ8.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/04-NDgaCdsLmA25JpbzbcbxHUDY97JnJ8-web.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/04-NDgaCdsLmA25JpbzbcbxHUDY97JnJ8-small.mp4
       poster:
-        src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/04-KBmOK9xOsNGaFNIYPCQtyGmP4L7gXB.png
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/04-KBmOK9xOsNGaFNIYPCQtyGmP4L7gXB.png
         width: 2480
         height: 3508
 folder: []

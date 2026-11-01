@@ -51,7 +51,7 @@ const mediaField = (folder: string) =>
           small: blobFile({
             label: "Small video",
             description:
-              "A lighter copy that phones play. Leave empty: `node --env-file=.env.local scripts/video-sizes.mjs` makes it. Until then the full video plays everywhere.",
+              "A lighter copy that phones play. Leave empty: `node --env-file=.env.local scripts/video-sizes.mjs` makes it, and lightens the video above if it's heavy. Until then the full video plays everywhere.",
             accept: "video/mp4",
             folder,
           }),

@@ -1,9 +1,6 @@
 title: Studio James Jefferys
 year: '2025'
-description: >-
-  A website built as one singular surface. Every button, label, and state built
-  to exist as material rather than on a screen. Inspired by the idea that ‘the
-  best interface is the human body’.
+description: A website built as one singular surface. Every button, label, and state built to exist as material rather than on a screen. Inspired by the idea that ‘the best interface is the human body’.
 link:
   url: https://www.jamesjfrys.studio
 credits: []
@@ -18,49 +15,55 @@ media:
   - discriminant: image
     value:
       image:
-        src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/01-lR3IYWca5wKsj0kFqQTzNgpHlrgJAB.png
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/01-lR3IYWca5wKsj0kFqQTzNgpHlrgJAB.png
         width: 3248
         height: 2122
   - discriminant: image
     value:
       image:
-        src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/02-mV2Vs58oLQjSK4pA19aqIQDgMber6n.png
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/02-mV2Vs58oLQjSK4pA19aqIQDgMber6n.png
         width: 3248
         height: 2042
   - discriminant: image
     value:
       image:
-        src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/03-8rdIqRj7rgt9Dtr0HoJNwuzb8gwczD.png
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/03-8rdIqRj7rgt9Dtr0HoJNwuzb8gwczD.png
         width: 3214
         height: 2012
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/SJJ-web.jpg
+        width: 3508
+        height: 2480
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/SJJ-web2.jpg
+        width: 3508
+        height: 2480
   - discriminant: video
     value:
-      video: >-
-        https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/4-usWLxzUDN67O7ezq5JFp5N8PwL2VOb.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/4-usWLxzUDN67O7ezq5JFp5N8PwL2VOb.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/4-usWLxzUDN67O7ezq5JFp5N8PwL2VOb-small.mp4
       poster:
-        src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/4-still-lwjfPMFtIvfMDitaGFViDnCUdzTrq1.jpg
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/4-still-lwjfPMFtIvfMDitaGFViDnCUdzTrq1.jpg
         width: 400
         height: 312
   - discriminant: video
     value:
-      video: >-
-        https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/9-R79cwybX06bqYwEndhV7BkmYiT79tV.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/9-R79cwybX06bqYwEndhV7BkmYiT79tV.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/9-R79cwybX06bqYwEndhV7BkmYiT79tV-small.mp4
       poster:
-        src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/9-still-Zv5EDquENcnrxpUZbByUVRgHII6fqO.jpg
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/9-still-Zv5EDquENcnrxpUZbByUVRgHII6fqO.jpg
         width: 1920
         height: 1076
   - discriminant: video
     value:
-      video: >-
-        https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-2peK4WeD82p0CMUXj917qjH6ddr9nI.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-2peK4WeD82p0CMUXj917qjH6ddr9nI-web.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-2peK4WeD82p0CMUXj917qjH6ddr9nI-small.mp4
       poster:
-        src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-still-Y6i6fAIV3yGeoD5BAf7Xv6vnn2Xi4b.jpg
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-still-Y6i6fAIV3yGeoD5BAf7Xv6vnn2Xi4b.jpg
         width: 960
         height: 540
 folder:
