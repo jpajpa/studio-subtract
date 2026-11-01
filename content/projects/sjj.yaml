@@ -30,6 +30,18 @@ media:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/03-8rdIqRj7rgt9Dtr0HoJNwuzb8gwczD.png
         width: 3214
         height: 2012
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/SJJ-web.jpg
+        width: 3508
+        height: 2480
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/SJJ-web2.jpg
+        width: 3508
+        height: 2480
   - discriminant: video
     value:
       video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/4-usWLxzUDN67O7ezq5JFp5N8PwL2VOb.mp4
