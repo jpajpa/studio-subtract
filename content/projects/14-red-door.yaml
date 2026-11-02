@@ -29,6 +29,15 @@ media:
         width: 2160
         height: 1350
       alt: ''
+  - discriminant: video
+    value:
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/looping-branding-animation.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/looping-branding-animation-small.mp4
+      poster:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/looping-branding-animation-still.jpg
+        width: 2160
+        height: 1528
+      alt: ''
 folder:
   - item: 1
     x: 64
