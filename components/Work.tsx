@@ -64,6 +64,10 @@ export function Work({
       closing.current = true;
       (view.current?.close() ?? Promise.resolve()).then(() => {
         closing.current = false;
+        // Back before the page had started: nothing else shuts its folder.
+        // Phones: the stack then re-opens whichever folder is mid-screen.
+        source.current?.removeAttribute("data-open");
+        window.dispatchEvent(new Event("folderstack:sync"));
         refocus.current = source.current;
         source.current = null;
         setSlug(null);
