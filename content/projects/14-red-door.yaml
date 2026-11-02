@@ -29,4 +29,16 @@ media:
         width: 2160
         height: 1350
       alt: ''
-folder: []
+folder:
+  - item: 1
+    x: 64
+    'y': 24
+    w: 240
+    h: 175
+    rotation: 1.2
+  - item: 2
+    x: 22
+    'y': 42
+    w: 240
+    h: 175
+    rotation: -1.5

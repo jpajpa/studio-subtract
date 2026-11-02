@@ -42,4 +42,22 @@ media:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/04-KBmOK9xOsNGaFNIYPCQtyGmP4L7gXB.png
         width: 2480
         height: 3508
-folder: []
+folder:
+  - item: 1
+    x: 20
+    'y': 40
+    w: 104
+    h: 148
+    rotation: -1.5
+  - item: 2
+    x: 110
+    'y': 22
+    w: 104
+    h: 148
+    rotation: 0.5
+  - item: 3
+    x: 196
+    'y': 34
+    w: 104
+    h: 148
+    rotation: 2
