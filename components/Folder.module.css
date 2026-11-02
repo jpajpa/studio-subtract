@@ -17,6 +17,11 @@
   animation-delay: calc(150ms + var(--enter, 0) * 80ms);
 }
 
+/* far off screen on a phone: nothing to draw (FolderStack) */
+.folder[data-far] > * {
+  display: none;
+}
+
 /* ── Load-in: folders pop up one after another ─────────── */
 
 @keyframes folder-in {
@@ -38,7 +43,9 @@
    (no .js on <html>) they keep the plain load-in above. */
 :global(.js) .folder[data-reveal="wait"] {
   animation: none;
-  opacity: 0;
+  /* not quite 0: a browser skips drawing a fully transparent folder, so its
+     shadow would only start to paint once it was already rising */
+  opacity: 0.001;
 }
 .folder[data-reveal="in"] {
   /* gentle ease-out (cubic): movement is spread across the whole rise
@@ -255,11 +262,34 @@
     mix-blend-mode: normal;
     opacity: 0.5;
   }
+
+  /* Its papers have flown (ProjectView): the frost has only the folder's own
+     gradient to blur, so it can stop re-rendering as the folder scales. */
+  .folder[data-clear] .glass {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* One layer, from the moment a folder is near the screen (FolderStack) until
+     it is far away again: painted ahead of time, shadow included, and never
+     repainted as its rise begins or ends. Only transform: a will-change on
+     opacity would cut the glass off from the papers it frosts. */
+  .folder[data-reveal]:not([data-far]) {
+    will-change: transform;
+  }
+
+  /* a filter gives each scrubbed paper its own offscreen pass */
+  .paper {
+    filter: none;
+  }
 }
 
-/* Chromium: real refraction via SVG displacement on the backdrop */
-:global(.liquid) .glass {
-  backdrop-filter: blur(var(--glass-blur)) url(#liquid-glass) saturate(1.5) brightness(1.03);
+/* Chromium: real refraction via SVG displacement on the backdrop. Far too
+   heavy for Android phones, which keep the plain frost. */
+@media (min-width: 768px) {
+  :global(.liquid) .glass {
+    backdrop-filter: blur(var(--glass-blur)) url(#liquid-glass) saturate(1.5) brightness(1.03);
+  }
 }
 
 /* ── Labels: name on top, category at the bottom ─────── */

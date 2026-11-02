@@ -341,6 +341,25 @@
     will-change: auto;
   }
 
+  /* cheaper to paint as the page scrolls in */
+  .shadow {
+    box-shadow:
+      0 8px 28px rgba(0, 0, 0, 0.07),
+      0 2px 6px rgba(0, 0, 0, 0.03);
+  }
+
+  /* only flights clip a frame (inline, see ProjectView); at rest a clip would
+     mask every scroll frame, video included */
+  .media {
+    clip-path: none;
+  }
+
+  .pdfTag {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(255, 255, 255, 0.88);
+  }
+
   .panel {
     width: 100%;
     height: auto;

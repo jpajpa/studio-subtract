@@ -5,10 +5,15 @@ const config = {
   // Folders only open when their centre is this close to the viewport centre
   // (as a fraction of viewport height), so nothing opens between two folders.
   openZone: 0.22,
+  // Folders further than this from the screen aren't drawn at all.
+  drawMargin: "120% 0px",
   // A folder rises in once it is this far inside the bottom of the screen.
   revealMargin: "0px 0px -8% 0px",
   // Longest a folder waits for its images before rising anyway (ms).
   imageWait: 500,
+  // The shadow's mask (Folder.module.css): CSS fetches masks with CORS, so this
+  // and the preload in the layout must too, or each gets its own copy.
+  shadow: "/folder-shadow.png",
 };
 
 const ON_SCREEN_AT_LOAD = 2; // folders visible on a phone before scrolling
@@ -65,7 +70,10 @@ function stackScript(cfg: typeof config) {
   }
 
   // Each folder rises the first time it scrolls into view, once its images
-  // are in (or after imageWait), so it never rises empty.
+  // and shadow are in (or after imageWait), so it never rises empty.
+  const shadow = new Image();
+  shadow.crossOrigin = "anonymous";
+  shadow.src = cfg.shadow;
   const loaded = (img: HTMLImageElement) =>
     img.complete
       ? null
@@ -75,7 +83,11 @@ function stackScript(cfg: typeof config) {
         });
   const imagesReady = (el: HTMLElement) =>
     Promise.race([
-      Promise.all(Array.from(el.querySelectorAll<HTMLImageElement>("[data-paper]"), loaded)),
+      Promise.all([
+        // the shadow rises with the folder, not after it
+        shadow.decode().catch(() => {}),
+        ...Array.from(el.querySelectorAll<HTMLImageElement>("[data-paper]"), loaded),
+      ]),
       new Promise((done) => setTimeout(done, cfg.imageWait)),
     ]);
 
@@ -92,6 +104,13 @@ function stackScript(cfg: typeof config) {
           imagesReady(el).then(() => {
             el.style.setProperty("--enter", String(i));
             el.dataset.reveal = "in";
+            // landed: let go of the animation
+            const land = (a: AnimationEvent) => {
+              if (a.target !== el || !a.animationName.includes("folder-rise")) return;
+              el.removeEventListener("animationend", land);
+              el.dataset.reveal = "done";
+            };
+            el.addEventListener("animationend", land);
           });
         } else if (e.boundingClientRect.bottom < 0) {
           // flung past without ever registering: show it, no animation
@@ -103,6 +122,18 @@ function stackScript(cfg: typeof config) {
     { rootMargin: cfg.revealMargin },
   );
   for (const el of folders) io.observe(el);
+
+  // Far off screen a folder's glass, papers and scroll-scrubbed animations cost
+  // every frame for nothing. Its box stays, so nothing shifts on the way back.
+  const near = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        e.target.toggleAttribute("data-far", !e.isIntersecting && !!list.offsetParent);
+      }
+    },
+    { rootMargin: cfg.drawMargin },
+  );
+  for (const el of folders) near.observe(el);
 }
 
 type Props = {

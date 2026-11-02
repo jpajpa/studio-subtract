@@ -35,6 +35,8 @@
 @media (max-width: 767px) {
   :root {
     --folder-w: min(290px, 100vw - 2 * var(--mobile-folder-side));
+    /* the folder is drawn smaller, and blur costs by its radius */
+    --glass-blur: 10px;
   }
 }
 
@@ -48,6 +50,8 @@ html,
 body {
   margin: 0;
   height: 100%;
+  /* no grey flash on anything tapped */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {

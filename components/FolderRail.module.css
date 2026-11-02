@@ -31,5 +31,7 @@
   display: flex;
   gap: var(--folder-gap);
   width: max-content;
+  /* where the row sits until FolderRail measures it */
+  transform: translate3d(var(--rail-margin), 0, 0);
   will-change: transform;
 }
