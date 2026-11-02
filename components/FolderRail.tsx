@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Project } from "@/lib/projects";
-import { Folder } from "./Folder";
+import { wheelScrollsPage } from "@/lib/wheel";
+import { clickFolder, Folder } from "./Folder";
 import styles from "./FolderRail.module.css";
 
 const EASE = 0.09; // per-frame approach to the target at 60fps
@@ -20,9 +21,12 @@ const mod = (n: number, m: number) => ((n % m) + m) % m;
  */
 export function FolderRail({
   projects,
+  base,
   onOpen,
 }: {
   projects: Project[];
+  /** where a folder's page lives */
+  base: string;
   /** a folder was clicked (not dragged) */
   onOpen?: (slug: string, folder: HTMLElement) => void;
 }) {
@@ -40,7 +44,9 @@ export function FolderRail({
     margin: 0,
     raf: 0,
     last: 0,
-    drag: null as null | { id: number; x: number; target: number; vx: number; t: number },
+    drag: null as null | { id: number; x: number; y: number; target: number; vx: number; t: number },
+    // the last press became a drag: the click that ends it opens nothing
+    dragged: false,
   });
 
   const render = useCallback(() => {
@@ -115,7 +121,7 @@ export function FolderRail({
     if (!rail) return;
     const onWheel = (e: WheelEvent) => {
       // hidden (phones), under an open project, or a pinch-zoom
-      if (!rail.offsetParent || rail.closest("[inert]") || e.ctrlKey) return;
+      if (!rail.offsetParent || rail.closest("[inert]") || e.ctrlKey || wheelScrollsPage(e)) return;
       e.preventDefault();
       const scale = e.deltaMode === 1 ? WHEEL_LINE : e.deltaMode === 2 ? rail.clientWidth : 1;
       const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
@@ -131,8 +137,8 @@ export function FolderRail({
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.button !== 0) return;
     const st = s.current;
-    st.drag = { id: e.pointerId, x: e.clientX, target: st.target, vx: 0, t: performance.now() };
-    railRef.current?.setPointerCapture(e.pointerId);
+    st.drag = { id: e.pointerId, x: e.clientX, y: e.clientY, target: st.target, vx: 0, t: performance.now() };
+    st.dragged = false;
     railRef.current?.classList.add("is-dragging");
     kick();
   };
@@ -141,6 +147,12 @@ export function FolderRail({
     const st = s.current;
     const drag = st.drag;
     if (!drag || drag.id !== e.pointerId) return;
+    // capture only once it's a real drag, so a plain click still reaches the
+    // folder's link (a captured one lands on the rail, and cmd-click is lost)
+    if (!st.dragged && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) >= CLICK_SLOP) {
+      st.dragged = true;
+      railRef.current?.setPointerCapture(e.pointerId);
+    }
     const now = performance.now();
     const next = drag.target - (e.clientX - drag.x);
     const frames = Math.max((now - drag.t) / (1000 / 60), 0.5);
@@ -156,16 +168,31 @@ export function FolderRail({
     if (!st.drag || st.drag.id !== e.pointerId) return;
     // Ignore stale velocity if the pointer rested before release.
     const idle = performance.now() - st.drag.t > 80;
-    const click = e.type === "pointerup" && Math.abs(e.clientX - st.drag.x) < CLICK_SLOP;
-    if (!idle && !click) st.target += st.drag.vx * FLING;
+    if (!idle && st.dragged) st.target += st.drag.vx * FLING;
     st.drag = null;
     railRef.current?.classList.remove("is-dragging");
     kick();
-    if (click) {
-      // pointer capture retargets events to the rail, so find the folder by position
-      const folder = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>("[data-slug]");
-      if (folder?.dataset.slug && railRef.current?.contains(folder)) onOpen?.(folder.dataset.slug, folder);
+  };
+
+  const onClick = (e: React.MouseEvent) => {
+    // detail 0: the keyboard's click on a link, which no drag can have ended
+    if (s.current.dragged && e.detail) {
+      e.preventDefault();
+      return;
     }
+    clickFolder(e, onOpen);
+  };
+
+  // The row can't scroll by itself: tabbing to a folder off screen brings it in
+  const onFocus = (e: React.FocusEvent) => {
+    const target = e.target as HTMLElement;
+    const folder = target.closest<HTMLElement>("[data-slug]");
+    const rail = railRef.current;
+    if (!folder || !rail || !target.matches(":focus-visible")) return;
+    const r = folder.getBoundingClientRect();
+    if (r.left >= 0 && r.right <= rail.clientWidth) return;
+    s.current.target += r.left - s.current.margin;
+    kick();
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -189,6 +216,8 @@ export function FolderRail({
       onPointerMove={onPointerMove}
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
+      onClick={onClick}
+      onFocus={onFocus}
       onKeyDown={onKeyDown}
     >
       <div ref={trackRef} className={styles.track}>
@@ -197,6 +226,7 @@ export function FolderRail({
             <Folder
               key={`${c}-${p.slug}`}
               project={p}
+              href={`${base}/${p.slug}`}
               clone={c !== 1}
               // the row starts on copy 1, so stagger from its first folder
               enter={Math.min(Math.max((c - 1) * projects.length + i, 0), ENTER_MAX)}

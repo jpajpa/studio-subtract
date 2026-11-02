@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { Project } from "@/lib/projects";
-import { Folder } from "./Folder";
+import { clickFolder, Folder } from "./Folder";
 
 const config = {
   // Folders only open when their centre is this close to the viewport centre
@@ -153,12 +153,14 @@ function stackScript(cfg: typeof config) {
 
 type Props = {
   projects: Project[];
+  /** where a folder's page lives */
+  base: string;
   className?: string;
   onOpen?: (slug: string, folder: HTMLElement) => void;
 };
 
 /** Vertical list of folders for touch screens. Tapping a folder opens it. */
-export function FolderStack({ projects, className, onOpen }: Props) {
+export function FolderStack({ projects, base, className, onOpen }: Props) {
   const ref = useRef<StackEl>(null);
 
   // Arriving by a link, React doesn't run the inline script: start it from here.
@@ -178,13 +180,10 @@ export function FolderStack({ projects, className, onOpen }: Props) {
         ref={ref}
         className={className}
         data-folder-stack
-        onClick={(e) => {
-          const folder = (e.target as HTMLElement).closest<HTMLElement>("[data-slug]");
-          if (folder?.dataset.slug) onOpen?.(folder.dataset.slug, folder);
-        }}
+        onClick={(e) => clickFolder(e, onOpen)}
       >
         {projects.map((p, i) => (
-          <Folder key={p.slug} project={p} reveal eager={i < ON_SCREEN_AT_LOAD} />
+          <Folder key={p.slug} project={p} href={`${base}/${p.slug}`} reveal eager={i < ON_SCREEN_AT_LOAD} />
         ))}
       </div>
       <script dangerouslySetInnerHTML={{ __html: `(${stackScript})(${JSON.stringify(config)})` }} />

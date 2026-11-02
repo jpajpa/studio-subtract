@@ -18,6 +18,10 @@ type Props = {
   inner?: boolean;
   /** on the contact page: neither section is current */
   contact?: boolean;
+  /** on no page of its own (the 404): nothing is current */
+  lost?: boolean;
+  /** behind an open project */
+  inert?: boolean;
   onHome?: () => void;
 };
 
@@ -26,7 +30,7 @@ type Props = {
  * slides away while scrolling down and returns on a small scroll up (stacked
  * on project pages, Sketch "Mobile/Inner Page").
  */
-export function SiteNav({ section = WORK, inner, contact, onHome }: Props = {}) {
+export function SiteNav({ section = WORK, inner, contact, lost, inert, onHome }: Props = {}) {
   const [hidden, setHidden] = useState(false);
   // at the top nothing is under the nav yet, so its blur isn't rendered
   const [atTop, setAtTop] = useState(true);
@@ -87,12 +91,13 @@ export function SiteNav({ section = WORK, inner, contact, onHome }: Props = {}) 
       data-hidden={hidden || undefined}
       data-top={atTop || undefined}
       aria-label="Main"
+      inert={inert || undefined}
     >
       {/* phones: a blur the page scrolls under, fading out towards the foot
           (Sketch "Mobile/Header Pop-up Blur") */}
       <span className={styles.blur} aria-hidden />
       {[WORK, STUDIO].map((link) => {
-        const here = !contact && link.id === section.id;
+        const here = !contact && !lost && link.id === section.id;
         return (
           <Link
             key={link.label}

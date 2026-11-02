@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
 import { SiteNav } from "@/components/SiteNav";
+import { pageMetadata } from "@/lib/seo";
 import styles from "./contact.module.css";
 
-export const metadata: Metadata = { title: "Contact — Studio Subtract" };
-
 const EMAIL = "inbox@studiosubtract.com";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Contact — Studio Subtract",
+  description: `Get in touch with Studio Subtract: ${EMAIL}`,
+  path: "/contact",
+});
 
 export default function Contact() {
   return (

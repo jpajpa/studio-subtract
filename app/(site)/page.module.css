@@ -47,7 +47,8 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 128px var(--folder-gap);
-  padding: 0 var(--page-margin);
+  /* not the page margin: three folders fit one row from 1188px up, not 1440 */
+  padding: 0 24px;
 }
 
 .row :global(article) {

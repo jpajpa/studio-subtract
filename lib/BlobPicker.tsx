@@ -50,11 +50,11 @@ type Common = {
   invalid: boolean;
 };
 
-type Props =
+export type BlobPickerProps =
   | (Common & { kind: "image"; value: BlobImage | null; onChange(v: BlobImage | null): void })
   | (Common & { kind: "file"; accept: string; value: string | null; onChange(v: string | null): void });
 
-export function BlobPicker(props: Props) {
+export function BlobPicker(props: BlobPickerProps) {
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -1,10 +1,19 @@
 // Keystatic fields that upload straight to Vercel Blob and store the file's
 // public URL in the YAML. Images also store their pixel size, so the site
 // never has to download them to lay out. The editor UI is in BlobPicker.
+import type { ComponentType } from "react";
 import type { BasicFormField, FormFieldStoredValue } from "@keystatic/core";
-import { BlobPicker, type BlobImage } from "./BlobPicker";
+import type { BlobImage, BlobPickerProps } from "./BlobPicker";
 
 export type { BlobImage };
+
+// Handed over by the editor (app/keystatic/keystatic.tsx), not imported here:
+// the site reads its content through this config (lib/cms.ts), and even a lazy
+// import put the picker and its UI kit in every public page's JavaScript.
+let BlobPicker: ComponentType<BlobPickerProps> = () => null;
+export function setBlobPicker(picker: ComponentType<BlobPickerProps>) {
+  BlobPicker = picker;
+}
 
 type Options = { label: string; description?: string; folder: string; isRequired?: boolean };
 

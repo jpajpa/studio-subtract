@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Work } from "@/components/Work";
 import { getProjects } from "@/lib/cms";
+import { pageMetadata } from "@/lib/seo";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -12,7 +13,13 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const project = (await getProjects()).find((p) => p.slug === slug);
-  return { title: project ? `${project.title} — Studio Subtract` : "Studio Subtract" };
+  if (!project) return { title: "Studio Subtract" };
+  return pageMetadata({
+    title: `${project.title} — Studio Subtract`,
+    description: project.description || `${project.title}, a project by Studio Subtract.`,
+    path: `/work/${slug}`,
+    project,
+  });
 }
 
 /** A project opened directly: the folders sit behind it, ready for "Back". */
