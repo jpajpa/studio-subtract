@@ -5,7 +5,9 @@ description: >-
   because the not knowing was always the better material.
 link: {}
 credits: []
-roles: []
+roles:
+  - cd
+  - design
 colour:
   top: '#ededed'
   bottom: '#d3d3d3'
@@ -13,12 +15,12 @@ colour:
 media:
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/composition-3-web.mp4
-      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/composition-3-small.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/looping-branding-animation.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/looping-branding-animation-small.mp4
       poster:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/composition-3-still.jpg
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/looping-branding-animation-poster.jpg
         width: 2160
-        height: 1350
+        height: 1528
       alt: ''
   - discriminant: video
     value:
@@ -31,23 +33,29 @@ media:
       alt: ''
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/looping-branding-animation.mp4
-      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/looping-branding-animation-small.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/composition-3-web.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/composition-3-small.mp4
       poster:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/looping-branding-animation-still.jpg
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/composition-3-still.jpg
         width: 2160
-        height: 1528
+        height: 1350
       alt: ''
 folder:
   - item: 1
-    x: 64
+    x: 40
+    'y': 86
+    w: 240
+    h: 170
+    rotation: 0
+  - item: 2
+    x: 62
+    'y': 46
+    w: 240
+    h: 150
+    rotation: 1.2
+  - item: 3
+    x: 18
     'y': 24
     w: 240
-    h: 175
-    rotation: 1.2
-  - item: 2
-    x: 22
-    'y': 42
-    w: 240
-    h: 175
+    h: 150
     rotation: -1.5
