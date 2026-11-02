@@ -9,16 +9,18 @@ media:
   - discriminant: image
     value:
       image:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/jan/portrait.png
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/jan/portrait.png
         width: 1787
         height: 2673
       alt: Portrait of Jan
   - discriminant: image
     value:
       image:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/jan/note.png
-        width: 2480
-        height: 3507
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/PERSONAL_1-WYne6ksNXUYCdCg9w9gX9eeF3LqkfO.jpg
+        width: 2481
+        height: 3508
 folder:
   - item: 2
     x: 122
