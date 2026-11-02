@@ -1,6 +1,10 @@
 .folder {
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --dur: 650ms;
+  /* A click's motion: an ease-out spring that settles with a 1% overshoot.
+     Unlike --ease it starts from rest, so a press never jerks. The same curve
+     as SPRING in ProjectView. */
+  --spring: var(--ease);
   /* one folder-space unit: geometry is drawn on a 320-wide folder */
   --u: calc(var(--folder-w) / 320);
   /* the folder's own color, darkened, tints every shadow it casts */
@@ -15,6 +19,15 @@
   user-select: none;
   animation: folder-in 1000ms cubic-bezier(0.3, 1.35, 0.5, 1) both;
   animation-delay: calc(150ms + var(--enter, 0) * 80ms);
+}
+
+@supports (transition-timing-function: linear(0, 1)) {
+  .folder {
+    --spring: linear(
+      0, 0.0505, 0.1666, 0.3089, 0.4528, 0.5843, 0.6968, 0.7881, 0.8591, 0.9121, 0.95, 0.976, 0.9929,
+      1.003, 1.0085, 1.0107, 1.011, 1.0102, 1.0088, 1.0072, 1.0056, 1.0042, 1.003, 1.0021, 1
+    );
+  }
 }
 
 /* far off screen on a phone: nothing to draw (FolderStack) */
@@ -341,13 +354,24 @@
     transform: perspective(900px) rotateX(-24deg);
   }
 
-  /* No hover reactions mid-drag */
+  /* No hover reactions mid-drag. A press starts one, so a click dips the folder
+     before it opens: the recoil. */
   :global(.is-dragging) .folder:hover .paper {
     transform: rotate(var(--r));
+    transition-timing-function: var(--spring);
   }
   :global(.is-dragging) .folder:hover .front {
     transform: perspective(900px) rotateX(0deg);
+    transition-timing-function: var(--spring);
   }
+}
+
+/* Opening on click: the front comes back from the recoil on the same spring. A
+   hair past the hover's -24deg, or the browser treats this as reversing the dip
+   and rushes it, in proportion to how short the press was. */
+.folder[data-open] .front {
+  transform: perspective(900px) rotateX(-24.01deg);
+  transition-timing-function: var(--spring);
 }
 
 /* Phones (the stack's folders have data-reveal): how far a folder is open

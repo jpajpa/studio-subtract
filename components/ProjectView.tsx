@@ -28,6 +28,11 @@ const SINK_PHONE = { total: 0.85, lead: 0.18 };
 // gathers speed while the frame rides it, then a long ease-out as the paper
 // slides home
 const SINK_EASE = CustomEase.create("sink", "M0,0 C0.38,0 0.12,1 1,1");
+// Ease-out spring for a click's motion: starts from rest, settles with a 1%
+// overshoot. The same curve as --spring in Folder.module.css.
+const SPRING = (t: number) => 1 - Math.exp(-6.888 * t) * (Math.cos(4.808 * t) + 1.4327 * Math.sin(4.808 * t));
+// Phones: a tap has no press to dip on, so the folder gives as its papers leave
+const RECOIL = { y: 5, scale: 0.985, dip: 0.1, back: 0.34 };
 // Opened by URL, a page settles towards the camera, about the screen's centre
 const ARRIVE = { depth: 0.9, duration: 2.2, stagger: 0.07, ease: "expo.out" };
 // Longest it waits for the frames on screen before arriving anyway (ms)
@@ -336,7 +341,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
     kick();
   };
 
-  /* ── Click outside to close (desktop) ─────────────────── */
+  /* ── Click outside to close ───────────────────────────── */
 
   /** Empty page: not a frame, the text column or a link. */
   const isEmpty = (t: EventTarget | null) =>
@@ -354,7 +359,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
 
   const onViewportClick = (e: React.MouseEvent) => {
     // the click that ends a drag closes nothing
-    if (isPhone() || !s.current.live || s.current.dragged || !isEmpty(e.target)) return;
+    if (!s.current.live || s.current.dragged || !isEmpty(e.target)) return;
     cursor.current?.removeAttribute("data-on");
     onClose();
   };
@@ -509,6 +514,10 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
       source.setAttribute("data-open", "");
       // GSAP drives the papers now, not their hover transition
       gsap.set(papers, { transition: "none" });
+      if (phone) {
+        tl.to(source, { y: RECOIL.y, scale: RECOIL.scale, duration: RECOIL.dip, ease: "power2.out" }, 0);
+        tl.to(source, { y: 0, scale: 1, duration: RECOIL.back, ease: SPRING }, RECOIL.dip);
+      }
       // every paper has a frame to become, so none is left behind the glass
       const emptied = papers.every((_, k) => paperOf.includes(k));
 
@@ -527,11 +536,11 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         const up = depthOf[i] * 0.06;
         const lift = liftOf(paper, front, depthOf[i]);
         const pose = paperPose(paper, source);
-        tl.to(paper, { y: `-=${lift}`, duration: LIFT, ease: "power3.inOut" }, up);
+        tl.to(paper, { y: `-=${lift}`, duration: LIFT, ease: SPRING }, up);
 
-        // phones hand over as the paper eases into the top of its rise (under
-        // a pixel short of it), so it doesn't sit there before flying
-        const at = up + LIFT * (phone ? 0.85 : 1);
+        // hands over as the paper settles at the top of its rise (within a
+        // pixel of it), so it doesn't sit there before flying
+        const at = up + LIFT * 0.85;
         handoff = Math.max(handoff, at);
         // its shadow and depth shading ease away as it rises, gone by the
         // handover, so the frame takes over without a blink or a jump in tone

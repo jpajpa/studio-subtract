@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { STUDIO, WORK, type Section } from "@/lib/projects";
 import styles from "./SiteNav.module.css";
@@ -93,26 +94,28 @@ export function SiteNav({ section = WORK, inner, contact, onHome }: Props = {}) 
       {[WORK, STUDIO].map((link) => {
         const here = !contact && link.id === section.id;
         return (
-          <a
+          <Link
             key={link.label}
             href={link.home}
             aria-current={here && !inner ? "page" : undefined}
             onClick={
-              here && onHome
+              here
                 ? (e) => {
                     e.preventDefault();
-                    onHome();
+                    // the page you're on: close the project, or back to the top
+                    if (onHome) onHome();
+                    else window.scrollTo({ top: 0, behavior: "smooth" });
                   }
                 : undefined
             }
           >
             {link.label}
-          </a>
+          </Link>
         );
       })}
-      <a href="/contact" aria-current={contact ? "page" : undefined}>
+      <Link href="/contact" aria-current={contact ? "page" : undefined}>
         Contact
-      </a>
+      </Link>
     </nav>
   );
 }

@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import type { Project } from "@/lib/projects";
 import { Folder } from "./Folder";
 
@@ -18,13 +21,15 @@ const config = {
 
 const ON_SCREEN_AT_LOAD = 2; // folders visible on a phone before scrolling
 
+type StackEl = HTMLDivElement & { stop?: () => void };
+
 /**
  * Runs as soon as the stack is parsed, before React hydrates, so folders
  * reveal and open on time even on a slow phone (or if hydration never comes).
  * Must stay self-contained: it is serialised into an inline <script>.
  */
 function stackScript(cfg: typeof config) {
-  const list = document.querySelector<HTMLElement>("[data-folder-stack]");
+  const list = document.querySelector<StackEl>("[data-folder-stack]");
   if (!list) return;
   const folders = Array.from(list.children) as HTMLElement[];
 
@@ -57,15 +62,16 @@ function stackScript(cfg: typeof config) {
   const schedule = () => {
     if (!raf) raf = requestAnimationFrame(update);
   };
+  const sync = () => {
+    for (const el of folders) el.removeAttribute("data-open");
+    open = null;
+    update();
+  };
   if (!scrubbed) {
     update();
     addEventListener("scroll", schedule, { passive: true });
     // after a project page closes over the stack: start again from the scroll
-    addEventListener("folderstack:sync", () => {
-      for (const el of folders) el.removeAttribute("data-open");
-      open = null;
-      update();
-    });
+    addEventListener("folderstack:sync", sync);
     addEventListener("resize", schedule);
   }
 
@@ -134,6 +140,15 @@ function stackScript(cfg: typeof config) {
     { rootMargin: cfg.drawMargin },
   );
   for (const el of folders) near.observe(el);
+
+  list.stop = () => {
+    cancelAnimationFrame(raf);
+    removeEventListener("scroll", schedule);
+    removeEventListener("folderstack:sync", sync);
+    removeEventListener("resize", schedule);
+    io.disconnect();
+    near.disconnect();
+  };
 }
 
 type Props = {
@@ -144,9 +159,23 @@ type Props = {
 
 /** Vertical list of folders for touch screens. Tapping a folder opens it. */
 export function FolderStack({ projects, className, onOpen }: Props) {
+  const ref = useRef<StackEl>(null);
+
+  // Arriving by a link, React doesn't run the inline script: start it from here.
+  useEffect(() => {
+    const list = ref.current;
+    if (!list) return;
+    if (!list.stop) stackScript(config);
+    return () => {
+      list.stop?.();
+      delete list.stop;
+    };
+  }, []);
+
   return (
     <>
       <div
+        ref={ref}
         className={className}
         data-folder-stack
         onClick={(e) => {

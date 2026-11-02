@@ -79,6 +79,8 @@ export function Work({
 
   const open = useCallback((next: string, folder: HTMLElement) => {
     if (slug) return;
+    // straight away, so its front opens on this folder's spring (Folder.module.css)
+    folder.setAttribute("data-open", "");
     source.current = folder;
     pushed.current = true;
     window.history.pushState(null, "", `${base}/${next}`);

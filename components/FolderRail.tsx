@@ -40,7 +40,7 @@ export function FolderRail({
     margin: 0,
     raf: 0,
     last: 0,
-    drag: null as null | { id: number; x: number; target: number; vx: number; t: number; moved: boolean },
+    drag: null as null | { id: number; x: number; target: number; vx: number; t: number },
   });
 
   const render = useCallback(() => {
@@ -131,7 +131,9 @@ export function FolderRail({
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.button !== 0) return;
     const st = s.current;
-    st.drag = { id: e.pointerId, x: e.clientX, target: st.target, vx: 0, t: performance.now(), moved: false };
+    st.drag = { id: e.pointerId, x: e.clientX, target: st.target, vx: 0, t: performance.now() };
+    railRef.current?.setPointerCapture(e.pointerId);
+    railRef.current?.classList.add("is-dragging");
     kick();
   };
 
@@ -139,14 +141,6 @@ export function FolderRail({
     const st = s.current;
     const drag = st.drag;
     if (!drag || drag.id !== e.pointerId) return;
-    // Only a real drag closes the folder under the pointer: capturing or marking
-    // it on press would make every click recoil, shutting the folder just as it
-    // is about to open.
-    if (!drag.moved && Math.abs(e.clientX - drag.x) >= CLICK_SLOP) {
-      drag.moved = true;
-      railRef.current?.setPointerCapture(e.pointerId);
-      railRef.current?.classList.add("is-dragging");
-    }
     const now = performance.now();
     const next = drag.target - (e.clientX - drag.x);
     const frames = Math.max((now - drag.t) / (1000 / 60), 0.5);
@@ -162,12 +156,13 @@ export function FolderRail({
     if (!st.drag || st.drag.id !== e.pointerId) return;
     // Ignore stale velocity if the pointer rested before release.
     const idle = performance.now() - st.drag.t > 80;
-    const click = e.type === "pointerup" && !st.drag.moved;
+    const click = e.type === "pointerup" && Math.abs(e.clientX - st.drag.x) < CLICK_SLOP;
     if (!idle && !click) st.target += st.drag.vx * FLING;
     st.drag = null;
     railRef.current?.classList.remove("is-dragging");
     kick();
     if (click) {
+      // pointer capture retargets events to the rail, so find the folder by position
       const folder = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>("[data-slug]");
       if (folder?.dataset.slug && railRef.current?.contains(folder)) onOpen?.(folder.dataset.slug, folder);
     }
