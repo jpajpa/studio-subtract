@@ -305,6 +305,23 @@
   }
 }
 
+/* ── Link: the whole folder ─────────────────────────────── */
+
+.link {
+  position: absolute;
+  inset: 0;
+  border-radius: calc(20 * var(--u));
+  /* the rail's grab and grabbing cursors, not a link's */
+  cursor: inherit;
+  /* no long-press link preview over the folder on iPhones */
+  -webkit-touch-callout: none;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+
 /* ── Labels: name on top, category at the bottom ─────── */
 
 .label {

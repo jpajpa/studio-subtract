@@ -1,15 +1,7 @@
-@font-face {
-  font-family: "ABC Areal";
-  src: url("/fonts/ABCAreal/ABCArealSuperfamilyVariable.woff2") format("woff2");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
   --bg: #f7f7f7;
   --ink: #454545;
-  --ink-soft: #9a9a9a;
+  --ink-soft: #707070;
 
   --page-margin: 150px;
   --folder-w: 320px;
@@ -57,7 +49,7 @@ body {
 body {
   background: var(--bg);
   color: var(--ink);
-  font-family: "ABC Areal", system-ui, sans-serif;
+  font-family: var(--font-areal), system-ui, sans-serif;
   font-size: 14px;
   line-height: 1.3;
   letter-spacing: 0.3px;

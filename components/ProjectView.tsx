@@ -5,11 +5,15 @@ import Image, { getImageProps } from "next/image";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { CustomEase } from "gsap/CustomEase";
-import type { Project, Section } from "@/lib/projects";
+import type { Media, Project, Section } from "@/lib/projects";
 import { SiteNav } from "./SiteNav";
 import styles from "./ProjectView.module.css";
 
-if (typeof window !== "undefined") gsap.registerPlugin(SplitText, CustomEase);
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(SplitText, CustomEase);
+  // the flights set a lot of lists that are often empty (a folder with no papers)
+  gsap.config({ nullTargetWarn: false });
+}
 
 const EASE = 0.085; // per-frame approach of the gallery to its target at 60fps
 const FLING = 14;
@@ -27,7 +31,7 @@ const SINK = { total: 1.15, lead: 0.25 };
 const SINK_PHONE = { total: 0.85, lead: 0.18 };
 // gathers speed while the frame rides it, then a long ease-out as the paper
 // slides home
-const SINK_EASE = CustomEase.create("sink", "M0,0 C0.38,0 0.12,1 1,1");
+const SINK_EASE = typeof window === "undefined" ? (t: number) => t : CustomEase.create("sink", "M0,0 C0.38,0 0.12,1 1,1");
 // Ease-out spring for a click's motion: starts from rest, settles with a 1%
 // overshoot. The same curve as --spring in Folder.module.css.
 const SPRING = (t: number) => 1 - Math.exp(-6.888 * t) * (Math.cos(4.808 * t) + 1.4327 * Math.sin(4.808 * t));
@@ -37,6 +41,8 @@ const RECOIL = { y: 5, scale: 0.985, dip: 0.1, back: 0.34 };
 const ARRIVE = { depth: 0.9, duration: 2.2, stagger: 0.07, ease: "expo.out" };
 // Longest it waits for the frames on screen before arriving anyway (ms)
 const ARRIVE_WAIT = 700;
+// How much faster an opening finishes when it's closed before it has landed
+const RUSH = 4;
 
 /** Phones: the page scrolls vertically and natively (see ProjectView.module.css). */
 const isPhone = () => window.matchMedia("(max-width: 767px)").matches;
@@ -125,6 +131,10 @@ const allFolders = () =>
 const lightStill = (src: string, w: number, h: number) =>
   getImageProps({ src, alt: "", width: 414, height: Math.round((414 * h) / w), quality: 75 }).props.src;
 
+/** Desktop's: 2048px at most, not the upload itself (a PNG can be several MB). */
+const fullStill = (src: string, w: number, h: number) =>
+  getImageProps({ src, alt: "", width: 1024, height: Math.round((1024 * h) / w), quality: 85 }).props.src;
+
 const inView = (el: HTMLElement) => {
   const r = el.getBoundingClientRect();
   return r.width > 0 && r.right > 0 && r.left < innerWidth && r.bottom > 0 && r.top < innerHeight;
@@ -183,6 +193,8 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
   const depthOf = paperOf.map((k) => folderPapers.length - 1 - k);
   // frames from higher papers fly over those from lower ones; the rest under all
   const zOf = (i: number) => paperOf[i] + 1;
+  // until the CMS has real alt text, each item at least says what it belongs to
+  const altOf = (m: Media, i: number) => m.alt || `${project.title}, ${i + 1} of ${media.length}`;
   const root = useRef<HTMLDivElement>(null);
   const scrim = useRef<HTMLDivElement>(null);
   const viewport = useRef<HTMLDivElement>(null);
@@ -203,10 +215,14 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
     last: 0,
     live: false, // accepts input (off while animating in/out)
     near: new Set<HTMLVideoElement>(), // videos on screen or about to be
-    drag: null as null | { id: number; x: number; target: number; vx: number; t: number; moved: boolean },
+    drag: null as null | { id: number; x: number; y: number; target: number; vx: number; t: number; moved: boolean },
     // the last drag moved the gallery: the click that ends it opens nothing
     dragged: false,
     split: [] as SplitText[],
+    // the opening's timeline, until it has landed
+    opening: null as null | gsap.core.Timeline,
+    // closed before it landed (the browser's Back): runs once it has
+    afterOpen: null as null | (() => void),
   });
 
   const q = (sel: string) => Array.from(root.current?.querySelectorAll<HTMLElement>(sel) ?? []);
@@ -317,7 +333,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
     // PDF covers are links you can also drag the gallery by
     const link = (e.target as HTMLElement).closest("a");
     if (e.button !== 0 || !st.live || isPhone() || (link && !link.hasAttribute("data-pdf"))) return;
-    st.drag = { id: e.pointerId, x: e.clientX, target: st.target, vx: 0, t: performance.now(), moved: false };
+    st.drag = { id: e.pointerId, x: e.clientX, y: e.clientY, target: st.target, vx: 0, t: performance.now(), moved: false };
     st.dragged = false;
     kick();
   };
@@ -326,9 +342,11 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
     const st = s.current;
     const drag = st.drag;
     if (!drag || drag.id !== e.pointerId) return;
-    // capture only once it's a real drag, so a plain click still reaches a PDF link
+    // capture only once it's a real drag, so a plain click still reaches a PDF
+    // link; any direction counts, or a press could leave the window uncaptured
+    // and never hear its release
     if (!drag.moved) {
-      if (Math.abs(e.clientX - drag.x) < 4) return;
+      if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 4) return;
       drag.moved = st.dragged = true;
       viewport.current?.setPointerCapture(e.pointerId);
     }
@@ -400,6 +418,21 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
 
   useEffect(() => () => s.current.split.forEach((sp) => sp.revert()), []);
 
+  // lines are fixed when split: a new column width (a phone rotating) needs new ones
+  useEffect(() => {
+    const el = intro.current;
+    if (!el) return;
+    let width = el.offsetWidth;
+    const ro = new ResizeObserver(() => {
+      if (el.offsetWidth === width) return;
+      width = el.offsetWidth;
+      if (s.current.live) splitText();
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     const st = s.current;
     // half a screen ahead, so a video is running by the time it scrolls in
@@ -430,20 +463,30 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
     // a context so a re-run (React StrictMode in dev) starts from a clean slate
     let raf = 0;
     let cancelled = false;
-    const ctx = gsap.context(() => {
-      const tl = open();
-      // Mounting the page and splitting its text makes the next frame late;
-      // starting the clock after that frame keeps the first moves from
-      // skipping ahead (most visible on phones).
-      const start = () => {
-        if (!cancelled) raf = requestAnimationFrame(() => (raf = requestAnimationFrame(() => tl.play())));
-      };
-      if (source) return start();
-      // Opened by URL: the frames arrive with their pictures, not empty
-      const shown = q("[data-panel]").filter(inView);
-      const pictures = shown.flatMap((p) => Array.from(p.querySelectorAll("img"), (img) => img.decode().catch(() => {})));
-      Promise.race([Promise.all(pictures), new Promise((done) => setTimeout(done, ARRIVE_WAIT))]).then(start);
-    });
+    const ctx = gsap.context(() => {});
+    const begin = () =>
+      ctx.add(() => {
+        const tl = open();
+        s.current.opening = tl;
+        // Mounting the page and splitting its text makes the next frame late;
+        // starting the clock after that frame keeps the first moves from
+        // skipping ahead (most visible on phones).
+        const start = () => {
+          if (!cancelled) raf = requestAnimationFrame(() => (raf = requestAnimationFrame(() => tl.play())));
+        };
+        if (source) return start();
+        // Opened by URL: the frames arrive with their pictures, not empty
+        const shown = q("[data-panel]").filter(inView);
+        const pictures = shown.flatMap((p) => Array.from(p.querySelectorAll("img"), (img) => img.decode().catch(() => {})));
+        Promise.race([Promise.all(pictures), new Promise((done) => setTimeout(done, ARRIVE_WAIT))]).then(start);
+      });
+    // Opened by URL the font may still be on its way: split now, the text's
+    // lines would break where the fallback's widths put them
+    if (source) begin();
+    else
+      Promise.race([document.fonts.ready, new Promise((done) => setTimeout(done, ARRIVE_WAIT))]).then(() => {
+        if (!cancelled) begin();
+      });
     return () => {
       cancelled = true;
       cancelAnimationFrame(raf);
@@ -479,16 +522,21 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
     const tl = gsap.timeline({
       paused: true,
       onComplete: () => {
-        s.current.live = true;
+        const { afterOpen } = s.current;
+        s.current.opening = null;
+        s.current.live = !afterOpen;
         // any not started on landing (opened by URL, reduced motion)
-        q("video").forEach((v) => play(v as HTMLVideoElement));
+        if (!afterOpen) q("video").forEach((v) => play(v as HTMLVideoElement));
         gsap.set(panels, { clearProps: "zIndex" });
         // phones scroll these frames natively: no clip or stand-in picture left behind
         if (phone) gsap.set(frames, { clearProps: "clipPath,backgroundImage" });
         // out of sight under the scrim: stop compositing their glass
         gsap.set(folders, { opacity: 0, visibility: "hidden" });
         render();
-        viewport.current?.focus({ preventScroll: true });
+        // after this callback: anything it starts would belong to this page's
+        // GSAP context, which undoes it all on unmount
+        if (afterOpen) requestAnimationFrame(afterOpen);
+        else viewport.current?.focus({ preventScroll: true });
       },
     });
 
@@ -627,10 +675,23 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
   /* ── Close ────────────────────────────────────────────── */
 
   useImperativeHandle(ref, () => ({
-    close: () =>
-      new Promise<void>((resolve) => {
+    close: function close(): Promise<void> {
+      return new Promise<void>((resolve) => {
         const st = s.current;
         const el = root.current!;
+        // opened by URL and still waiting for the font: nothing has moved yet
+        if (!st.split.length) return resolve();
+        // Still opening (only the browser's Back can get here): closing now
+        // would fight its flights and leave folders stranded, so it finishes
+        // quickly first and closing starts from where it always does.
+        if (st.opening) {
+          st.afterOpen = () => {
+            st.afterOpen = null;
+            close().then(resolve);
+          };
+          st.opening.timeScale(RUSH).play();
+          return;
+        }
         st.live = false;
         st.drag = null;
         cursor.current?.removeAttribute("data-on");
@@ -832,7 +893,8 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
           tl.to(f, { x: 0, y: 0, scale: 1, duration: f === home ? 1 : 1.1, ease: "expo.out" }, at);
         });
         tl.to(chrome, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.9);
-      }),
+      });
+    },
   }));
 
   // PDFs open from their covers in the gallery, so only the project's own link is listed
@@ -846,6 +908,10 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
       aria-modal="true"
       aria-label={[project.title, project.year].filter(Boolean).join(", ")}
       style={{ "--tint": project.fill[1] } as CSSProperties}
+      // a double-click on the folder lands its second click here: selects nothing
+      onMouseDown={(e) => {
+        if (!s.current.live) e.preventDefault();
+      }}
     >
       <div ref={scrim} className={styles.scrim} aria-hidden />
 
@@ -937,7 +1003,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
                   >
                     <Image
                       src={m.src}
-                      alt={m.alt}
+                      alt={altOf(m, i)}
                       width={m.w}
                       height={m.h}
                       sizes={`(max-width: 767px) calc((100vw - 52px) * ${PHONE_DENSITY}), calc(${(FRAME_H * 100).toFixed(2)}svh * ${(m.w / m.h).toFixed(4)})`}
@@ -951,14 +1017,14 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
                   // open() picks the still for the screen: the attribute would fetch both
                   <video
                     data-still={lightStill(m.src, m.w, m.h)}
-                    data-full-still={m.src}
+                    data-full-still={fullStill(m.src, m.w, m.h)}
                     width={m.w}
                     height={m.h}
                     muted
                     loop
                     playsInline
                     preload="none"
-                    aria-label={m.alt || undefined}
+                    aria-label={altOf(m, i)}
                   >
                     {/* phones play the lighter copy: a full 4K upload stutters there */}
                     {m.small && <source src={m.small} media="(max-width: 767px)" />}
@@ -967,7 +1033,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
                 ) : (
                   <Image
                     src={m.src}
-                    alt={m.alt}
+                    alt={altOf(m, i)}
                     width={m.w}
                     height={m.h}
                     // desktop: every frame is FRAME_H of the viewport tall, its width follows

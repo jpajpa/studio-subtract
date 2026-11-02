@@ -1,14 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import styles from "@/app/(site)/page.module.css";
 import { SECTIONS, type Project, type Section } from "@/lib/projects";
-import { Folder } from "./Folder";
+import { wheelScrollsPage } from "@/lib/wheel";
+import { clickFolder, Folder } from "./Folder";
 import { FolderRail } from "./FolderRail";
 import { FolderStack } from "./FolderStack";
-import { ProjectView, type ProjectViewHandle } from "./ProjectView";
+import type { ProjectViewHandle } from "./ProjectView";
 import { SiteNav } from "./SiteNav";
+
+// Its animation libraries wait until the page is up (see the preload in Work)
+const ProjectView = dynamic(() => import("./ProjectView").then((m) => m.ProjectView));
+const PRELOAD_AFTER = 1500; // ms
 
 const TITLE = "Studio Subtract";
 const slugFrom = (path: string, base: string) =>
@@ -40,7 +46,15 @@ export function Work({
   // whether "/" is the history entry behind the project page
   const pushed = useRef(false);
   const closing = useRef(false);
+  // the folder to hand focus back to once its page has closed
+  const refocus = useRef<HTMLElement | null>(null);
   const row = useRef<HTMLDivElement>(null);
+
+  // ready before the first click, so the folder opens without waiting for it
+  useEffect(() => {
+    const t = setTimeout(() => void import("./ProjectView"), PRELOAD_AFTER);
+    return () => clearTimeout(t);
+  }, []);
 
   // The URL drives what is open, so Back/Forward animate too.
   useEffect(() => {
@@ -50,11 +64,20 @@ export function Work({
       closing.current = true;
       (view.current?.close() ?? Promise.resolve()).then(() => {
         closing.current = false;
+        refocus.current = source.current;
         source.current = null;
         setSlug(null);
       });
     }
   }, [urlSlug, slug]);
+
+  // after the folders stop being inert; a rail's decorative copy keeps no focus
+  useEffect(() => {
+    const folder = refocus.current;
+    if (slug || !folder) return;
+    refocus.current = null;
+    if (!folder.hasAttribute("aria-hidden")) folder.querySelector("a")?.focus({ preventScroll: true });
+  }, [slug]);
 
   useEffect(() => {
     const list = id === "work" ? TITLE : `${section.label} — ${TITLE}`;
@@ -64,13 +87,14 @@ export function Work({
   // Studio has no rail to absorb the wheel, so a trackpad would scroll the
   // document and rubber-band the folders and the header with it. Neutral state
   // is locked: swallow the wheel as FolderRail does, unless the row is hidden
-  // (phones scroll the stack normally), a project is open, or it's a pinch.
+  // (phones scroll the stack normally), a project is open, it's a pinch, or the
+  // folders don't fit the window and the page has somewhere to go.
   useEffect(() => {
     if (id === "work") return;
     const el = row.current;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
-      if (!el.offsetParent || el.closest("[inert]") || e.ctrlKey) return;
+      if (!el.offsetParent || el.closest("[inert]") || e.ctrlKey || wheelScrollsPage(e)) return;
       e.preventDefault();
     };
     window.addEventListener("wheel", onWheel, { passive: false });
@@ -107,29 +131,27 @@ export function Work({
 
   return (
     <main className={styles.page} data-section={id}>
-      <SiteNav section={section} />
+      {/* out of sight behind an open project: no tab stops there either */}
+      <SiteNav section={section} inert={!!project} />
 
       <section className={styles.work} aria-label={section.label} inert={!!project || undefined}>
         {id === "work" ? (
           <div className={styles.rail} data-rail>
-            <FolderRail projects={projects} onOpen={open} />
+            <FolderRail projects={projects} base={base} onOpen={open} />
           </div>
         ) : (
           <div
             ref={row}
             className={styles.row}
             data-rail
-            onClick={(e) => {
-              const folder = (e.target as HTMLElement).closest<HTMLElement>("[data-slug]");
-              if (folder?.dataset.slug) open(folder.dataset.slug, folder);
-            }}
+            onClick={(e) => clickFolder(e, open)}
           >
             {projects.map((p, i) => (
-              <Folder key={p.slug} project={p} enter={i} eager />
+              <Folder key={p.slug} project={p} href={`${base}/${p.slug}`} enter={i} eager />
             ))}
           </div>
         )}
-        <FolderStack projects={projects} className={styles.stack} onOpen={open} />
+        <FolderStack projects={projects} base={base} className={styles.stack} onOpen={open} />
       </section>
 
       {project && (

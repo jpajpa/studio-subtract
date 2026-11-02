@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useId, type CSSProperties, type MouseEvent } from "react";
 import Image from "next/image";
 import type { Project } from "@/lib/projects";
 import styles from "./Folder.module.css";
@@ -35,8 +35,22 @@ function shadowWeight(hex: string) {
 /** Paper geometry in folder units, scaled by --u (see Folder.module.css). */
 const u = (n: number) => `calc(${n} * var(--u))`;
 
+/**
+ * A click on a folder (or its papers) opens it in place. With a modifier the
+ * link does what links do: a new tab, a new window.
+ */
+export function clickFolder(e: MouseEvent, onOpen?: (slug: string, folder: HTMLElement) => void) {
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  const folder = (e.target as HTMLElement).closest<HTMLElement>("[data-slug]");
+  if (!folder?.dataset.slug) return;
+  e.preventDefault();
+  onOpen?.(folder.dataset.slug, folder);
+}
+
 type Props = {
   project: Project;
+  /** the page it opens */
+  href: string;
   /** decorative duplicate inside the infinite rail */
   clone?: boolean;
   /** position in the load-in stagger */
@@ -47,9 +61,10 @@ type Props = {
   eager?: boolean;
 };
 
-export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
+export function Folder({ project, href, clone, enter = 0, reveal, eager }: Props) {
   const { slug, title, year, category, fill, text, papers } = project;
-  const gradientId = `folder-fill-${slug}`;
+  // every folder is on the page more than once: the rail's copies, and the stack
+  const gradientId = useId();
 
   return (
     <article
@@ -59,7 +74,6 @@ export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
       // the FolderStack script sets data-reveal/data-open before hydration
       suppressHydrationWarning={reveal}
       aria-hidden={clone || undefined}
-      aria-label={clone ? undefined : [title, year].filter(Boolean).join(", ")}
       style={
         {
           "--tint": fill[1],
@@ -120,6 +134,15 @@ export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
         <p className={`${styles.label} ${styles.top}`}>{title}</p>
         <p className={`${styles.label} ${styles.bottom}`}>{category}</p>
       </div>
+
+      {/* what the keyboard, crawlers and cmd-click use; a plain click goes through clickFolder */}
+      <a
+        className={styles.link}
+        href={href}
+        aria-label={[title, year].filter(Boolean).join(", ")}
+        tabIndex={clone ? -1 : undefined}
+        draggable={false}
+      />
     </article>
   );
 }
