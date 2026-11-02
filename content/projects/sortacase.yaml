@@ -1,6 +1,8 @@
 title: Sortacase
 year: '2026'
-description: New identity, eCommerce site, product imagery, and physically printed product catalog. Built using the same logic as the product grid system.
+description: >-
+  New identity, eCommerce site, product imagery, and physically printed product
+  catalog. Built using the same logic as the product grid system.
 link:
   url: https://www.sortacase.com
 credits: []
@@ -15,29 +17,49 @@ media:
   - discriminant: image
     value:
       image:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/1.png
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/1.png
         width: 1782
         height: 1261
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/4-ackwOkTtxflMy6MGR0nvEQK4DrULiZ.mp4
-      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/4-ackwOkTtxflMy6MGR0nvEQK4DrULiZ-small.mp4
+      video: >-
+        https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/4-ackwOkTtxflMy6MGR0nvEQK4DrULiZ.mp4
+      small: >-
+        https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/4-ackwOkTtxflMy6MGR0nvEQK4DrULiZ-small.mp4
       poster:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/4-still-o3ZXY1JzyMZvN9PqZEejnWc3ULkqah.jpg
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/4-still-o3ZXY1JzyMZvN9PqZEejnWc3ULkqah.jpg
         width: 1920
         height: 1920
   - discriminant: image
     value:
       image:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/2.png
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/2.png
         width: 1782
         height: 1257
   - discriminant: image
     value:
       image:
-        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/3.jpg
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sortacase/3.jpg
         width: 3507
         height: 2480
+  - discriminant: image
+    value:
+      image:
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/Spatial%2001-RXhFI9TJlPaqbDoxyRhqxZXAVglHmu.png
+        width: 2998
+        height: 1883
+  - discriminant: image
+    value:
+      image:
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/Sortacase%2C%20Spreads%20on%20Gray-CDXztYoctyUjDsRv1ZuG772XjWE91o.jpg
+        width: 4961
+        height: 3508
 folder:
   - item: 1
     x: 80
