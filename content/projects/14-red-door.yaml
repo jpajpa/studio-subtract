@@ -43,19 +43,19 @@ media:
 folder:
   - item: 1
     x: 40
-    'y': 86
+    'y': 50
     w: 240
     h: 170
     rotation: 0
   - item: 2
-    x: 62
-    'y': 46
-    w: 240
-    h: 150
+    x: 146
+    'y': 8
+    w: 164
+    h: 102
     rotation: 1.2
   - item: 3
-    x: 18
-    'y': 24
-    w: 240
-    h: 150
+    x: 10
+    'y': 4
+    w: 168
+    h: 105
     rotation: -1.5
