@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { STUDIO, WORK, type Section } from "@/lib/projects";
 import styles from "./SiteNav.module.css";
@@ -27,6 +28,8 @@ type Props = {
  */
 export function SiteNav({ section = WORK, inner, contact, onHome }: Props = {}) {
   const [hidden, setHidden] = useState(false);
+  // at the top nothing is under the nav yet, so its blur isn't rendered
+  const [atTop, setAtTop] = useState(true);
   const s = useRef({ lastY: 0, travel: 0, scroller: null as EventTarget | null });
   const pathname = usePathname();
 
@@ -34,6 +37,7 @@ export function SiteNav({ section = WORK, inner, contact, onHome }: Props = {}) 
   useEffect(() => {
     s.current.scroller = null;
     setHidden(false);
+    setAtTop(true);
   }, [pathname]);
 
   useEffect(() => {
@@ -46,6 +50,7 @@ export function SiteNav({ section = WORK, inner, contact, onHome }: Props = {}) 
       const y = Math.max(el ? el.scrollTop : window.scrollY, 0);
       const delta = y - st.lastY;
       st.lastY = y;
+      setAtTop(y < TOP_ZONE);
       if (y < TOP_ZONE) {
         st.travel = 0;
         setHidden(false);
@@ -80,6 +85,7 @@ export function SiteNav({ section = WORK, inner, contact, onHome }: Props = {}) 
       data-chrome={inner ? undefined : "nav"}
       data-inner-nav={inner || undefined}
       data-hidden={hidden || undefined}
+      data-top={atTop || undefined}
       aria-label="Main"
     >
       {/* phones: a blur the page scrolls under, fading out towards the foot
@@ -88,26 +94,28 @@ export function SiteNav({ section = WORK, inner, contact, onHome }: Props = {}) 
       {[WORK, STUDIO].map((link) => {
         const here = !contact && link.id === section.id;
         return (
-          <a
+          <Link
             key={link.label}
             href={link.home}
             aria-current={here && !inner ? "page" : undefined}
             onClick={
-              here && onHome
+              here
                 ? (e) => {
                     e.preventDefault();
-                    onHome();
+                    // the page you're on: close the project, or back to the top
+                    if (onHome) onHome();
+                    else window.scrollTo({ top: 0, behavior: "smooth" });
                   }
                 : undefined
             }
           >
             {link.label}
-          </a>
+          </Link>
         );
       })}
-      <a href="/contact" aria-current={contact ? "page" : undefined}>
+      <Link href="/contact" aria-current={contact ? "page" : undefined}>
         Contact
-      </a>
+      </Link>
     </nav>
   );
 }

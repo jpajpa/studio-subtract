@@ -25,6 +25,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="font/woff2"
           crossOrigin="anonymous"
         />
+        {/* every folder's shadow: in hand before the first one draws */}
+        <link rel="preload" href="/folder-shadow.png" as="image" crossOrigin="anonymous" />
       </head>
       <body>
         <LiquidGlass />

@@ -28,7 +28,9 @@ export function FolderRail({
 }) {
   const railRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const [copies, setCopies] = useState(3);
+  // Starts with just the real folders: phones never show the rail, so they
+  // never pay for its clones. A visible rail adds them before its first paint.
+  const [copies, setCopies] = useState(1);
 
   const s = useRef({
     current: 0,
@@ -80,6 +82,11 @@ export function FolderRail({
     if (!rail || !track) return;
 
     const measure = () => {
+      if (!rail.offsetParent) return; // hidden (phones)
+      if (copies === 1) {
+        setCopies(3);
+        return;
+      }
       const kids = track.children as HTMLCollectionOf<HTMLElement>;
       const n = projects.length;
       if (kids.length < n + 1) return;
@@ -185,7 +192,7 @@ export function FolderRail({
       onKeyDown={onKeyDown}
     >
       <div ref={trackRef} className={styles.track}>
-        {Array.from({ length: copies }, (_, c) =>
+        {(copies === 1 ? [1] : Array.from({ length: copies }, (_, c) => c)).map((c) =>
           projects.map((p, i) => (
             <Folder
               key={`${c}-${p.slug}`}

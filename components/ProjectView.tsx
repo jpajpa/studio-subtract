@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useImperativeHandle, useLayoutEffect, useRef, type CSSProperties, type Ref } from "react";
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { CustomEase } from "gsap/CustomEase";
@@ -15,6 +15,7 @@ const EASE = 0.085; // per-frame approach of the gallery to its target at 60fps
 const FLING = 14;
 const WHEEL_LINE = 16;
 const FRAME_H = 780 / 1080; // frame height as a share of the viewport (Sketch)
+const PHONE_DENSITY = 0.67; // phones decode frames at about 2x, not their full 3x: half the memory
 const INTRO_DRIFT = 0.22; // heading trails the gallery: reads as further back
 const DOLLY = 1.9; // how far the folders scale as the camera moves into one
 const LIFT = 0.55; // s for a paper to rise out of (or sink into) its folder
@@ -27,6 +28,15 @@ const SINK_PHONE = { total: 0.85, lead: 0.18 };
 // gathers speed while the frame rides it, then a long ease-out as the paper
 // slides home
 const SINK_EASE = CustomEase.create("sink", "M0,0 C0.38,0 0.12,1 1,1");
+// Ease-out spring for a click's motion: starts from rest, settles with a 1%
+// overshoot. The same curve as --spring in Folder.module.css.
+const SPRING = (t: number) => 1 - Math.exp(-6.888 * t) * (Math.cos(4.808 * t) + 1.4327 * Math.sin(4.808 * t));
+// Phones: a tap has no press to dip on, so the folder gives as its papers leave
+const RECOIL = { y: 5, scale: 0.985, dip: 0.1, back: 0.34 };
+// Opened by URL, a page settles towards the camera, about the screen's centre
+const ARRIVE = { depth: 0.9, duration: 2.2, stagger: 0.07, ease: "expo.out" };
+// Longest it waits for the frames on screen before arriving anyway (ms)
+const ARRIVE_WAIT = 700;
 
 /** Phones: the page scrolls vertically and natively (see ProjectView.module.css). */
 const isPhone = () => window.matchMedia("(max-width: 767px)").matches;
@@ -110,6 +120,15 @@ function liftOf(paper: HTMLElement, front: HTMLElement | null, i: number) {
 /** Every folder in the rail (desktop) and the stack (phones). */
 const allFolders = () =>
   Array.from(document.querySelectorAll<HTMLElement>("[data-rail] [data-slug], [data-folder-stack] [data-slug]"));
+
+/** Video stills are only shown until the video starts: phones get a light one. */
+const lightStill = (src: string, w: number, h: number) =>
+  getImageProps({ src, alt: "", width: 414, height: Math.round((414 * h) / w), quality: 75 }).props.src;
+
+const inView = (el: HTMLElement) => {
+  const r = el.getBoundingClientRect();
+  return r.width > 0 && r.right > 0 && r.left < innerWidth && r.bottom > 0 && r.top < innerHeight;
+};
 
 /** Folders that are on screen (the hidden layout's have no size). */
 function visibleFolders() {
@@ -322,7 +341,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
     kick();
   };
 
-  /* ── Click outside to close (desktop) ─────────────────── */
+  /* ── Click outside to close ───────────────────────────── */
 
   /** Empty page: not a frame, the text column or a link. */
   const isEmpty = (t: EventTarget | null) =>
@@ -340,7 +359,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
 
   const onViewportClick = (e: React.MouseEvent) => {
     // the click that ends a drag closes nothing
-    if (isPhone() || !s.current.live || s.current.dragged || !isEmpty(e.target)) return;
+    if (!s.current.live || s.current.dragged || !isEmpty(e.target)) return;
     cursor.current?.removeAttribute("data-on");
     onClose();
   };
@@ -397,7 +416,8 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
           }
         }
       },
-      { root: viewport.current, rootMargin: "50%" },
+      // phones decode few videos at a time: only the next one gets ready
+      { root: viewport.current, rootMargin: isPhone() ? "25%" : "50%" },
     );
     q("video").forEach((v) => io.observe(v));
     return () => io.disconnect();
@@ -409,14 +429,23 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
   useLayoutEffect(() => {
     // a context so a re-run (React StrictMode in dev) starts from a clean slate
     let raf = 0;
+    let cancelled = false;
     const ctx = gsap.context(() => {
       const tl = open();
       // Mounting the page and splitting its text makes the next frame late;
       // starting the clock after that frame keeps the first moves from
       // skipping ahead (most visible on phones).
-      raf = requestAnimationFrame(() => (raf = requestAnimationFrame(() => tl.play())));
+      const start = () => {
+        if (!cancelled) raf = requestAnimationFrame(() => (raf = requestAnimationFrame(() => tl.play())));
+      };
+      if (source) return start();
+      // Opened by URL: the frames arrive with their pictures, not empty
+      const shown = q("[data-panel]").filter(inView);
+      const pictures = shown.flatMap((p) => Array.from(p.querySelectorAll("img"), (img) => img.decode().catch(() => {})));
+      Promise.race([Promise.all(pictures), new Promise((done) => setTimeout(done, ARRIVE_WAIT))]).then(start);
     });
     return () => {
+      cancelled = true;
       cancelAnimationFrame(raf);
       ctx.revert();
     };
@@ -435,6 +464,9 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const { chars, lines } = splitText();
     measure();
+    q("video").forEach((v) => {
+      (v as HTMLVideoElement).poster = (phone ? v.dataset.still : v.dataset.fullStill)!;
+    });
     el.dataset.ready = "";
     // the scrim covers the folders from here on (opaque unless flying out)
     gsap.set(el, { backgroundColor: "transparent" });
@@ -451,8 +483,10 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         // any not started on landing (opened by URL, reduced motion)
         q("video").forEach((v) => play(v as HTMLVideoElement));
         gsap.set(panels, { clearProps: "zIndex" });
+        // phones scroll these frames natively: no clip or stand-in picture left behind
+        if (phone) gsap.set(frames, { clearProps: "clipPath,backgroundImage" });
         // out of sight under the scrim: stop compositing their glass
-        gsap.set(folders, { opacity: 0 });
+        gsap.set(folders, { opacity: 0, visibility: "hidden" });
         render();
         viewport.current?.focus({ preventScroll: true });
       },
@@ -480,6 +514,12 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
       source.setAttribute("data-open", "");
       // GSAP drives the papers now, not their hover transition
       gsap.set(papers, { transition: "none" });
+      if (phone) {
+        tl.to(source, { y: RECOIL.y, scale: RECOIL.scale, duration: RECOIL.dip, ease: "power2.out" }, 0);
+        tl.to(source, { y: 0, scale: 1, duration: RECOIL.back, ease: SPRING }, RECOIL.dip);
+      }
+      // every paper has a frame to become, so none is left behind the glass
+      const emptied = papers.every((_, k) => paperOf.includes(k));
 
       // 1. The papers rise up out of the folder, from behind its glass, top
       //    one first. 2. Clear of it, each becomes its gallery frame and flies
@@ -496,11 +536,11 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         const up = depthOf[i] * 0.06;
         const lift = liftOf(paper, front, depthOf[i]);
         const pose = paperPose(paper, source);
-        tl.to(paper, { y: `-=${lift}`, duration: LIFT, ease: "power3.inOut" }, up);
+        tl.to(paper, { y: `-=${lift}`, duration: LIFT, ease: SPRING }, up);
 
-        // phones hand over as the paper eases into the top of its rise (under
-        // a pixel short of it), so it doesn't sit there before flying
-        const at = up + LIFT * (phone ? 0.85 : 1);
+        // hands over as the paper settles at the top of its rise (within a
+        // pixel of it), so it doesn't sit there before flying
+        const at = up + LIFT * 0.85;
         handoff = Math.max(handoff, at);
         // its shadow and depth shading ease away as it rises, gone by the
         // handover, so the frame takes over without a blink or a jump in tone
@@ -510,6 +550,10 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         // the paper's image (already loaded) shows until the frame's own
         // larger one arrives, so a frame never flies in empty
         gsap.set(frames[i], { clipPath: f.clip, backgroundImage: `url("${paper.currentSrc || paper.src}")` });
+        // Phones: a full-size picture appearing mid-flight is a decode and a
+        // texture upload just as every frame counts. The paper's image carries
+        // the flight; the sharp one, decoded by then, comes up as it lands.
+        const sharp = phone ? frames[i].querySelector("img") : null;
         // its big soft shadow eases in over the second half of the flight:
         // scaled down, it breaks up in WebKit
         gsap.set(shadows[i], { opacity: 0 });
@@ -523,7 +567,17 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         tl.fromTo(frames[i], { clipPath: f.clip }, { clipPath: CLIP_OPEN, ...unclip }, at + 0.08);
         tl.to(shadows[i], { opacity: 1, duration: fly.duration * 0.7, ease: "sine.inOut" }, at + fly.duration * 0.5);
         tl.call(play, [videoIn(panel)], at + fly.duration);
+        if (sharp) {
+          const decoded = sharp.decode().catch(() => {});
+          gsap.set(sharp, { autoAlpha: 0 });
+          tl.call(
+            () => decoded.then(() => gsap.to(sharp, { autoAlpha: 1, duration: 0.45, ease: "sine.out", clearProps: "opacity,visibility" })),
+            undefined,
+            at + fly.duration - 0.25,
+          );
+        }
       });
+      if (emptied) tl.call(() => source.setAttribute("data-clear", ""), undefined, handoff);
 
       // The camera dives into the folder: the rest rush outward past it
       // while the page fades up over them.
@@ -534,28 +588,24 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
       tl.to(source, { scale: DOLLY, duration: 1.1, ease: "power3.in" }, dive + 0.12);
       tl.to(scrim.current, { opacity: 1, duration: 0.75, ease: "power1.in" }, dive + 0.2);
     } else {
-      // Opened by URL: the folders wait out of shot; the gallery glides in.
+      // Opened by URL: the folders wait out of shot, under the scrim. Nothing
+      // slides: the frames are already where they belong, a little further from
+      // the camera, and it eases in towards them. Each grows away from the
+      // screen's centre, so the page has one vanishing point.
       const cx = window.innerWidth / 2;
       const cy = window.innerHeight / 2;
-      folders.forEach((f) => gsap.set(f, dolly(f, cx, cy)));
+      folders.forEach((f) => gsap.set(f, { ...dolly(f, cx, cy), visibility: "hidden" }));
       gsap.set(chrome, { opacity: 0 });
-      if (phone) {
-        tl.from(panels, { y: window.innerHeight * 0.3, opacity: 0, duration: 1.5, ease: "expo.out", stagger: 0.09 }, 0.15);
-      } else tl.from(
-        panels,
-        {
-          x: window.innerWidth * 0.55,
-          rotationY: -24,
-          z: -260,
-          opacity: 0,
-          transformPerspective: 1800,
-          transformOrigin: "0% 50%",
-          duration: 1.7,
-          ease: "expo.out",
-          stagger: 0.09,
-        },
-        0.15,
-      );
+      panels.filter(inView).forEach((panel, i) => {
+        const [px, py] = centre(panel);
+        const at = 0.1 + i * ARRIVE.stagger;
+        tl.from(
+          panel,
+          { x: (cx - px) * (1 - ARRIVE.depth), y: (cy - py) * (1 - ARRIVE.depth), scale: ARRIVE.depth, duration: ARRIVE.duration, ease: ARRIVE.ease },
+          at,
+        );
+        tl.from(panel, { opacity: 0, duration: 0.9, ease: "sine.out" }, at);
+      });
     }
 
     const t = source ? LIFT + 0.75 : 0.3;
@@ -605,7 +655,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
 
         // Folders back at rest for measuring (still invisible: same frame).
         const folders = allFolders();
-        gsap.set(folders, { clearProps: "transform,opacity" });
+        gsap.set(folders, { clearProps: "transform,opacity,visibility" });
         const onScreen = visibleFolders();
         // the clicked folder, or this project's folder nearest the middle of the screen
         const home =
@@ -624,7 +674,10 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
           }
           // phones: the scroll takes over the folders' opening again
           if (home) gsap.set(home.querySelector("[data-front]"), { clearProps: "transform" });
-          for (const f of folders) f.removeAttribute("data-flight");
+          for (const f of folders) {
+            f.removeAttribute("data-flight");
+            f.removeAttribute("data-clear");
+          }
           // phones: the stack re-opens whichever folder is mid-screen
           window.dispatchEvent(new Event("folderstack:sync"));
           gsap.set(folders, { clearProps: "transform,opacity,willChange" });
@@ -678,6 +731,8 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
           paperOf.forEach((k, i) => {
             if (homePapers[k]) gsap.set(homePapers[k], { visibility: "hidden", y: `-=${lifts[i]}` });
           });
+          // nothing behind its glass until the first paper comes home (see open)
+          if (homePapers.every((_, k) => paperOf.includes(k))) home.setAttribute("data-clear", "");
         }
 
         // each folder keeps its layer while it shrinks back, instead of being
@@ -700,6 +755,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         // paper goes in last), then become papers and sink back in.
         let order = 0;
         let lastAbove = 0;
+        let firstAbove = Infinity;
         const bottomUp = panels.map((_, i) => i).sort((a, b) => paperOf[a] - paperOf[b]);
         for (const i of bottomUp) {
           const panel = panels[i];
@@ -713,6 +769,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
           const paper = homePapers[paperOf[i]];
           const above = at + fly.duration;
           lastAbove = Math.max(lastAbove, above);
+          firstAbove = Math.min(firstAbove, above);
           tl.to(shadows[i], { opacity: 0, duration: fly.duration * 0.5, ease: "sine.inOut" }, at);
           // takes over shadowless and unshaded, as the frame was; both return
           // as it sinks back in
@@ -750,6 +807,8 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
           tl.to(paper, { ...settle, ...rest }, above);
           tl.to(paper, { "--paper-shadow": 1, duration: rest.duration, ease: "power1.inOut" }, above);
         }
+
+        if (home && lastAbove) tl.call(() => home.removeAttribute("data-clear"), undefined, firstAbove);
 
         // Desktop: the front tips shut (its own CSS transition) as the top
         // paper goes in; papers with no frame to come back from close with it
@@ -881,7 +940,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
                       alt={m.alt}
                       width={m.w}
                       height={m.h}
-                      sizes={`(max-width: 767px) calc(100vw - 52px), calc(${(FRAME_H * 100).toFixed(2)}svh * ${(m.w / m.h).toFixed(4)})`}
+                      sizes={`(max-width: 767px) calc((100vw - 52px) * ${PHONE_DENSITY}), calc(${(FRAME_H * 100).toFixed(2)}svh * ${(m.w / m.h).toFixed(4)})`}
                       quality={90}
                       loading={i < 3 ? "eager" : "lazy"}
                       draggable={false}
@@ -889,7 +948,18 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
                     <span className={styles.pdfTag}>View PDF ↗</span>
                   </a>
                 ) : m.kind === "video" ? (
-                  <video poster={m.src} width={m.w} height={m.h} muted loop playsInline preload="none" aria-label={m.alt || undefined}>
+                  // open() picks the still for the screen: the attribute would fetch both
+                  <video
+                    data-still={lightStill(m.src, m.w, m.h)}
+                    data-full-still={m.src}
+                    width={m.w}
+                    height={m.h}
+                    muted
+                    loop
+                    playsInline
+                    preload="none"
+                    aria-label={m.alt || undefined}
+                  >
                     {/* phones play the lighter copy: a full 4K upload stutters there */}
                     {m.small && <source src={m.small} media="(max-width: 767px)" />}
                     <source src={m.video} />
@@ -902,7 +972,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
                     height={m.h}
                     // desktop: every frame is FRAME_H of the viewport tall, its width follows
                     // the image; phones: frames span the column
-                    sizes={`(max-width: 767px) calc(100vw - 52px), calc(${(FRAME_H * 100).toFixed(2)}svh * ${(m.w / m.h).toFixed(4)})`}
+                    sizes={`(max-width: 767px) calc((100vw - 52px) * ${PHONE_DENSITY}), calc(${(FRAME_H * 100).toFixed(2)}svh * ${(m.w / m.h).toFixed(4)})`}
                     quality={90}
                     loading={i < 3 ? "eager" : "lazy"}
                     draggable={false}

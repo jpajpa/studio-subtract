@@ -102,8 +102,9 @@ export function Folder({ project, clone, enter = 0, reveal, eager }: Props) {
               alt=""
               width={p.w}
               height={p.h}
-              // papers are drawn at folder units ≈ CSS px on desktop
-              sizes={`${Math.ceil(p.w)}px`}
+              // papers are drawn at folder units ≈ CSS px on desktop; phones draw
+              // them smaller and decode about 2x, not their full 3x
+              sizes={`(max-width: 767px) ${Math.ceil(p.w * 0.6)}px, ${Math.ceil(p.w)}px`}
               quality={85}
               loading={eager ? "eager" : "lazy"}
               draggable={false}
