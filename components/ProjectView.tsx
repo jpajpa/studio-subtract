@@ -280,7 +280,17 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
     const v = viewport.current;
     if (!t || !v) return;
     // phones scroll the page natively, so the strip stays put
-    st.max = isPhone() ? 0 : Math.max(t.offsetWidth - v.clientWidth, 0);
+    const over = isPhone() ? 0 : Math.max(t.offsetWidth - v.clientWidth, 0);
+    // The strip ends with a page margin of empty page, and a short gallery
+    // (Jan's two frames) can overrun the window by that margin alone: the
+    // scroll it buys drags blank page past, and nothing was out of reach to
+    // begin with. So the end margin gives way first, down to the gap the
+    // frames keep between themselves — a last frame that close to the edge
+    // still reads as spacing — and only what overruns that scrolls. The full
+    // margin comes back with the scroll, since the strip can then reach it.
+    const css = getComputedStyle(t);
+    const slack = (parseFloat(css.paddingRight) || 0) - (parseFloat(css.columnGap) || 0);
+    st.max = over > Math.max(slack, 0) ? over : 0;
     // With no range there is nothing for the bar to report: a gallery that
     // fits, or a person with no media at all. It would sit there as an empty
     // rule promising a scroll that cannot happen, so it goes. Measured again
