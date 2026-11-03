@@ -1,7 +1,7 @@
 import KeystaticApp from "./keystatic";
 import { editorReady } from "@/lib/editor";
 
-export const metadata = { title: "Studio Subtract — Content", robots: { index: false, follow: false } };
+export const metadata = { title: "Studio Subtract", robots: { index: false, follow: false } };
 
 export default function KeystaticLayout() {
   return (

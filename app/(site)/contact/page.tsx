@@ -6,7 +6,6 @@ import styles from "./contact.module.css";
 const EMAIL = "inbox@studiosubtract.com";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Contact",
   description: `Get in touch with Studio Subtract: ${EMAIL}`,
   path: "/contact",
 });

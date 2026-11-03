@@ -29,13 +29,10 @@ function shareImage(project?: Project) {
 }
 
 export function pageMetadata({
-  title,
   description = DESCRIPTION,
   path,
   project,
 }: {
-  /** what a shared link is called; the browser tab says the studio's name */
-  title: string;
   description?: string;
   path: string;
   /** whose first picture a shared link shows */
@@ -43,15 +40,16 @@ export function pageMetadata({
 }): Metadata {
   const text = short(description);
   const images = shareImage(project);
+  // The studio's name is the title everywhere: the browser tab, the share
+  // card, the search result. A page says which one it is through its
+  // description, its picture and its address, all of which are still its own.
+  // There is no per page name left to pass in, so there is no argument for it
+  // either, and nothing can quietly go back to setting one.
   return {
-    // Every tab on the site reads the same. A page's own name still goes out
-    // on the link preview below, where it is the whole of what someone sees,
-    // but in a window it only ever added a second thing to read next to the
-    // one that matters.
     title: SITE_NAME,
     description: text,
     alternates: { canonical: path },
-    openGraph: { title, description: text, url: path, siteName: SITE_NAME, type: "website", images },
-    twitter: { card: images ? "summary_large_image" : "summary", title, description: text, images },
+    openGraph: { title: SITE_NAME, description: text, url: path, siteName: SITE_NAME, type: "website", images },
+    twitter: { card: images ? "summary_large_image" : "summary", title: SITE_NAME, description: text, images },
   };
 }

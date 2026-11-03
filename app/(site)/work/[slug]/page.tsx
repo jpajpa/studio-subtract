@@ -15,7 +15,6 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const project = (await getProjects()).find((p) => p.slug === slug);
   if (!project) return { title: "Studio Subtract" };
   return pageMetadata({
-    title: project.title,
     description: project.description || `${project.title}, a project by Studio Subtract.`,
     path: `/work/${slug}`,
     project,
