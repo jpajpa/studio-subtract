@@ -322,6 +322,11 @@
   outline-offset: 4px;
 }
 
+/* focus handed back after a pointer opened the folder (Work) */
+.link[data-quiet] {
+  outline: none;
+}
+
 /* ── Labels: name on top, category at the bottom ─────── */
 
 .label {

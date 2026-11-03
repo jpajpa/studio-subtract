@@ -48,6 +48,8 @@ export function Work({
   const closing = useRef(false);
   // the folder to hand focus back to once its page has closed
   const refocus = useRef<HTMLElement | null>(null);
+  // whether that folder was opened from the keyboard, so its focus ring comes back too
+  const byKeyboard = useRef(false);
   const row = useRef<HTMLDivElement>(null);
 
   // ready before the first click, so the folder opens without waiting for it
@@ -80,7 +82,21 @@ export function Work({
     const folder = refocus.current;
     if (slug || !folder) return;
     refocus.current = null;
-    if (!folder.hasAttribute("aria-hidden")) folder.querySelector("a")?.focus({ preventScroll: true });
+    const link = folder.querySelector("a");
+    if (!link || folder.hasAttribute("aria-hidden")) return;
+    // Browsers ring a link focused by script after any key press (Escape), and
+    // Safari after a click too. Opened by pointer, it stays quiet until focus
+    // really moves on: the window losing focus leaves activeElement where it is.
+    if (!byKeyboard.current) {
+      const moved = () => {
+        if (document.activeElement === link) return;
+        link.removeAttribute("data-quiet");
+        link.removeEventListener("blur", moved);
+      };
+      link.setAttribute("data-quiet", "");
+      link.addEventListener("blur", moved);
+    }
+    link.focus({ preventScroll: true });
   }, [slug]);
 
   useEffect(() => {
@@ -109,6 +125,7 @@ export function Work({
     if (slug) return;
     // straight away, so its front opens on this folder's spring (Folder.module.css)
     folder.setAttribute("data-open", "");
+    byKeyboard.current = !!folder.querySelector("a")?.matches(":focus-visible");
     source.current = folder;
     pushed.current = true;
     window.history.pushState(null, "", `${base}/${next}`);
