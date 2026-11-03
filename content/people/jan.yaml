@@ -10,9 +10,9 @@ media:
     value:
       image:
         src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/jan/portrait.png
-        width: 1787
-        height: 2673
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/jan/portrait-bEnfn1LlNj52Kbz61ZeMN3o8iY2Upn.png
+        width: 1080
+        height: 1080
       alt: Portrait of Jan
   - discriminant: image
     value:
@@ -32,5 +32,5 @@ folder:
     x: 30
     'y': 8
     w: 136
-    h: 204
+    h: 136
     rotation: 0
