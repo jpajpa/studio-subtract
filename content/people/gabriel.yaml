@@ -18,16 +18,16 @@ media:
     value:
       image:
         src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/gabriel-filmfaded.PNG-s1Op9aoeRPlVIuhSYLjKLUjRaJ6DpZ.jpg
-        width: 1792
-        height: 2400
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/PERSONAL_3-D9xpqxOtHRFdq07YWNJolLvg5TFq87.jpg
+        width: 2481
+        height: 3508
   - discriminant: image
     value:
       image:
         src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/PERSONAL_3-D9xpqxOtHRFdq07YWNJolLvg5TFq87.jpg
-        width: 2481
-        height: 3508
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/gabriel-filmfaded.PNG-s1Op9aoeRPlVIuhSYLjKLUjRaJ6DpZ.jpg
+        width: 1792
+        height: 2400
 folder:
   - item: 1
     x: 92
@@ -35,13 +35,13 @@ folder:
     w: 136
     h: 136
     rotation: 0
-  - item: 3
+  - item: 2
     x: 196
     'y': -9
     w: 114
     h: 162
     rotation: 0
-  - item: 2
+  - item: 3
     x: 10
     'y': 2
     w: 112
