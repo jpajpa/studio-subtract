@@ -131,21 +131,10 @@ const allFolders = () =>
 const lightStill = (src: string, w: number, h: number) =>
   getImageProps({ src, alt: "", width: 414, height: Math.round((414 * h) / w), quality: 75 }).props.src;
 
-/**
- * Desktop's. A frame is FRAME_H of the window tall whatever shape it is, so
- * what the still has to cover is that height on a retina screen, and its width
- * follows the video. Asking for a flat 1024 served a 1200-wide still into a
- * frame more than twice that across, which is the soft picture that sits there
- * until the video has loaded. Capped at 2048, the widest the image config
- * serves short of 3840, so it is never the upload itself (a PNG can be several
- * MB), and a tall video asks for the smaller width it actually needs rather
- * than a 2048 blown up from a 1358-wide source.
- */
-const STILL_H = Math.round(FRAME_H * 1200 * 2); // a tall window, at 2x
-const fullStill = (src: string, w: number, h: number) => {
-  const width = Math.min(Math.round(STILL_H * (w / h)), 2048);
-  return getImageProps({ src, alt: "", width, height: Math.round((width * h) / w), quality: 85 }).props.src;
-};
+/** Desktop's: 2048px at most (getImageProps hands back the 2x candidate), not
+ *  the upload itself (a PNG can be several MB). */
+const fullStill = (src: string, w: number, h: number) =>
+  getImageProps({ src, alt: "", width: 1024, height: Math.round((1024 * h) / w), quality: 85 }).props.src;
 
 const inView = (el: HTMLElement) => {
   const r = el.getBoundingClientRect();
@@ -463,6 +452,12 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         for (const e of entries) {
           const v = e.target as HTMLVideoElement;
           if (e.isIntersecting) {
+            // The still for this screen, fetched the first time the video
+            // comes near. Setting every one of them at once, as opening the
+            // page used to, put three or four full-width pictures in front of
+            // the one being looked at: until they were all in, what sat in the
+            // frame was the folder paper's thumbnail stretched across it.
+            if (!v.poster) v.poster = (isPhone() ? v.dataset.still : v.dataset.fullStill)!;
             st.near.add(v);
             if (st.live) play(v);
           } else {
@@ -529,9 +524,8 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const { chars, lines } = splitText();
     measure();
-    q("video").forEach((v) => {
-      (v as HTMLVideoElement).poster = (phone ? v.dataset.still : v.dataset.fullStill)!;
-    });
+    // the stills come with the videos that are near the screen, not all at
+    // once from here (see the near observer above)
     el.dataset.ready = "";
     // the scrim covers the folders from here on (opaque unless flying out)
     gsap.set(el, { backgroundColor: "transparent" });
