@@ -611,9 +611,18 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         tl.to(paper, { "--paper-shadow": 0, duration: at - up, ease: "power1.inOut" }, up);
         const f = flight(panel, { ...pose, cy: pose.cy - lift });
         gsap.set(panel, { ...f.panel, zIndex: zOf(i), opacity: 0 });
-        // the paper's image (already loaded) shows until the frame's own
-        // larger one arrives, so a frame never flies in empty
-        gsap.set(frames[i], { clipPath: f.clip, backgroundImage: `url("${paper.currentSrc || paper.src}")` });
+        // The paper's image, already loaded, means a frame never flies in
+        // empty. On its own it is not enough to look at: a paper is drawn
+        // around 110 to 240 units wide, so what it has loaded is a 256 wide
+        // picture, and the frame it becomes is four times that across before
+        // the screen's own density is counted. Over the top of it goes the
+        // frame's real still, which is the picture a video shows until it
+        // plays, so the two cost one fetch between them and whichever has
+        // arrived is the one on show: the paper's at the moment of handover,
+        // the still a beat later and for as long as the video takes.
+        const still = videoIn(panel)?.dataset[phone ? "still" : "fullStill"];
+        const under = `url("${paper.currentSrc || paper.src}")`;
+        gsap.set(frames[i], { clipPath: f.clip, backgroundImage: still ? `url("${still}"), ${under}` : under });
         // Phones: a full-size picture appearing mid-flight is a decode and a
         // texture upload just as every frame counts. The paper's image carries
         // the flight; the sharp one, decoded by then, comes up as it lands.
