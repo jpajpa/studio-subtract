@@ -13,9 +13,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const person = (await getPeople()).find((p) => p.slug === slug);
-  if (!person) return { title: "Studio — Studio Subtract" };
+  if (!person) return { title: "Studio Subtract" };
   return pageMetadata({
-    title: `${person.title} — Studio Subtract`,
+    title: person.title,
     description: person.description || `${person.title}, ${person.category} at Studio Subtract.`,
     path: `/studio/${slug}`,
     project: person,

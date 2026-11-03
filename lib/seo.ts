@@ -34,6 +34,7 @@ export function pageMetadata({
   path,
   project,
 }: {
+  /** what a shared link is called; the browser tab says the studio's name */
   title: string;
   description?: string;
   path: string;
@@ -43,7 +44,11 @@ export function pageMetadata({
   const text = short(description);
   const images = shareImage(project);
   return {
-    title,
+    // Every tab on the site reads the same. A page's own name still goes out
+    // on the link preview below, where it is the whole of what someone sees,
+    // but in a window it only ever added a second thing to read next to the
+    // one that matters.
+    title: SITE_NAME,
     description: text,
     alternates: { canonical: path },
     openGraph: { title, description: text, url: path, siteName: SITE_NAME, type: "website", images },

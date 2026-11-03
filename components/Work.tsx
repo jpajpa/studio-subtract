@@ -99,10 +99,13 @@ export function Work({
     link.focus({ preventScroll: true });
   }, [slug]);
 
+  // A folder opens in place, so the title is set here rather than by the page
+  // that would have loaded. It is the studio's name wherever you are, the same
+  // as every server-rendered page (lib/seo.ts): the URL already says which
+  // project is open, and the window only has room for one of them.
   useEffect(() => {
-    const list = id === "work" ? TITLE : `${section.label} — ${TITLE}`;
-    document.title = slug ? `${projects.find((p) => p.slug === slug)?.title} — ${TITLE}` : list;
-  }, [slug, projects, section]);
+    document.title = TITLE;
+  }, []);
 
   // Studio has no rail to absorb the wheel, so a trackpad would scroll the
   // document and rubber-band the folders and the header with it. Neutral state
