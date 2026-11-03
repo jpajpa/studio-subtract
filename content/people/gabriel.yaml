@@ -31,19 +31,19 @@ media:
 folder:
   - item: 1
     x: 92
-    'y': 12
+    'y': 32
     w: 136
     h: 136
     rotation: 0
   - item: 2
     x: 196
-    'y': -9
+    'y': 11
     w: 114
     h: 162
     rotation: 0
   - item: 3
     x: 10
-    'y': 2
+    'y': 22
     w: 112
     h: 146
     rotation: 0
