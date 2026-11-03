@@ -45,19 +45,19 @@ media:
 folder:
   - item: 1
     x: 20
-    'y': 40
+    'y': 55
     w: 104
     h: 148
     rotation: -1.5
   - item: 2
     x: 110
-    'y': 22
+    'y': 37
     w: 104
     h: 148
     rotation: 0.5
   - item: 3
     x: 196
-    'y': 34
+    'y': 49
     w: 104
     h: 148
     rotation: 2
