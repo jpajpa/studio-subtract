@@ -15,7 +15,7 @@ colour:
 media:
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/looping-branding-animation.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/looping-branding-animation-2DTW5D8FimmmvMq4qQR0hNJtgNAvKp.mp4
       small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/looping-branding-animation-small.mp4
       poster:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/looping-branding-animation-poster.jpg
@@ -24,7 +24,7 @@ media:
       alt: ''
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/limitless.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/limitless-o0JrGrtEx4TrpZxwxm22Ae1uJsMQXV.mp4
       small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/limitless-small.mp4
       poster:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/limitless-still.jpg
@@ -33,8 +33,8 @@ media:
       alt: ''
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/composition-3-web.mp4
-      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/composition-3-small.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/composition-3-web-uDqfq5nffzo3QBeNiFxeasXq0smrWY.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/composition-3-small-c1R3w6D8WAIjFisfJzbDYZ6SAIXSMl.mp4
       poster:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/14-red-door/composition-3-still.jpg
         width: 2160

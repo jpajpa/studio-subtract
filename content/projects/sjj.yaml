@@ -20,8 +20,8 @@ media:
         height: 2122
   - discriminant: video
     value:
-      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-crop-web-MW0jLJyrIKPEzpy0NXr4TSK1U68UuY.mp4
-      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-crop-small-F04RaTuOjwLXEl8RpjvDu0BIepaDGt.mp4
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-crop-web-m35Ykqqzu8VK1BF4ZQAneWaGv1vU8Z.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-crop-small-xMJizdvQkDuWJLWz7yVf8WenR5jstP.mp4
       poster:
         src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/projects/sjj/10-crop-still-DjBUo0cyU1SAw1xvgbPYvtgC9RrKGy.jpg
         width: 900
