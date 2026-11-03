@@ -63,9 +63,20 @@
 .folder[data-reveal="in"] {
   /* gentle ease-out (cubic): movement is spread across the whole rise
      instead of front-loaded, so it never reads as a jump */
+  /* The rise and the fade are deliberately different lengths. An opacity
+     below 1 makes the folder a backdrop root: the frost can then only sample
+     what is inside the folder's own box, so it thins out wherever its blur
+     reaches past the sides and foot of the front panel, which sit flush with
+     them. The front reads as clear glass around its edges and frosted in the
+     middle, and snaps to frost the moment the fade lands. Nothing fixes that
+     while the fade runs, so the fade is short and spends itself in the fast
+     part of the rise, where the handover is covered by the movement; the rise
+     carries the rest. 400ms is what the folders use everywhere else: the
+     desktop load-in is opaque by 400 of its 1000, and so is reduced motion.
+     Was 1000ms, which left the glass clear-edged for most of the way up. */
   animation:
     folder-rise 1400ms cubic-bezier(0.33, 1, 0.68, 1) both,
-    folder-fade 1000ms cubic-bezier(0.39, 0.575, 0.565, 1) both;
+    folder-fade 400ms cubic-bezier(0.39, 0.575, 0.565, 1) both;
   animation-delay: calc(80ms + var(--enter, 0) * 160ms);
 }
 .folder[data-reveal="done"] {
