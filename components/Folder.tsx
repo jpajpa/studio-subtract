@@ -32,6 +32,17 @@ function shadowWeight(hex: string) {
   return Math.round((1 - 0.5 * t * t * (3 - 2 * t)) * 100) / 100;
 }
 
+/** What the glass's frost, saturate(1.5) brightness(1.03), makes of the back
+ *  panel's gradient at one point down it (0–1). Painted in the frost's place
+ *  once the folder has nothing else behind its glass (Folder.module.css). */
+function frosted(top: string, bottom: string, at: number) {
+  const [a, b] = [top, bottom].map((hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)));
+  const rgb = a.map((c, i) => c + (b[i] - c) * at);
+  const l = 0.213 * rgb[0] + 0.715 * rgb[1] + 0.072 * rgb[2];
+  const clamp = (c: number) => Math.round(Math.min(Math.max(c, 0), 255));
+  return `rgb(${rgb.map((c) => clamp(clamp(l + (c - l) * 1.5) * 1.03)).join(" ")})`;
+}
+
 /** Paper geometry in folder units, scaled by --u (see Folder.module.css). */
 const u = (n: number) => `calc(${n} * var(--u))`;
 
@@ -80,6 +91,9 @@ export function Folder({ project, href, clone, enter = 0, reveal, eager }: Props
           "--text": text,
           "--enter": enter,
           "--shadow-weight": shadowWeight(fill[1]),
+          // the glass front starts this far down the back panel
+          "--frost-top": frosted(fill[0], fill[1], 59.3 / 261),
+          "--frost-bottom": frosted(fill[0], fill[1], 1),
         } as CSSProperties
       }
     >

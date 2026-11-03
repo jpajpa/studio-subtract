@@ -277,10 +277,15 @@
   }
 
   /* Its papers have flown (ProjectView): the frost has only the folder's own
-     gradient to blur, so it can stop re-rendering as the folder scales. */
+     gradient to blur, so it can stop re-rendering as the folder scales. What
+     it drew is painted in its place (Folder.tsx), or the glass would turn
+     see-through and show the back panel's edges. */
   .folder[data-clear] .glass {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+  }
+  .folder[data-clear] .front {
+    background: linear-gradient(var(--frost-top), var(--frost-bottom));
   }
 
   /* One layer, from the moment a folder is near the screen (FolderStack) until
@@ -320,6 +325,11 @@
 .link:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 4px;
+}
+
+/* focus handed back after a pointer opened the folder (Work) */
+.link[data-quiet] {
+  outline: none;
 }
 
 /* ── Labels: name on top, category at the bottom ─────── */
