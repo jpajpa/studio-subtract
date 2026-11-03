@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import type { Project } from "./projects";
 
-export const SITE_URL = "https://studiosubtract.com";
+// www is the canonical host: it is what the domain has always served and
+// what the apex redirects to. Feeds metadataBase, the canonical link on
+// every page, robots.txt and the sitemap.
+export const SITE_URL = "https://www.studiosubtract.com";
 const SITE_NAME = "Studio Subtract";
 const DESCRIPTION = "Studio Subtract is a creative direction and design studio.";
 const DESCRIPTION_MAX = 160;
