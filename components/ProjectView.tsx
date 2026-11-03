@@ -131,9 +131,21 @@ const allFolders = () =>
 const lightStill = (src: string, w: number, h: number) =>
   getImageProps({ src, alt: "", width: 414, height: Math.round((414 * h) / w), quality: 75 }).props.src;
 
-/** Desktop's: 2048px at most, not the upload itself (a PNG can be several MB). */
-const fullStill = (src: string, w: number, h: number) =>
-  getImageProps({ src, alt: "", width: 1024, height: Math.round((1024 * h) / w), quality: 85 }).props.src;
+/**
+ * Desktop's. A frame is FRAME_H of the window tall whatever shape it is, so
+ * what the still has to cover is that height on a retina screen, and its width
+ * follows the video. Asking for a flat 1024 served a 1200-wide still into a
+ * frame more than twice that across, which is the soft picture that sits there
+ * until the video has loaded. Capped at 2048, the widest the image config
+ * serves short of 3840, so it is never the upload itself (a PNG can be several
+ * MB), and a tall video asks for the smaller width it actually needs rather
+ * than a 2048 blown up from a 1358-wide source.
+ */
+const STILL_H = Math.round(FRAME_H * 1200 * 2); // a tall window, at 2x
+const fullStill = (src: string, w: number, h: number) => {
+  const width = Math.min(Math.round(STILL_H * (w / h)), 2048);
+  return getImageProps({ src, alt: "", width, height: Math.round((width * h) / w), quality: 85 }).props.src;
+};
 
 const inView = (el: HTMLElement) => {
   const r = el.getBoundingClientRect();
