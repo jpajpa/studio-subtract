@@ -97,6 +97,8 @@ function stackScript(cfg: typeof config) {
       new Promise((done) => setTimeout(done, cfg.imageWait)),
     ]);
 
+  // the observer's opening round, which reports every folder at once
+  let firstRound = true;
   const io = new IntersectionObserver(
     (entries) => {
       if (!list.offsetParent) return;
@@ -106,9 +108,14 @@ function stackScript(cfg: typeof config) {
         const el = e.target as HTMLElement;
         if (e.isIntersecting) {
           const i = k++;
+          // The first round is whatever the page opened on, including the
+          // folders a refresh part way down comes back to: they are already
+          // mid-screen, so they arrive differently (Folder.module.css).
+          const atLoad = firstRound;
           io.unobserve(el);
           imagesReady(el).then(() => {
             el.style.setProperty("--enter", String(i));
+            if (atLoad) el.dataset.atLoad = "";
             el.dataset.reveal = "in";
             // landed: let go of the animation
             const land = (a: AnimationEvent) => {
@@ -124,6 +131,7 @@ function stackScript(cfg: typeof config) {
           el.dataset.reveal = "done";
         }
       }
+      firstRound = false;
     },
     { rootMargin: cfg.revealMargin },
   );
