@@ -175,6 +175,24 @@
   mask: url(/folder-shadow.png) 0 0 / 100% 100% no-repeat;
 }
 
+/* The mask is a file, and until it arrives there is no mask: the shadow is
+   its own full rectangle of --shade, half as wide again as the folder and
+   half as tall, which shows for a moment and snaps to a shadow when the image
+   lands. Palest folders show it worst, since their slab is the one with
+   somewhere to be seen against. So nothing is painted until the image is in
+   hand (the head script sets `shadowed`), and then it is eased up rather than
+   switched on, in case it lands late enough to be watched arriving. On a warm
+   cache this is over before the folder's own load-in has started, 150ms in.
+   Without JS there is no class to wait for and the shadow simply shows. */
+:global(.js) .shadow {
+  opacity: 0;
+}
+
+:global(.js.shadowed) .shadow {
+  opacity: var(--shadow-weight, 1);
+  transition: opacity 240ms linear;
+}
+
 .back {
   overflow: visible;
 }
