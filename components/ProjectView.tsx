@@ -25,6 +25,7 @@ const DOLLY = 1.9; // how far the folders scale as the camera moves into one
 const LIFT = 0.55; // s for a paper to rise out of (or sink into) its folder
 const LIFT_CLEAR = 14; // px a lifted paper clears the folder's glass front by
 const LIFT_STEP = 8; // px each lower paper rises less high, so they stay stacked
+const FADE = 0.3; // s for a paper with no frame of its own to fade out, or back in
 // s for a closing frame's descent into its folder, and how much of it the
 // frame rides before its paper takes over; phones' drops are shorter
 const SINK = { total: 1.15, lead: 0.25 };
@@ -582,9 +583,6 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         tl.to(source, { y: RECOIL.y, scale: RECOIL.scale, duration: RECOIL.dip, ease: "power2.out" }, 0);
         tl.to(source, { y: 0, scale: 1, duration: RECOIL.back, ease: SPRING }, RECOIL.dip);
       }
-      // every paper has a frame to become, so none is left behind the glass
-      const emptied = papers.every((_, k) => paperOf.includes(k));
-
       // 1. The papers rise up out of the folder, from behind its glass, top
       //    one first. 2. Clear of it, each becomes its gallery frame and flies
       //    into place.
@@ -650,7 +648,28 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
           );
         }
       });
-      if (emptied) tl.call(() => source.setAttribute("data-clear", ""), undefined, handoff);
+
+      // A folder can show one gallery item twice (two papers, one frame), so a
+      // paper can have no frame of its own to become. It leaves all the same,
+      // rising with the others and then fading as they hand over: left where
+      // it is, it would sit behind the glass while the folder dives away, the
+      // one thing the page hasn't taken with it. It fades rather than going at
+      // the handover as the framed papers do, which have a frame appearing in
+      // their place to cover it; alone, that same cut reads as a blink.
+      papers.forEach((paper, k) => {
+        if (paperOf.includes(k)) return;
+        const depth = papers.length - 1 - k;
+        const up = depth * 0.06;
+        const at = up + LIFT * 0.85;
+        handoff = Math.max(handoff, at);
+        tl.to(paper, { y: `-=${liftOf(paper, front, depth)}`, duration: LIFT, ease: SPRING }, up);
+        tl.to(paper, { "--paper-shadow": 0, duration: at - up, ease: "power1.inOut" }, up);
+        tl.to(paper, { autoAlpha: 0, duration: FADE, ease: "sine.inOut" }, at);
+      });
+
+      // every paper has left, so the glass has only the folder's own gradient
+      // behind it (Folder.module.css)
+      tl.call(() => source.setAttribute("data-clear", ""), undefined, handoff);
 
       // The camera dives into the folder: the rest rush outward past it
       // while the page fades up over them.
@@ -755,7 +774,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
 
         const done = () => {
           if (home) {
-            gsap.set(papersIn(home), { clearProps: "visibility,transform,transition,--paper-shadow" });
+            gsap.set(papersIn(home), { clearProps: "visibility,opacity,transform,transition,--paper-shadow" });
             home.removeAttribute("data-open"); // closes with its own CSS transition
           }
           // phones: the scroll takes over the folders' opening again
@@ -783,6 +802,8 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         // rest), where its paper then takes over and sinks back in.
         let poses: (Pose | null)[] = panels.map(() => null);
         const lifts: number[] = [];
+        // by paper, for the papers with no frame of their own (see open)
+        const spareLifts: number[] = [];
         const homePapers = home ? papersIn(home) : [];
         if (home) {
           const front = home.querySelector<HTMLElement>("[data-front]");
@@ -813,12 +834,18 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
             return { ...pose, cy: pose.cy - lifts[i] };
           });
           gsap.set(front, { clearProps: "transition" });
-          // only papers that have a frame to come back from leave the folder
+          // every paper is out of the folder: the framed ones lifted by their
+          // frame's measure, a spare by its own depth, as the opening left it
           paperOf.forEach((k, i) => {
             if (homePapers[k]) gsap.set(homePapers[k], { visibility: "hidden", y: `-=${lifts[i]}` });
           });
+          homePapers.forEach((paper, k) => {
+            if (paperOf.includes(k)) return;
+            spareLifts[k] = liftOf(paper, front, homePapers.length - 1 - k);
+            gsap.set(paper, { visibility: "hidden", y: `-=${spareLifts[k]}` });
+          });
           // nothing behind its glass until the first paper comes home (see open)
-          if (homePapers.every((_, k) => paperOf.includes(k))) home.setAttribute("data-clear", "");
+          home.setAttribute("data-clear", "");
         }
 
         // each folder keeps its layer while it shrinks back, instead of being
@@ -842,6 +869,8 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         let order = 0;
         let lastAbove = 0;
         let firstAbove = Infinity;
+        // when each frame is above the folder, ready to become its paper again
+        const aboveOf: number[] = [];
         const bottomUp = panels.map((_, i) => i).sort((a, b) => paperOf[a] - paperOf[b]);
         for (const i of bottomUp) {
           const panel = panels[i];
@@ -854,6 +883,7 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
           const at = 0.15 + order++ * 0.06;
           const paper = homePapers[paperOf[i]];
           const above = at + fly.duration;
+          aboveOf[i] = above;
           lastAbove = Math.max(lastAbove, above);
           firstAbove = Math.min(firstAbove, above);
           tl.to(shadows[i], { opacity: 0, duration: fly.duration * 0.5, ease: "sine.inOut" }, at);
@@ -894,14 +924,34 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
           tl.to(paper, { "--paper-shadow": 1, duration: rest.duration, ease: "power1.inOut" }, above);
         }
 
+        // A spare paper has no frame to ride home, so it comes back with the
+        // twin it shares a gallery item with: the one frame lands and settles
+        // as the two papers it was.
+        homePapers.forEach((paper, k) => {
+          if (paperOf.includes(k)) return;
+          const above = aboveOf[folderPapers[k].media] ?? lastAbove;
+          const { total, lead } = phone ? SINK_PHONE : SINK;
+          const ease = SINK_EASE(lead / total);
+          const rest = {
+            duration: total - lead,
+            ease: (u: number) => (SINK_EASE((lead + u * (total - lead)) / total) - ease) / (1 - ease),
+          };
+          const settle = phone
+            ? { y: `+=${spareLifts[k]}` }
+            : { x: 0, y: 0, rotation: parseFloat(paper.style.getPropertyValue("--r")) || 0 };
+          tl.set(paper, { "--paper-shadow": 0 }, above);
+          tl.fromTo(paper, { autoAlpha: 0 }, { autoAlpha: 1, duration: FADE, ease: "sine.inOut" }, above);
+          tl.to(paper, { ...settle, ...rest }, above);
+          tl.to(paper, { "--paper-shadow": 1, duration: rest.duration, ease: "power1.inOut" }, above);
+        });
+
         if (home && lastAbove) tl.call(() => home.removeAttribute("data-clear"), undefined, firstAbove);
 
         // Desktop: the front tips shut (its own CSS transition) as the top
-        // paper goes in; papers with no frame to come back from close with it
+        // paper goes in
         if (home && !phone && lastAbove) {
           tl.call(
             () => {
-              gsap.set(homePapers.filter((_, k) => !paperOf.includes(k)), { clearProps: "transition" });
               home.removeAttribute("data-open");
             },
             undefined,
