@@ -333,6 +333,15 @@
     margin: 0 0 32px;
   }
 
+  /* Balance evens the lines out in the 300px desktop column, but on a phone it
+     leaves the right edge stepping in and out, and squeezes a longer
+     description into a column visibly narrower than its neighbours'. Pretty
+     fills each line in turn and only tidies the last, so the edge settles and
+     every project reads to the same width. */
+  .body {
+    text-wrap: pretty;
+  }
+
   /* the strip doesn't move on phones; a layer per full-width frame only
      costs memory there (and dropped frames in iOS Safari) */
   .track,

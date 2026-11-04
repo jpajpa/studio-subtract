@@ -17,10 +17,14 @@ function short(text: string) {
   return `${line.slice(0, DESCRIPTION_MAX - 1).replace(/\s+\S*$/, "")}…`;
 }
 
+/** The studio's own card: the page background and nothing on it. Anything that
+ *  is not one project shares this, so the picture never changes on its own. */
+const SHARE_FALLBACK = [{ url: "/share.png", width: SHARE_WIDTH, height: 630 }];
+
 /** A project's first picture, through the optimizer: uploads can be several MB. */
 function shareImage(project?: Project) {
   const media = project?.media[0];
-  if (!media) return undefined;
+  if (!media) return SHARE_FALLBACK;
   const width = Math.min(SHARE_WIDTH, media.w);
   return [
     {
@@ -53,6 +57,6 @@ export function pageMetadata({
     description: text,
     alternates: { canonical: path },
     openGraph: { title: SITE_NAME, description: text, url: path, siteName: SITE_NAME, type: "website", images },
-    twitter: { card: images ? "summary_large_image" : "summary", title: SITE_NAME, description: text, images },
+    twitter: { card: "summary_large_image", title: SITE_NAME, description: text, images },
   };
 }

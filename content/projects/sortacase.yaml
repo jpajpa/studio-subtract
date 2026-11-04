@@ -5,6 +5,7 @@ description: >-
   catalog. Built using the same logic as the product grid system.
 link:
   url: https://www.sortacase.com
+  label: Sortacase
 credits: []
 roles:
   - cd
