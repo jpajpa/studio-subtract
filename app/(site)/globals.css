@@ -6,7 +6,7 @@
   --page-margin: 150px;
   --folder-w: 320px;
   --folder-gap: 90px;
-  --glass-blur: 12px;
+  --glass-blur: 16px;
 
   /* desktop nav: where it starts and how tall its three links stand */
   --nav-top: clamp(40px, 17.5vh, 186px);
