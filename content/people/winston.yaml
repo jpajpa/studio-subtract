@@ -1,0 +1,37 @@
+name: Winston Ferguson
+role: Engineer
+colour:
+  top: '#f4f4f4'
+  bottom: '#e8e8e8'
+  label: '#3b3b3b'
+link: {}
+media:
+  - discriminant: image
+    value:
+      image:
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/winston/portrait-H0j0DRzQDDbnTBUn30vKwnLaEFsL4P.jpg
+        width: 1080
+        height: 1080
+      alt: Portrait of Winston
+  - discriminant: image
+    value:
+      image:
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/winston/note-yCGgQLGQ1B8Ql131FlQRy4jiymyuFH.png
+        width: 2481
+        height: 3508
+      alt: Winston's personal note
+folder:
+  - item: 1
+    x: 40
+    'y': 62
+    w: 170
+    h: 170
+    rotation: 0
+  - item: 2
+    x: 128
+    'y': -6
+    w: 180
+    h: 254
+    rotation: 0

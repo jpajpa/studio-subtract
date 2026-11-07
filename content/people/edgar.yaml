@@ -1,0 +1,51 @@
+name: Edgar Esteves
+role: Manager
+colour:
+  top: '#f4f4f4'
+  bottom: '#e8e8e8'
+  label: '#3b3b3b'
+link: {}
+media:
+  - discriminant: image
+    value:
+      image:
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/edgar/portrait-2SVhDvx2sgnUU2Vo9RXxFxrImOYDDa.jpg
+        width: 1080
+        height: 1080
+      alt: Portrait of Edgar
+  - discriminant: image
+    value:
+      image:
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/edgar/note-qGpAt0QQgT8JI335TALFezj3pPi1Wh.png
+        width: 2481
+        height: 3508
+      alt: Edgar's personal note
+  - discriminant: image
+    value:
+      image:
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/edgar/newspaper-ojlRuKnyhLkPx9R8zt2mCjaSWJXOIE.jpg
+        width: 1792
+        height: 2400
+      alt: Rolling Stone Africa profile of Edgar
+folder:
+  - item: 1
+    x: 60
+    'y': 52
+    w: 186
+    h: 186
+    rotation: 0
+  - item: 2
+    x: 18
+    'y': 8
+    w: 150
+    h: 212
+    rotation: 0
+  - item: 3
+    x: 152
+    'y': 16
+    w: 152
+    h: 204
+    rotation: 0
