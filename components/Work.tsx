@@ -5,8 +5,6 @@ import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import styles from "@/app/(site)/page.module.css";
 import { SECTIONS, type Project, type Section } from "@/lib/projects";
-import { wheelScrollsPage } from "@/lib/wheel";
-import { clickFolder, Folder } from "./Folder";
 import { FolderRail } from "./FolderRail";
 import { FolderStack } from "./FolderStack";
 import type { ProjectViewHandle } from "./ProjectView";
@@ -21,8 +19,9 @@ const slugFrom = (path: string, base: string) =>
   path.startsWith(`${base}/`) ? (path.slice(base.length + 1).split("/")[0] || null) : null;
 
 /**
- * The folders plus the project page that opens over them. Work shows
- * projects on an endless rail; Studio shows people in a plain row. Opening a folder
+ * The folders plus the project page that opens over them. Both sections run
+ * the same endless rail; Studio starts it near the end of the set, on the last
+ * person, so the page opens mid-row rather than at a first folder. Opening a folder
  * only changes the URL (history.pushState, which Next keeps in sync), so the
  * folders stay mounted underneath and the transition can fly a folder's
  * papers straight into the gallery and back again.
@@ -50,7 +49,6 @@ export function Work({
   const refocus = useRef<HTMLElement | null>(null);
   // whether that folder was opened from the keyboard, so its focus ring comes back too
   const byKeyboard = useRef(false);
-  const row = useRef<HTMLDivElement>(null);
 
   // ready before the first click, so the folder opens without waiting for it
   useEffect(() => {
@@ -107,23 +105,6 @@ export function Work({
     document.title = TITLE;
   }, []);
 
-  // Studio has no rail to absorb the wheel, so a trackpad would scroll the
-  // document and rubber-band the folders and the header with it. Neutral state
-  // is locked: swallow the wheel as FolderRail does, unless the row is hidden
-  // (phones scroll the stack normally), a project is open, it's a pinch, or the
-  // folders don't fit the window and the page has somewhere to go.
-  useEffect(() => {
-    if (id === "work") return;
-    const el = row.current;
-    if (!el) return;
-    const onWheel = (e: WheelEvent) => {
-      if (!el.offsetParent || el.closest("[inert]") || e.ctrlKey || wheelScrollsPage(e)) return;
-      e.preventDefault();
-    };
-    window.addEventListener("wheel", onWheel, { passive: false });
-    return () => window.removeEventListener("wheel", onWheel);
-  }, [id]);
-
   const open = useCallback((next: string, folder: HTMLElement) => {
     if (slug) return;
     // straight away, so its front opens on this folder's spring (Folder.module.css)
@@ -159,22 +140,17 @@ export function Work({
       <SiteNav section={section} inert={!!project} />
 
       <section className={styles.work} aria-label={section.label} inert={!!project || undefined}>
-        {id === "work" ? (
-          <div className={styles.rail} data-rail>
-            <FolderRail projects={projects} base={base} onOpen={open} />
-          </div>
-        ) : (
-          <div
-            ref={row}
-            className={styles.row}
-            data-rail
-            onClick={(e) => clickFolder(e, open)}
-          >
-            {projects.map((p, i) => (
-              <Folder key={p.slug} project={p} href={`${base}/${p.slug}`} enter={i} eager />
-            ))}
-          </div>
-        )}
+        <div className={styles.rail} data-rail>
+          <FolderRail
+            projects={projects}
+            base={base}
+            label={section.label}
+            // Studio opens on the last person rather than the first, so the row
+            // reads as already under way. Work opens where it always has.
+            start={id === "studio" ? projects.length - 1 : 0}
+            onOpen={open}
+          />
+        </div>
         <FolderStack projects={projects} base={base} className={styles.stack} onOpen={open} />
       </section>
 

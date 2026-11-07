@@ -36,39 +36,8 @@
   min-height: calc(var(--nav-top) + var(--nav-h));
 }
 
-/* Studio outgrew one row at five people: the folders wrap, and on a laptop the
-   two rows stand taller than the window, so the page scrolls (lib/wheel.ts
-   lets the wheel through once there is somewhere to go) and both spacers are
-   squeezed to their minimum. The rail states that room as padding of its own,
-   64px above for the hover lift and 128px below for the drop shadows; the
-   studio row has no padding, so its spacers carry the same figures. Without
-   them the first row butts into the nav and the last is cut off at the end of
-   the document. Neither bites while the folders fit: the spacers are already
-   larger than this. */
-.page[data-section="studio"] .work::before {
-  min-height: calc(var(--nav-top) + var(--nav-h) + 64px);
-}
-.page[data-section="studio"] .work::after {
-  min-height: 128px;
-}
-
 .rail {
   width: 100%;
-}
-
-/* Studio: a few folders, centred on the page */
-.row {
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 128px var(--folder-gap);
-  /* not the page margin: three folders fit one row from 1188px up, not 1440 */
-  padding: 0 24px;
-}
-
-.row :global(article) {
-  cursor: pointer;
 }
 
 .stack {
@@ -87,8 +56,7 @@
     display: none;
   }
 
-  .rail,
-  .row {
+  .rail {
     display: none;
   }
 

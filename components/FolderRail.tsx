@@ -22,11 +22,19 @@ const mod = (n: number, m: number) => ((n % m) + m) % m;
 export function FolderRail({
   projects,
   base,
+  label = "Projects",
+  start = 0,
   onOpen,
 }: {
   projects: Project[];
   /** where a folder's page lives */
   base: string;
+  /** what the carousel is called, for screen readers */
+  label?: string;
+  /** which folder the row rests on before anyone touches it: 0 is the first.
+   *  The row is endless, so this only chooses where it is cut, not what it
+   *  holds. Studio passes the last person. */
+  start?: number;
   /** a folder was clicked (not dragged) */
   onOpen?: (slug: string, folder: HTMLElement) => void;
 }) {
@@ -47,6 +55,8 @@ export function FolderRail({
     drag: null as null | { id: number; x: number; y: number; target: number; vx: number; t: number },
     // the last press became a drag: the click that ends it opens nothing
     dragged: false,
+    // the resting offset has been applied; measure runs again on every resize
+    started: false,
   });
 
   const render = useCallback(() => {
@@ -103,6 +113,14 @@ export function FolderRail({
       st.setWidth = setWidth;
       st.pitch = st.setWidth / n;
       st.margin = parseFloat(getComputedStyle(rail).getPropertyValue("--rail-margin")) || 0;
+      // Where the row rests before it is touched, set on the first measure and
+      // never again: a resize re-measures, and moving the row then would undo
+      // wherever the reader had scrolled to. No animation, because this is the
+      // row's starting point rather than somewhere it travelled to.
+      if (!st.started) {
+        st.started = true;
+        st.current = st.target = start * st.pitch;
+      }
       const needed = Math.ceil((rail.clientWidth + st.setWidth) / st.setWidth) + 1;
       setCopies((c) => (c === needed ? c : needed));
       render();
@@ -112,7 +130,7 @@ export function FolderRail({
     const ro = new ResizeObserver(measure);
     ro.observe(rail);
     return () => ro.disconnect();
-  }, [projects.length, copies, render]);
+  }, [projects.length, copies, start, render]);
 
   // Wheel + trackpad: vertical and horizontal deltas both move the row,
   // wherever the pointer is on the page, so it never scrolls vertically.
@@ -211,7 +229,7 @@ export function FolderRail({
       tabIndex={0}
       role="region"
       aria-roledescription="carousel"
-      aria-label="Projects"
+      aria-label={label}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={endDrag}
@@ -228,8 +246,9 @@ export function FolderRail({
               project={p}
               href={`${base}/${p.slug}`}
               clone={c !== 1}
-              // the row starts on copy 1, so stagger from its first folder
-              enter={Math.min(Math.max((c - 1) * projects.length + i, 0), ENTER_MAX)}
+              // the row starts on copy 1 at `start`, so the cascade begins on the
+              // folder it rests on and runs right; anything left of it is already up
+              enter={Math.min(Math.max((c - 1) * projects.length + i - start, 0), ENTER_MAX)}
             />
           )),
         )}
