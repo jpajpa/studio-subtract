@@ -11,6 +11,14 @@ const FLING = 14; // how far a drag release coasts (× release velocity in px/fr
 const WHEEL_LINE = 16;
 const ENTER_MAX = 8; // folders past this in the load-in stagger all start together
 const CLICK_SLOP = 6; // px a press can travel and still count as a click
+// Folders in the unit that repeats. The row is endless by repositioning itself
+// one unit along, which moves every folder at once, so how long the unit is
+// decides how often that happens and how much is standing ready past the edge
+// of the window. Tied to the number of items it punishes a short list twice:
+// Work's eleven projects wrap every 4510px with 3220px in hand, five people
+// every 2050px with 760px. A short list repeats inside the unit instead, so
+// the row it draws is unchanged and the unit it wraps is Work's length.
+const MIN_SET = 10;
 
 const mod = (n: number, m: number) => ((n % m) + m) % m;
 
@@ -23,7 +31,6 @@ export function FolderRail({
   projects,
   base,
   label = "Projects",
-  start = 0,
   onOpen,
 }: {
   projects: Project[];
@@ -31,10 +38,6 @@ export function FolderRail({
   base: string;
   /** what the carousel is called, for screen readers */
   label?: string;
-  /** which folder the row rests on before anyone touches it: 0 is the first.
-   *  The row is endless, so this only chooses where it is cut, not what it
-   *  holds. Studio passes the last person. */
-  start?: number;
   /** a folder was clicked (not dragged) */
   onOpen?: (slug: string, folder: HTMLElement) => void;
 }) {
@@ -43,6 +46,9 @@ export function FolderRail({
   // Starts with just the real folders: phones never show the rail, so they
   // never pay for its clones. A visible rail adds them before its first paint.
   const [copies, setCopies] = useState(1);
+  // ... and the same goes for the repeats inside one set
+  const reps = copies === 1 ? 1 : Math.ceil(MIN_SET / projects.length);
+  const setLen = projects.length * reps;
 
   const s = useRef({
     current: 0,
@@ -55,8 +61,6 @@ export function FolderRail({
     drag: null as null | { id: number; x: number; y: number; target: number; vx: number; t: number },
     // the last press became a drag: the click that ends it opens nothing
     dragged: false,
-    // the resting offset has been applied; measure runs again on every resize
-    started: false,
   });
 
   const render = useCallback(() => {
@@ -104,7 +108,7 @@ export function FolderRail({
         return;
       }
       const kids = track.children as HTMLCollectionOf<HTMLElement>;
-      const n = projects.length;
+      const n = setLen;
       if (kids.length < n + 1) return;
       const st = s.current;
       const setWidth = kids[n].offsetLeft - kids[0].offsetLeft;
@@ -113,14 +117,6 @@ export function FolderRail({
       st.setWidth = setWidth;
       st.pitch = st.setWidth / n;
       st.margin = parseFloat(getComputedStyle(rail).getPropertyValue("--rail-margin")) || 0;
-      // Where the row rests before it is touched, set on the first measure and
-      // never again: a resize re-measures, and moving the row then would undo
-      // wherever the reader had scrolled to. No animation, because this is the
-      // row's starting point rather than somewhere it travelled to.
-      if (!st.started) {
-        st.started = true;
-        st.current = st.target = start * st.pitch;
-      }
       const needed = Math.ceil((rail.clientWidth + st.setWidth) / st.setWidth) + 1;
       setCopies((c) => (c === needed ? c : needed));
       render();
@@ -130,7 +126,7 @@ export function FolderRail({
     const ro = new ResizeObserver(measure);
     ro.observe(rail);
     return () => ro.disconnect();
-  }, [projects.length, copies, start, render]);
+  }, [setLen, copies, render]);
 
   // Wheel + trackpad: vertical and horizontal deltas both move the row,
   // wherever the pointer is on the page, so it never scrolls vertically.
@@ -240,17 +236,24 @@ export function FolderRail({
     >
       <div ref={trackRef} className={styles.track}>
         {(copies === 1 ? [1] : Array.from({ length: copies }, (_, c) => c)).map((c) =>
-          projects.map((p, i) => (
-            <Folder
-              key={`${c}-${p.slug}`}
-              project={p}
-              href={`${base}/${p.slug}`}
-              clone={c !== 1}
-              // the row starts on copy 1 at `start`, so the cascade begins on the
-              // folder it rests on and runs right; anything left of it is already up
-              enter={Math.min(Math.max((c - 1) * projects.length + i - start, 0), ENTER_MAX)}
-            />
-          )),
+          Array.from({ length: reps }, (_, rep) =>
+            projects.map((p, i) => {
+              // where this folder sits in the repeating unit
+              const k = rep * projects.length + i;
+              return (
+                <Folder
+                  key={`${c}-${rep}-${p.slug}`}
+                  project={p}
+                  href={`${base}/${p.slug}`}
+                  // one real folder per person: the unit's own repeats are
+                  // duplicates too, or a list of five would hold ten tab stops
+                  clone={c !== 1 || rep !== 0}
+                  // the row rests on copy 1's first folder, so stagger from there
+                  enter={Math.min(Math.max((c - 1) * setLen + k, 0), ENTER_MAX)}
+                />
+              );
+            }),
+          ),
         )}
       </div>
     </div>

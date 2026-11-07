@@ -20,8 +20,9 @@ const slugFrom = (path: string, base: string) =>
 
 /**
  * The folders plus the project page that opens over them. Both sections run
- * the same endless rail; Studio starts it near the end of the set, on the last
- * person, so the page opens mid-row rather than at a first folder. Opening a folder
+ * the same endless rail: the row rests on the first of them, with the last
+ * cut off at the left edge, so where it sits is the CMS's running order.
+ * Opening a folder
  * only changes the URL (history.pushState, which Next keeps in sync), so the
  * folders stay mounted underneath and the transition can fly a folder's
  * papers straight into the gallery and back again.
@@ -141,15 +142,7 @@ export function Work({
 
       <section className={styles.work} aria-label={section.label} inert={!!project || undefined}>
         <div className={styles.rail} data-rail>
-          <FolderRail
-            projects={projects}
-            base={base}
-            label={section.label}
-            // Studio opens on the last person rather than the first, so the row
-            // reads as already under way. Work opens where it always has.
-            start={id === "studio" ? projects.length - 1 : 0}
-            onOpen={open}
-          />
+          <FolderRail projects={projects} base={base} label={section.label} onOpen={open} />
         </div>
         <FolderStack projects={projects} base={base} className={styles.stack} onOpen={open} />
       </section>
