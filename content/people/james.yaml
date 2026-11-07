@@ -4,5 +4,20 @@ colour:
   top: '#f4f4f4'
   bottom: '#e8e8e8'
   label: '#3b3b3b'
-media: []
-folder: []
+link: {}
+media:
+  - discriminant: image
+    value:
+      image:
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/james/portrait-BoFdziXXA9Cx9WU528W7iKBlmNO54P.jpg
+        width: 1080
+        height: 1080
+      alt: Portrait of James
+folder:
+  - item: 1
+    x: 52
+    'y': 62
+    w: 180
+    h: 180
+    rotation: 0

@@ -22,15 +22,15 @@ media:
         width: 2481
         height: 3508
 folder:
+  - item: 1
+    x: 52
+    'y': 62
+    w: 176
+    h: 176
+    rotation: 0
   - item: 2
     x: 122
     'y': -9
     w: 185
     h: 261
-    rotation: 0
-  - item: 1
-    x: 30
-    'y': 8
-    w: 136
-    h: 136
     rotation: 0
