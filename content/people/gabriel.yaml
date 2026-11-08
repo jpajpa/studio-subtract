@@ -18,9 +18,10 @@ media:
     value:
       image:
         src: >-
-          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/PERSONAL_3-D9xpqxOtHRFdq07YWNJolLvg5TFq87.jpg
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/gabriel/note-v2-CjeGqfGclhluieCYpbfXhZLS3lLAxA.png
         width: 2481
         height: 3508
+      alt: Gabriel's personal note
   - discriminant: image
     value:
       image:
