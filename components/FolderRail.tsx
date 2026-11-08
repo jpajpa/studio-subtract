@@ -11,6 +11,15 @@ const FLING = 14; // how far a drag release coasts (× release velocity in px/fr
 const WHEEL_LINE = 16;
 const ENTER_MAX = 8; // folders past this in the load-in stagger all start together
 const CLICK_SLOP = 6; // px a press can travel and still count as a click
+// Which folders fetch their papers at once rather than lazily, counted from
+// the one the row rests on: everything on screen, plus the one cut off at the
+// left edge. Opening a folder hands each gallery frame the picture its paper
+// has already loaded to carry through the flight (see ProjectView), so a paper
+// that is still on its way leaves the frame to fly in empty. A 320px folder
+// every 410px puts at most five on the widest screens; past them the row has
+// to be dragged, which gives the rest the time lazy loading needs.
+const EAGER_FROM = -1;
+const EAGER_TO = 4;
 // Folders in the unit that repeats. The row is endless by repositioning itself
 // one unit along, which moves every folder at once, so how long the unit is
 // decides how often that happens and how much is standing ready past the edge
@@ -240,6 +249,8 @@ export function FolderRail({
             projects.map((p, i) => {
               // where this folder sits in the repeating unit
               const k = rep * projects.length + i;
+              // and where it sits in the row, counting from the one the row rests on
+              const at = (c - 1) * setLen + k;
               return (
                 <Folder
                   key={`${c}-${rep}-${p.slug}`}
@@ -249,7 +260,8 @@ export function FolderRail({
                   // duplicates too, or a list of five would hold ten tab stops
                   clone={c !== 1 || rep !== 0}
                   // the row rests on copy 1's first folder, so stagger from there
-                  enter={Math.min(Math.max((c - 1) * setLen + k, 0), ENTER_MAX)}
+                  enter={Math.min(Math.max(at, 0), ENTER_MAX)}
+                  eager={at >= EAGER_FROM && at <= EAGER_TO}
                 />
               );
             }),

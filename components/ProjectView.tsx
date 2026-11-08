@@ -42,6 +42,10 @@ const RECOIL = { y: 5, scale: 0.985, dip: 0.1, back: 0.34 };
 const ARRIVE = { depth: 0.9, duration: 2.2, stagger: 0.07, ease: "expo.out" };
 // Longest it waits for the frames on screen before arriving anyway (ms)
 const ARRIVE_WAIT = 700;
+// Longest a click waits for the clicked folder's papers. Short: the folder has
+// already answered the press on its own spring (Folder.module.css), and the
+// flight is meant to follow straight out of that.
+const PAPER_WAIT = 200;
 // How much faster an opening finishes when it's closed before it has landed
 const RUSH = 4;
 
@@ -492,7 +496,16 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         const start = () => {
           if (!cancelled) raf = requestAnimationFrame(() => (raf = requestAnimationFrame(() => tl.play())));
         };
-        if (source) return start();
+        if (source) {
+          // Each frame flies out carrying the picture its paper had loaded
+          // (see open()), so a paper still on its way would fly an empty one.
+          // They are thumbnails, and the rail fetches the ones on screen up
+          // front, so this is normally already settled and costs a frame.
+          const papers = papersIn(source).map((p) => p.decode().catch(() => {}));
+          if (!papers.length) return start();
+          Promise.race([Promise.all(papers), new Promise((done) => setTimeout(done, PAPER_WAIT))]).then(start);
+          return;
+        }
         // Opened by URL: the frames arrive with their pictures, not empty
         const shown = q("[data-panel]").filter(inView);
         const pictures = shown.flatMap((p) => Array.from(p.querySelectorAll("img"), (img) => img.decode().catch(() => {})));
@@ -619,8 +632,11 @@ export function ProjectView({ project, source, onClose, section, nextSlug, onNex
         // arrived is the one on show: the paper's at the moment of handover,
         // the still a beat later and for as long as the video takes.
         const still = videoIn(panel)?.dataset[phone ? "still" : "fullStill"];
-        const under = `url("${paper.currentSrc || paper.src}")`;
-        gsap.set(frames[i], { clipPath: f.clip, backgroundImage: still ? `url("${still}"), ${under}` : under });
+        // nothing loaded after PAPER_WAIT: no layer rather than url(""), which
+        // is a request for the page itself and paints the frame as a broken image
+        const loaded = paper.currentSrc || (paper.complete && paper.naturalWidth ? paper.src : "");
+        const layers = [still && `url("${still}")`, loaded && `url("${loaded}")`].filter(Boolean).join(", ");
+        gsap.set(frames[i], { clipPath: f.clip, backgroundImage: layers || "none" });
         // Phones: a full-size picture appearing mid-flight is a decode and a
         // texture upload just as every frame counts. The paper's image carries
         // the flight; the sharp one, decoded by then, comes up as it lands.

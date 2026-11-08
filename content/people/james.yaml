@@ -14,10 +14,24 @@ media:
         width: 1080
         height: 1080
       alt: Portrait of James
+  - discriminant: image
+    value:
+      image:
+        src: >-
+          https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/people/james/note.png
+        width: 2481
+        height: 3508
+      alt: James's personal note
 folder:
   - item: 1
     x: 52
     'y': 62
     w: 180
     h: 180
+    rotation: 0
+  - item: 2
+    x: 126
+    'y': -8
+    w: 182
+    h: 257
     rotation: 0
