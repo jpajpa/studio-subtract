@@ -1,0 +1,35 @@
+title: 'Manchester Airport Hotels'
+category: Art Direction, 3D Rendering
+year: ''
+description: 'A set of 3D films made to explore what technology does inside hospitality. Each one is built rather than filmed, so the idea can be shown before anything is installed. Concept and direction both ours, from the first frame.'
+link: {}
+credits: []
+colour:
+  top: '#b8b6b3'
+  bottom: '#908e8a'
+  label: '#2b2b2b'
+media:
+  - discriminant: video
+    value:
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/archive/ma-robot-web-lPwHOGYsgQujiFDHFgY0KnbQrP1nPb.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/archive/ma-robot-small-5VyltRWdxsj3f4Lm88LqaLcexP1eah.mp4
+      poster:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/archive/ma-robot-still-5bN9uzZyRVR3Q3ZJ3zKQdsWpAkJEni.jpg
+        width: 1160
+        height: 560
+      alt: A service robot rolling along a hotel corridor, its tray sliding out with folded towels on it.
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/archive/ma-robot-entrance-uwMZADJT4NyoayeIGi5ABvNOLck2ne.jpg
+        width: 1500
+        height: 1500
+      alt: The robot waiting at the hotel entrance at dusk, two pixel eyes lit on its black face panel.
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/archive/ma-robot-towels-c5FYXcP0qwe7gmF6fW3gb1WS2W38JI.jpg
+        width: 1500
+        height: 1500
+      alt: The robot in a stone lobby with its lower tray open, a stack of towels resting on it.
+folder: []
