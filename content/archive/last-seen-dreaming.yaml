@@ -1,8 +1,10 @@
 title: 'Last Seen Dreaming'
 category: Creative Direction, Identity, Web
 year: ''
-description: ''
-link: {}
+description: 'A full web experience for a London design agency, built as a daydream. The clouds are alive: they breathe, drift and reshape themselves, and the project covers sit inside them rather than in frames. Built on the idea of a head in the clouds.'
+link:
+  url: https://lastseendreaming.com
+  label: Website
 credits: []
 colour:
   top: '#f4f4f4'
