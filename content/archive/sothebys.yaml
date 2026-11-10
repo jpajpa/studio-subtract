@@ -5,8 +5,22 @@ description: ''
 link: {}
 credits: []
 colour:
-  top: '#f4f4f4'
-  bottom: '#e8e8e8'
-  label: '#3b3b3b'
-media: []
+  top: '#c5cacd'
+  bottom: '#9ba2a7'
+  label: '#2f2f2f'
+media:
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/archive/sothebys-grill-arch-KtMxUco7GbX3EMN2PZtyCYSMd3m6Jy.jpg
+        width: 2400
+        height: 1500
+      alt: A diamond grill rendered as one clear arch, each stone set in a fine white gold frame.
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/archive/sothebys-grill-set-8Z2DT1FkqmVGXNBjCytcHeOlrvMmf9.jpg
+        width: 2400
+        height: 1500
+      alt: The upper and lower grills laid out in a row, stone by stone, on a cool grey ground.
 folder: []

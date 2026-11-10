@@ -5,9 +5,9 @@ description: ''
 link: {}
 credits: []
 colour:
-  top: '#f4f4f4'
-  bottom: '#e8e8e8'
-  label: '#3b3b3b'
+  top: '#a31a1d'
+  bottom: '#6e1012'
+  label: '#ffffff'
 media:
   - discriminant: image
     value:
