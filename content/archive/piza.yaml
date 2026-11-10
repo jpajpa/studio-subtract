@@ -18,4 +18,18 @@ media:
         width: 2000
         height: 2000
       alt: The PIZA wordmark rendered in glossy red, its letters drawn as one continuous run of tube.
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/archive/piza-guidelines-p9-PrUwrHB9R3ilJwgLCv1tzQqFA17agn.jpg
+        width: 1754
+        height: 1240
+      alt: The logotype page of the guidelines, the wordmark set solid above an oversized grey repeat of itself.
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/archive/piza-screen-mockup-w1GanrSEWspaXlTTrOvE0LMF010YqV.jpg
+        width: 2400
+        height: 1351
+      alt: The site on a wall mounted screen, the wordmark on the left half and a photograph filling the right.
 folder: []

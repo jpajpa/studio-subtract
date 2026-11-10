@@ -10,5 +10,28 @@ colour:
   top: '#78e0e8'
   bottom: '#48d3e4'
   label: '#0d2b2b'
-media: []
+media:
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/archive/lsd-phone-hero-9kOrs7ewLHkdc6q4ONZDC1GhD6xHhp.jpg
+        width: 2400
+        height: 1697
+      alt: The site on a phone, the wordmark above a green to cyan cloud carrying the line about working with its head in the clouds.
+  - discriminant: video
+    value:
+      video: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/archive/lsd-web-v9uxNvvQqLis2ySXuxDOo9XYHiCkc4.mp4
+      small: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/archive/lsd-small-eMYWNAboGOm7FfogJHmWr5G2Cs0qyu.mp4
+      poster:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/archive/lsd-preview-still-kqRWJsS1DhBLjiLZrwBDtkgekjUpmf.jpg
+        width: 1464
+        height: 1044
+      alt: A project cover playing inside a cloud, its edges soft rather than cropped to a frame.
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/archive/lsd-browser-projects-o8rQMHBOnkvsniHJGpuX96yvj1TQ33.jpg
+        width: 2400
+        height: 1568
+      alt: The projects page in a browser, two covers sitting inside clouds down the middle of the page.
 folder: []
