@@ -131,6 +131,35 @@ export const getProjects = cache(async (): Promise<Project[]> => {
   return ordered(projects, home?.projects);
 });
 
+/** The Archive page's folders: commercial work kept off the main site. Same
+ *  shape as a project, but the category line is written out rather than
+ *  composed from Work's two roles. */
+export const getArchive = cache(async (): Promise<Project[]> => {
+  const [entries, order] = await Promise.all([
+    reader.collections.archive.all(),
+    reader.singletons.archiveOrder.read(),
+  ]);
+
+  const projects = entries.map(({ slug, entry }): Project => {
+    const media = mediaOf(entry.media);
+    return {
+      slug,
+      title: entry.title,
+      year: entry.year,
+      category: entry.category,
+      description: entry.description,
+      link: linkOf(entry.link),
+      credits: entry.credits.filter((c) => c.role || c.name),
+      fill: [entry.colour.top, entry.colour.bottom],
+      text: entry.colour.label,
+      media,
+      papers: papersOf(entry.folder, media),
+    };
+  });
+
+  return ordered(projects, order?.projects);
+});
+
 // a person's folder colours come from the CMS; PERSON_COLOUR is what a new
 // entry starts with, and what an entry saved before the field existed uses
 

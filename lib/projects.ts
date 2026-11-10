@@ -76,8 +76,11 @@ export type Project = {
 };
 
 /** Where a set of folders lives: the folder list, and the base of each page's URL. */
-export type Section = { id: "work" | "studio"; home: string; base: string; label: string };
+export type Section = { id: "work" | "studio" | "archive"; home: string; base: string; label: string };
 
 export const WORK: Section = { id: "work", home: "/", base: "/work", label: "Work" };
 export const STUDIO: Section = { id: "studio", home: "/studio", base: "/studio", label: "Studio" };
-export const SECTIONS = { work: WORK, studio: STUDIO };
+// Commercial and client work kept off the main site: reachable only by its
+// address, so it is deliberately absent from SiteNav, the sitemap and robots.
+export const ARCHIVE: Section = { id: "archive", home: "/archive", base: "/archive", label: "Archive" };
+export const SECTIONS = { work: WORK, studio: STUDIO, archive: ARCHIVE };

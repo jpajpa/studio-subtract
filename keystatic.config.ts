@@ -123,7 +123,12 @@ export default config({
   storage: process.env.NODE_ENV === "production" ? { kind: "github", repo: REPO } : { kind: "local" },
   ui: {
     brand: { name: "Studio Subtract" },
-    navigation: { Site: ["home", "studio"], Work: ["projects"], Studio: ["people"] },
+    navigation: {
+      Site: ["home", "studio", "archiveOrder"],
+      Work: ["projects"],
+      Studio: ["people"],
+      Archive: ["archive"],
+    },
   },
 
   singletons: {
@@ -148,6 +153,18 @@ export default config({
           label: "Folders",
           description: "Order of the folders on the Studio page, left to right. People not listed go at the end.",
           itemLabel: (p) => p.value ?? "Choose a person",
+        }),
+      },
+    }),
+    archiveOrder: singleton({
+      label: "Archive",
+      path: "content/archive-order",
+      format: { data: "yaml" },
+      schema: {
+        projects: fields.array(fields.relationship({ label: "Project", collection: "archive" }), {
+          label: "Folders",
+          description: "Order of the folders on the Archive page, left to right. Projects not listed go at the end.",
+          itemLabel: (p) => p.value ?? "Choose a project",
         }),
       },
     }),
@@ -198,6 +215,54 @@ export default config({
         ),
 
         media: mediaField("projects"),
+        folder: folderField(),
+      },
+    }),
+
+    // The archive page's folders. Unlike Work it names its own category line,
+    // because the services here run wider than the two roles Work picks from
+    // ("Art Direction, 3D Rendering", "Creative Direction, Identity, Website").
+    archive: collection({
+      label: "Archive",
+      path: "content/archive/*",
+      format: { data: "yaml" },
+      slugField: "title",
+      columns: ["title", "category"],
+      schema: {
+        title: fields.slug({
+          name: { label: "Title" },
+          slug: { label: "URL", description: "studiosubtract.com/archive/\u2026" },
+        }),
+        category: fields.text({
+          label: "Category",
+          description: "Listed at the top of the folder, e.g. \u201cArt Direction, 3D Rendering\u201d.",
+        }),
+        year: fields.text({ label: "Year" }),
+        description: fields.text({ label: "Description", multiline: true }),
+        link: fields.object(
+          {
+            url: fields.url({ label: "Link", description: "Shown under the description. Opens in a new tab." }),
+            label: fields.text({ label: "Link text", description: "Leave empty to show the web address." }),
+          },
+          { label: "Link", layout: [8, 4] },
+        ),
+        credits: fields.array(
+          fields.object({ role: fields.text({ label: "Role" }), name: fields.text({ label: "Name" }) }, { layout: [6, 6] }),
+          {
+            label: "Credits",
+            description: "Collaborators, listed under the description.",
+            itemLabel: (p) => [p.fields.role.value, p.fields.name.value].filter(Boolean).join(": ") || "Credit",
+          },
+        ),
+        colour: fields.object(
+          {
+            top: hex("Folder top", "Top of the folder's gradient.", PERSON_COLOUR.top),
+            bottom: hex("Folder bottom", "Bottom of the folder's gradient; tints the glass, shadows and the project page while its media loads.", PERSON_COLOUR.bottom),
+            label: hex("Label text", "Colour of the folder's labels.", PERSON_COLOUR.label),
+          },
+          { label: "Colours", layout: [4, 4, 4] },
+        ),
+        media: mediaField("archive"),
         folder: folderField(),
       },
     }),
