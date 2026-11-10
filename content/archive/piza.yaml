@@ -1,5 +1,5 @@
 title: 'PIZA'
-category: Direction, Identity, Website
+category: Creative Direction, Identity, Web
 year: ''
 description: ''
 link: {}
@@ -8,5 +8,12 @@ colour:
   top: '#f4f4f4'
   bottom: '#e8e8e8'
   label: '#3b3b3b'
-media: []
+media:
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/archive/piza-logo-g236PebswEuM7rCsdVB3bayDQhaybb.jpg
+        width: 2000
+        height: 2000
+      alt: The PIZA wordmark rendered in glossy red, its letters drawn as one continuous run of tube.
 folder: []
