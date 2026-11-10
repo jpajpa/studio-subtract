@@ -8,5 +8,19 @@ colour:
   top: '#ffe11a'
   bottom: '#c79b06'
   label: '#15120e'
-media: []
+media:
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/archive/lim-hero-swlDuati77g8oeOqYyjCNRuSrCUIxe.jpg
+        width: 2400
+        height: 1568
+      alt: The site's opening screen, A taste of Napoli in Poole set beside a photograph of the mint green shopfront.
+  - discriminant: image
+    value:
+      image:
+        src: https://ypahz9dhz03jeuta.public.blob.vercel-storage.com/archive/lim-footer-xwriKh2OODXyzD8wRbI991gpfmztrt.jpg
+        width: 2400
+        height: 1568
+      alt: The footer, opening times above the wordmark set huge in yellow with a lemon slice for its last letter.
 folder: []

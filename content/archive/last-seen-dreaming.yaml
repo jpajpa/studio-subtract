@@ -7,8 +7,8 @@ link:
   label: Website
 credits: []
 colour:
-  top: '#78e0e8'
-  bottom: '#48d3e4'
+  top: '#71cfd6'
+  bottom: '#46bece'
   label: '#0d2b2b'
 media:
   - discriminant: image
